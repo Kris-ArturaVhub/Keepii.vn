@@ -1,91 +1,483 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mô Phỏng Query Parameter VIP</title>
-    <style>
-        body {
-            margin: 0; padding: 20px;
-            background-color: #0b0f19; color: #fff;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex; flex-direction: column; align-items: center;
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+  <title>Keepweb.vn</title>
+  <style>
+  html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #05050f;
+            overflow: hidden;
+            touch-action: none;
         }
-        .container {
-            background: #151d30; padding: 30px;
-            border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-            text-align: center; width: 320px;
+
+        /* 1. KHE NỨT KHÔNG GIAN (Chỉ xuất hiện khi GIỮ đủ lâu) */
+        #space-crack {
+            position: fixed;
+            width: 220px;
+            height: 220px;
+            pointer-events: none;
+            transform: translate(-50%, -50%) scale(0) rotate(0deg);
+            opacity: 0;
+            clip-path: polygon(0% 45%, 45% 45%, 100% 0%, 55% 55%, 100% 100%, 45% 55%, 0% 100%, 35% 50%);
+            background: linear-gradient(135deg, #4f46e5, #d946ef, #06b6d4);
+            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.8);
+            z-index: 999;
+            transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1s ease;
         }
-        h2 { color: #06b6d4; margin-top: 0; }
-        .btn {
-            display: block; width: 100%; padding: 12px; margin: 10px 0;
-            background: #1e293b; color: #fff; border: 2px solid #334155;
-            border-radius: 8px; cursor: pointer; font-weight: bold;
-            transition: all 0.2s; text-decoration: none; box-sizing: border-box;
+
+        #space-crack.active {
+            transform: translate(-50%, -50%) scale(1) rotate(-15deg);
+            opacity: 1;
         }
-        .btn:hover { background: #06b6d4; border-color: #06b6d4; }
-        .user-id {
-            color: #d946ef; font-size: 24px; font-weight: bold;
-            margin: 20px 0; word-break: break-all;
+
+        /* 2. NGÔI SAO 4 ĐỈNH & HÀO QUANG */
+        #core-container {
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
         }
-    </style>
+
+        #core-star {
+            position: absolute;
+            left: 15px; top: 15px;
+            width: 70px;
+            height: 70px;
+            transform: scale(0);
+            opacity: 0;
+            background: #ffffff;
+            clip-path: polygon(50% 0%, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0% 50%, 37% 37%);
+            filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 25px #06b6d4) drop-shadow(0 0 45px #d946ef);
+            transition: transform 1.2s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.8s ease;
+        }
+
+        #core-star.active {
+            transform: scale(1);
+            opacity: 1;
+            animation: starSpinPulse 2s infinite alternate ease-in-out;
+        }
+
+        /* Vòng sóng xung kích (Lan tỏa khi giữ) */
+        #star-glow-ring {
+            position: absolute;
+            left: 0; top: 0;
+            width: 100px;
+            height: 100px;
+            border: 2px solid rgba(6, 182, 212, 0.5);
+            border-radius: 50%;
+            transform: scale(0);
+            opacity: 0;
+        }
+        #core-star.active ~ #star-glow-ring {
+            animation: shockwave 1.5s infinite linear;
+        }
+
+        /* 3. LÀN SÓNG XUNG KÍCH RIÊNG BIỆT KHI THẢ NHANH (Tap Shockwave) */
+        .tap-shockwave {
+            position: fixed;
+            border: 4px solid #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1001;
+            transform: translate(-50%, -50%) scale(0);
+            animation: instantShockwave 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+        
+        /* Animation phụ trợ */
+        @keyframes starSpinPulse {
+            0% { transform: scale(0.9) rotate(0deg); filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 20px #06b6d4); }
+            100% { transform: scale(1.15) rotate(30deg); filter: drop-shadow(0 0 20px #fff) drop-shadow(0 0 40px #d946ef); }
+        }
+
+        @keyframes shockwave {
+            0% { transform: scale(0.3); opacity: 1; box-shadow: 0 0 10px rgba(217, 70, 239, 0.6); }
+            100% { transform: scale(1.4); opacity: 0; box-shadow: 0 0 30px rgba(6, 182, 212, 0); }
+        }
+
+        @keyframes instantShockwave {
+            0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; border-color: #fff; box-shadow: 0 0 20px #06b6d4; }
+            50% { border-color: #d946ef; }
+            100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; border-color: rgba(6, 182, 212, 0); box-shadow: 0 0 50px rgba(217, 70, 239, 0); }
+        }
+
+        .cosmic-particle {
+            position: fixed;
+            pointer-events: none;
+            border-radius: 50%;
+            z-index: 998;
+        }
+    .signinp{
+      width: 80%;
+      height: 25px;
+      text-align: center;
+      background-color: green;
+    }
+
+    .rbs{
+      background: linear-gradient(
+        90deg,
+        red,
+        orange,
+        yellow,
+        lime,
+        cyan,
+        blue,
+        violet,
+        red
+      );
+      background-size: 400%;
+      border-radius: 10px;
+      width: 20px;
+      animation: rainbow-smooth 8s linear infinite;
+    }
+
+    @keyframes rainbow-smooth{
+      0%{ background-position: 0% 50%; }
+      100%{ background-position: 100% 50%; }
+    }
+
+    /* ✅ Đặt quy tắc căn giữa CHÍNH THỨC ở đây, ưu tiên cao nhất */
+    .card{
+      position: relative;
+      transform-origin: top center;
+      transition: 
+        transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        background-color 0.4s ease;
+      cursor: pointer;
+      
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;   /* Căn ngang */
+      justify-content: center !important; /* Căn dọc */
+      
+      margin: 15px auto !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+    }
+
+    .card.active{ transform: scale(1.05); }
+
+    .card-text {
+      display: block; /* ✅ Tách chữ "Sign in" thành khối riêng, không bị gắn với phần mô tả */
+      text-align: center;
+      width: 100%;
+      padding: 8px 0;
+    }
+
+    .desc{
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition:
+        max-height 1s cubic-bezier(0.25, 1, 0.5, 1),
+        opacity 0.3s ease;
+      width: 100%;
+      text-align: center;
+      margin: 0;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+.copyright{
+    position:fixed;
+    bottom:15px;
+    left:50%;
+    transform:translateX(-50%);
+}
+    .card.active .desc{
+      max-height: 180px;
+      opacity: 1;
+      padding-bottom: 10px;
+    }
+
+    /* ✅ Xóa khoảng đệm mặc định của thẻ H1 gây lệch */
+    h1 {
+      margin: 0;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+  </style>
 </head>
 <body>
-
-    <div class="container">
-        <h2>HỆ THỐNG TÀI KHOẢN</h2>
-        
-        <button class="btn" onclick="changeUser('tjjtdht')">Chọn Acc: tjjtdht</button>
-        <button class="btn" onclick="changeUser('vip_pro_999')">Chọn Acc: vip_pro_999</button>
-        <button class="btn" onclick="changeUser('gaming_snake')">Chọn Acc: gaming_snake</button>
-        
-        <hr style="border-color: #334155; margin: 20px 0;">
-
-        <div>Trạng thái hiện tại:</div>
-        <div id="display-user" class="user-id">Chưa chọn acc</div>
+  <div id="space-crack"></div>
+    <div id="core-container">
+        <div id="core-star"></div>
+        <div id="star-glow-ring"></div>
     </div>
+  <h1 style="color:white;">
+    Welcome to<br>
+    <div class="rbs" style="width: 55%; margin:0 auto;color:white;"> Keepweb.vn </div>
+    <br>
+    <div style="text-align:center;">
+      <div style="width:100%;height:5px;background-color:black;border-radius:2px;"></div>
+    </div>
+    <br>
+    
+    <div onclick="toggle(this)" 
+         style="background-color:green;
+                border-radius:5px;
+                width: 80%;
+                min-height:40px;
+                color:white;
+                font-weight:bold;
+                font-size: 16px;" 
+         class="card">
+      
+      <!-- ✅ QUAN TRỌNG: gói chữ vào thẻ riêng để tách biệt -->
+      <span class="card-text">Sign in</span>
+      
+      <div class="desc">
+        
+        nickname:<input type="text" id="siNick" placeholder="Nickname" class="input-box"><br>
+        password:<input type="password" id="siPass" placeholder="Password" class="input-box"><br>
+        <br><button onclick="signin()" class="input-box">confirm✅</button>
+        
+        
+      </div>
+    </div>
+      <div style="text-align:center;color:white;">OR</div>
+      <div class="card"
+        onclick="toggle(this)"
+        style="background-color:blue;
+                border-radius:5px;
+                width: 80%;
+                min-height:40px;
+                color:white;
+                font-weight:bold;
+        font-size: 16px;" >
+        <span class="card-text">sign up</span>
+        <div class="desc">
+          <span style="text-align:center;">enter a nickname:</span><br>
+          <input class="input-box" id="suNick" placeholder="Nickname" type="text"><br>
+          <span style="text-align:center;">enter a password:</span><br>
+          <input class="input-box" id="suPass" placeholder="Password" type="password"><br>
+          <span style="text-align:center;">confirm password:</span><br>
+          <input class="input-box" id="suRe" placeholder="Confirm password" type="password"><br>
+          <br><button class="input-box" onclick="signup()"> confirm✅ </button><br>
+        </div>
+      </div>
+    
+    
+  </h1>
+  <br>
+  <br>
+  <br>
+  <p class="copyright" style="color:white"> version 1.0</p>
 
-    <script>
-        // 1. HÀM GỬI DỮ LIỆU LÊN URL (Khi nhấn nút)
-        function changeUser(id) {
-            // Tạo một đối tượng URL dựa trên trang hiện tại
-            let currentUrl = new URL(window.location.href);
-            
-            // Đặt tham số 'account' thành ID được chọn (Nó sẽ tự thêm ?account=id)
-            currentUrl.searchParams.set('account', id);
-            
-            // Đẩy URL mới lên thanh địa chỉ của trình duyệt mà KHÔNG LÀM LOAD LẠI TRANG (Rất mượt)
-            window.history.pushState({}, '', currentUrl);
-            
-            // Gọi hàm đọc lại để cập nhật giao diện
-            checkUrlParameter();
-        }
+  <script>
 
-        // 2. HÀM ĐỌC DỮ LIỆU TỪ URL XUỐNG (Khi tải trang hoặc khi URL thay đổi)
-        function checkUrlParameter() {
-            // Lấy chuỗi tìm kiếm sau dấu ?
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            // Đọc giá trị của tham số tên là 'account'
-            const accountId = urlParams.get('account');
-            
-            const displayEl = document.getElementById('display-user');
-            
-            if (accountId) {
-                // Nếu tìm thấy chữ sau dấu =, hiển thị nó ra màn hình
-                displayEl.innerText = accountId;
-                displayEl.style.color = "#d946ef";
-            } else {
-                displayEl.innerText = "Chưa chọn acc";
-                displayEl.style.color = "#a4b0be";
+function toggle(card){
+
+  const active =
+  card.classList.contains("active");
+
+  document.querySelectorAll(".card")
+  .forEach(c=>{
+    c.classList.remove("active");
+  });
+
+  if(!active){
+    card.classList.add("active");
+  }
+
+}
+
+document.querySelectorAll(".input-box")
+.forEach(input=>{
+
+  input.addEventListener("click",function(e){
+
+    e.stopPropagation();
+
+  });
+
+});
+
+document.addEventListener("click",function(e){
+
+  if(!e.target.closest(".card")){
+
+    document.querySelectorAll(".card")
+    .forEach(c=>{
+
+      c.classList.remove("active");
+
+    });
+
+  }
+
+});
+function loadAccounts(){
+ return JSON.parse(localStorage.getItem("accounts"))||[];
+}
+function saveAccounts(a){
+ localStorage.setItem("accounts",JSON.stringify(a));
+}
+function signup(){
+ let nick=suNick.value.trim();
+ let pass=suPass.value;
+ let re=suRe.value;
+ if(!nick||!pass||!re){alert("Không được để trống");return;}
+ if(pass.length<8){alert("Mật khẩu ít nhất 8 ký tự");return;}
+ if(pass!==re){alert("Mật khẩu không khớp");return;}
+ let accounts=loadAccounts();
+ if(accounts.find(a=>a.nickname===nick)){alert("Nickname đã tồn tại");return;}
+ accounts.push({nickname:nick,password:pass});
+ saveAccounts(accounts);
+ alert("Đăng ký thành công");
+}
+function signin(){
+ let nick=siNick.value.trim();
+ let pass=siPass.value;
+ let accounts=loadAccounts();
+ let acc=accounts.find(a=>a.nickname===nick && a.password===pass);
+ if(acc) alert("Đăng nhập thành công");
+ else alert("Sai nickname hoặc mật khẩu");
+}
+  const crack = document.getElementById('space-crack');
+        const container = document.getElementById('core-container');
+        const star = document.getElementById('core-star');
+        
+        let isTouching = false;
+        let isLongPress = false; // Biến kiểm tra xem đã đủ thời gian giữ chưa
+        let pressTimer = null;   // Bộ đếm thời gian
+        let currentX = 0, currentY = 0;
+
+        // Hàm tạo hạt xung quanh
+        function createParticles(x, y, count = 8, speedMultiplier = 1) {
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'cosmic-particle';
+                
+                const size = Math.random() * 5 + 2;
+                p.style.width = `${size}px`;
+                p.style.height = `${size}px`;
+                
+                const colors = ['#fff', '#f472b6', '#38bdf8', '#c084fc'];
+                p.style.background = colors[Math.floor(Math.random() * colors.length)];
+                p.style.boxShadow = `0 0 10px ${p.style.background}, 0 0 20px ${p.style.background}`;
+
+                p.style.left = `${x}px`;
+                p.style.top = `${y}px`;
+                p.style.opacity = '1';
+                p.style.transform = 'translate(-50%, -50%) scale(1)';
+                
+                document.body.appendChild(p);
+
+                const angle = Math.random() * Math.PI * 2;
+                const distance = (Math.random() * 80 + 40) * speedMultiplier;
+                const tx = x + Math.cos(angle) * distance;
+                const ty = y + Math.sin(angle) * distance;
+                const duration = Math.random() * 800 + 700;
+
+                p.style.transition = `all ${duration}ms cubic-bezier(0.1, 0.8, 0.2, 1)`;
+                
+                requestAnimationFrame(() => {
+                    p.style.left = `${tx}px`;
+                    p.style.top = `${ty}px`;
+                    p.style.opacity = '0';
+                    p.style.transform = 'translate(-50%, -50%) scale(0)';
+                });
+
+                setTimeout(() => p.remove(), duration);
             }
         }
 
-        // Chạy hàm kiểm tra ngay khi vừa mở trang web lên
-        window.onload = checkUrlParameter;
-        
-        // Lắng nghe sự kiện nếu người chơi bấm nút Back/Forward của trình duyệt
-        window.onpopstate = checkUrlParameter;
-    </script>
+        // Hàm tạo vòng tròn sóng kích nổ nhanh
+        function createInstantShockwave(x, y) {
+            const wave = document.createElement('div');
+            wave.className = 'tap-shockwave';
+            wave.style.left = `${x}px`;
+            wave.style.top = `${y}px`;
+            wave.style.width = '80px';
+            wave.style.height = '80px';
+            document.body.appendChild(wave);
+            
+            // Xóa phần tử sau khi chạy xong animation (0.6s = 600ms)
+            setTimeout(() => wave.remove(), 600);
+        }
+
+        // --- SỰ KIỆN CHẠM XUỐNG ---
+        window.addEventListener('pointerdown', (e) => {
+            isTouching = true;
+            isLongPress = false; 
+            currentX = e.clientX;
+            currentY = e.clientY;
+
+            // Bắt đầu đếm ngược 350ms (nằm trong khoảng 0.3s - 0.5s bạn yêu cầu)
+            pressTimer = setTimeout(() => {
+                if (isTouching) {
+                    isLongPress = true; // Xác nhận đã kích hoạt trạng thái GIỮ LÂU
+
+                    crack.style.left = `${currentX}px`;
+                    crack.style.top = `${currentY}px`;
+                    container.style.left = `${currentX}px`;
+                    container.style.top = `${currentY}px`;
+
+                    crack.classList.add('active');
+                    star.classList.add('active');
+
+                    createParticles(currentX, currentY, 20, 1.2);
+                }
+            }, 350); 
+        });
+
+        // --- SỰ KIỆN DI CHUYỂN ---
+        window.addEventListener('pointermove', (e) => {
+            if (!isTouching) return;
+
+            currentX = e.clientX;
+            currentY = e.clientY;
+
+            // Nếu đã qua ngưỡng Giữ lâu, xử lý chuyển động bám đuôi như cũ
+            if (isLongPress) {
+                crack.classList.remove('active');
+                container.style.left = `${currentX}px`;
+                container.style.top = `${currentY}px`;
+
+                if (Math.random() < 0.6) { 
+                    createParticles(currentX, currentY, 3, 0.6);
+                }
+            }
+        });
+
+        // --- SỰ KIỆN THẢ TAY RA ---
+        function endEffect() {
+            if (!isTouching) return;
+            isTouching = false;
+            
+            // Hủy bộ đếm thời gian nếu người dùng nhấc tay sớm
+            clearTimeout(pressTimer);
+
+            if (isLongPress) {
+                // TRƯỜNG HỢP 1: Đã GIỮ ĐỦ LÂU -> Triệu hồi lại khe nứt rồi đóng (Giữ nguyên logic cũ)
+                crack.style.left = `${currentX}px`;
+                crack.style.top = `${currentY}px`;
+                crack.classList.add('active');
+
+                createParticles(currentX, currentY, 15, 1.5);
+
+                setTimeout(() => {
+                    crack.classList.remove('active');
+                    star.classList.remove('active');
+                }, 300);
+            } else {
+                // TRƯỜNG HỢP 2: NHẤN THẢ NHANH -> Chỉ tạo sóng xung kích kích nổ & bắn hạt hiệu ứng
+                createInstantShockwave(currentX, currentY);
+                createParticles(currentX, currentY, 12, 1.8); // Bắn hạt bay nhanh và rộng hơn chút
+            }
+        }
+
+        window.addEventListener('pointerup', endEffect);
+        window.addEventListener('pointerleave', endEffect);
+        window.addEventListener('pointercancel', endEffect);
+
+</script>
 </body>
-</html>
+              </html>
+    
