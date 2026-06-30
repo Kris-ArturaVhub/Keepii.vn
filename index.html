@@ -199,74 +199,67 @@ input:checked + .slider:before {
 /* ==========================================
    ĐỊNH NGHĨA BIẾN MÀU SẮC KHI CHUYỂN NỀN TRẮNG
    ========================================== */
-/* Khung chứa tấm màn chuyển cảnh */
+/* Khung chứa tấm màn chuyển cảnh cấu hình lại cực chuẩn */
 #theme-overlay {
   position: fixed;
-  top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
-  pointer-events: none; /* Cho phép click xuyên qua */
-  z-index: 1; /* Nằm trên background chính nhưng nằm dưới các Card và Nút bấm */
+  /* Tăng chiều cao lên 135% màn hình để giấu phần biên mờ ra ngoài rìa */
+  height: 135vh; 
+  pointer-events: none; /* Cho phép tương tác xuyên qua */
+  z-index: 1; /* Nằm trên nền tối gốc nhưng nằm dưới toàn bộ text/card/nút bấm */
   
-  /* Trạng thái mặc định (Nền tối): Tấm màn bị đẩy ngược lên trên, biến mất */
-  transform: translateY(-100%);
+  /* MẶC ĐỊNH (NỀN TỐI): Giấu hoàn toàn tấm màn ngược lên TRÊN ngoài màn hình */
+  transform: translateY(-135vh);
   opacity: 0;
   
-  /* Nền trắng hoàn toàn ở trên, và mờ dần (nhòe biên) ở phía dưới đáy khoảng 20% */
+  /* Cấu hình dải màu mờ ranh giới: Dày và mịn hơn */
   background: linear-gradient(to bottom, 
     #ffffff 0%, 
-    #ffffff 80%, 
-    rgba(255, 255, 255, 0.4) 90%, 
+    #ffffff 75%, 
+    rgba(255, 255, 255, 0.7) 85%,
+    rgba(255, 255, 255, 0.3) 92%, 
     transparent 100%
   );
   
-  /* Sử dụng hàm cubic-bezier mượt mà (giống dạng easeInOutCubic hoặc ezicube bạn nói) */
-  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
+  /* Hàm chuyển động Bezier siêu mịn (Ezicube) và tăng thời gian lên 0.95s cho phê */
+  transition: transform 0.95s cubic-bezier(0.85, 0, 0.15, 1), opacity 0.5s ease;
 }
 
-/* ==========================================
-   KHI KÍCH HOẠT NỀN SÁNG (LAO TỪ TRÊN XUỐNG)
-   ========================================== */
+/* ========================================================
+   KHI SANG NỀN SÁNG: Lao mạnh từ trên xuống và hạ sâu tâm Y 
+   ======================================================== */
 body.light-mode #theme-overlay {
-  transform: translateY(0);
+  /* Hạ sâu hẳn xuống để phần biên mờ lọt ra ngoài mép dưới màn hình */
+  transform: translateY(-5vh); 
   opacity: 1;
 }
 
-/* Biến đổi các thành phần chữ/nền phụ khi ở chế độ Light Mode */
+/* Đảm bảo toàn bộ chữ trong h1 và các thẻ liên quan nổi lên trên tấm màn trắng */
+h1, .card, .copyright, .rbs {
+  position: relative;
+  z-index: 2; /* Lớn hơn z-index: 1 của tấm nền để không bị che khuất hay đơ */
+}
+
+/* Các biến đổi màu chữ khi ở chế độ Light Mode (Giữ nguyên) */
 body.light-mode h1 {
   color: #101026 !important;
-  transition: color 0.5s ease;
+  transition: color 0.4s ease;
 }
-
 body.light-mode .theme-switch-wrapper span {
   color: #101026 !important;
-  transition: color 0.5s ease;
+  transition: color 0.4s ease;
 }
-
 body.light-mode .copyright {
-  color: rgba(0, 0, 0, 0.4) !important;
-  transition: color 0.5s ease;
+  color: rgba(0, 0, 0, 0.5) !important;
+  transition: color 0.4s ease;
 }
-
-/* Khi sang nền sáng, ta đổi mờ cái Grid chìm phía sau thành màu đen nhẹ */
 body.light-mode #container::before {
   background-image: 
     linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px) !important;
-  }
+    }
   
-body.light-mode h1 {
-  color: #101026 !important; /* Đổi chữ Welcome sang màu tối */
-}
-
-body.light-mode .theme-switch-wrapper span {
-  color: #101026 !important; /* Đổi chữ "Chế độ tối" sang màu tối */
-}
-
-body.light-mode .copyright {
-  color: rgba(0, 0, 0, 0.4) !important;
-  }
     
     .cosmic-particle {
       position: fixed;
@@ -665,26 +658,42 @@ body.light-mode .copyright {
             endEffect();
         }
     });
-    // --- XỬ LÝ CÔNG TẮC ĐỔI NỀN CÓ ANIMATION QUÉT ---
+// --- XỬ LÝ CÔNG TẮC ĐỔI NỀN ANIMATION HẠ TÂM Y XỊN MỊN ---
 const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
 const switchText = document.querySelector('.theme-switch-wrapper span');
 const themeOverlay = document.getElementById('theme-overlay');
 
 toggleSwitch.addEventListener('change', function(e) {
     if (e.target.checked) {
-        // KHI SANG NỀN TỐI: Cấu hình cho tấm màn rút ngược từ dưới LÊN TRÊN
-        themeOverlay.style.background = `linear-gradient(to top, #ffffff 0%, #ffffff 80%, rgba(255, 255, 255, 0.4) 90%, transparent 100%)`;
+        // KHI CHUYỂN SANG NỀN TỐI:
+        // Đổi dải mờ lộn ngược xuống dưới và đẩy tấm màn phi thẳng xuống đáy ngoài màn hình (135vh)
+        themeOverlay.style.background = `linear-gradient(to top, #ffffff 0%, #ffffff 75%, rgba(255, 255, 255, 0.7) 85%, rgba(255, 255, 255, 0.3) 92%, transparent 100%)`;
+        themeOverlay.style.transform = `translateY(135vh)`;
         
         document.body.classList.remove('light-mode');
         switchText.textContent = "Chế độ tối";
+        
+        // Sau khi hiệu ứng chạy xong, reset lại vị trí ban đầu ở trên đỉnh để sẵn sàng cho lần gạt tiếp theo
+        setTimeout(() => {
+            if(toggleSwitch.checked) {
+                themeOverlay.style.transition = 'none'; // Tắt transition để reset ngầm
+                themeOverlay.style.transform = 'translateY(-135vh)';
+                // Ép trình duyệt cập nhật lại vị trí trước khi bật lại transition
+                themeOverlay.offsetHeight; 
+                themeOverlay.style.transition = 'transform 0.95s cubic-bezier(0.85, 0, 0.15, 1), opacity 0.5s ease';
+            }
+        }, 950);
+
     } else {
-        // KHI SANG NỀN SÁNG: Cấu hình cho tấm màn quét từ TRÊN XUỐNG DƯỚI
-        themeOverlay.style.background = `linear-gradient(to bottom, #ffffff 0%, #ffffff 80%, rgba(255, 255, 255, 0.4) 90%, transparent 100%)`;
+        // KHI CHUYỂN SANG NỀN SÁNG:
+        // Cấu hình dải mờ từ trên quét xuống
+        themeOverlay.style.background = `linear-gradient(to bottom, #ffffff 0%, #ffffff 75%, rgba(255, 255, 255, 0.7) 85%, rgba(255, 255, 255, 0.3) 92%, transparent 100%)`;
         
         document.body.classList.add('light-mode');
         switchText.textContent = "Chế độ sáng";
     }
 });
+    
     
   </script>
 </body>
