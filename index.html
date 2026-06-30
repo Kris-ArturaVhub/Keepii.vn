@@ -215,14 +215,22 @@
       box-sizing: border-box;
     }
     /* Khóa toàn bộ các hành vi chọn chữ, hiện menu khi đè ngón tay trên điện thoại */
-* {
-    -webkit-touch-callout: none; /* Tắt menu pop-up khi đè lâu trên iOS Safari */
-    -webkit-user-select: none;   /* Tắt bôi đen chữ trên Chrome/Safari (iOS) */
-    -khtml-user-select: none;    
-    -moz-user-select: none;      /* Tắt bôi đen trên Firefox */
-    -ms-user-select: none;       /* Tắt bôi đen trên IE/Edge */
-    user-select: none;           /* Chuẩn chung cho các trình duyệt hiện đại */
+/* Chỉ khóa bôi đen trên các phần tử hiển thị game, CHỪA NÚT BẤM RA */
+html, body, canvas, #game-container {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    
+    /* Đổi lại thành auto để các nút bấm hoạt động bình thường */
+    touch-action: auto; 
 }
+
+/* Khóa triệt để trên riêng thẻ Canvas để đè ngón tay không bị lỗi */
+canvas {
+    touch-action: none; /* Chỉ cấm cuộn màn hình khi đang nghịch hiệu ứng trên canvas */
+    -webkit-tap-highlight-color: transparent;
+}
+    
 
 /* Riêng cái Canvas vẽ hiệu ứng phải khóa triệt để hơn nữa */
 canvas {
@@ -241,7 +249,7 @@ canvas {
     </div>
   <h1 style="color:white;">
     Welcome to<br>
-    <div class="rbs" style="width: 100px; margin:0 auto;color:white;"> Keepweb.vn </div>
+    <div class="rbs" style="width: 250px; margin:0 auto;color:white;"> Keepweb.vn </div>
     <br>
     <div style="text-align:center;">
       <div style="width:100%;height:5px;background-color:black;border-radius:2px;"></div>
@@ -438,8 +446,11 @@ function signin(){
 
                 // --- SỰ KIỆN CHẠM XUỐNG ---
         window.addEventListener('pointerdown', (e) => {
-            // TUYỆT CHIÊU: Chặn trình duyệt kích hoạt cuộn trang hoặc cử chỉ mặc định gây lag/mất hiệu ứng
-            if (e.pointerType === 'touch') {
+            // KHÔNG chặn nút bấm nữa, xóa dòng "return" cũ đi!
+            
+            // Chỉ preventDefault khi KHÔNG chạm vào nút bấm để tránh lỗi trình duyệt
+            // Nếu chạm trúng nút bấm, để nó tự do để nút còn ăn hiệu ứng click/hoạt họa
+            if (e.pointerType === 'touch' && e.target.tagName !== 'BUTTON') {
                 e.preventDefault(); 
             }
 
