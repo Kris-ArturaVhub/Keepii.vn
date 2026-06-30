@@ -39,6 +39,7 @@
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       user-select: none;
+      touch-action: none;
     }
 
     /* 1. KHE NỨT KHÔNG GIAN */
@@ -135,7 +136,7 @@
     .theme-switch-wrapper {
       position: fixed;
       top: 15px;
-      right: 15px;
+      right: 27px;
       display: flex;
       align-items: center;
       flex-direction: row; /* Đảm bảo switch nằm trái, chữ nằm phải */
@@ -623,14 +624,16 @@
     // ========================================================
     // 🌟 KHỐI HIỆU ỨNG KHÔNG GIAN (ĐÃ VÁ LỖI XUNG ĐỘT HOÀN TOÀN)
     // ========================================================
+        // ====================================================================
+    // 🔥 VỊ TRÍ THAY THẾ: CƠ CHẾ CHẠM GIỮ VÀ VUỐT BÁM THEO NGÓN TAY
+    // ====================================================================
     const crack = document.getElementById('space-crack');
-    const container = document.getElementById('core-container');
+    const coreContainer = document.getElementById('core-container');
     const star = document.getElementById('core-star');
     
     let isTouching = false;
     let isLongPress = false; 
     let pressTimer = null;   
-    let currentX = 0, currentY = 0;
 
     function createParticles(x, y, count = 8, speedMultiplier = 1) {
         for (let i = 0; i < count; i++) {
@@ -671,70 +674,71 @@
     }
 
     window.addEventListener('pointerdown', (e) => {
-        // Chống kích hoạt hiệu ứng khi tương tác với các UI điều khiển, form, thẻ card
         if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.desc') || e.target.closest('.theme-switch-wrapper') || e.target.closest('.card-text')) return; 
         if (e.pointerType === 'touch') e.preventDefault(); 
 
         isTouching = true;
         isLongPress = false; 
-        currentX = e.clientX;
-        currentY = e.clientY;
-        clearTimeout(pressTimer);
+        
+        // Cập nhật vị trí ngay lập tức khi vừa chạm vào màn hình
+        coreContainer.style.left = `${e.clientX}px`;
+        coreContainer.style.top = `${e.clientY}px`;
+        crack.style.left = `${e.clientX}px`;
+        crack.style.top = `${e.clientY}px`;
 
+        clearTimeout(pressTimer);
         pressTimer = setTimeout(() => {
             if (isTouching) {
                 isLongPress = true; 
-                crack.style.left = `${currentX}px`;
-                crack.style.top = `${currentY}px`;
-                container.style.left = `${currentX}px`;
-                container.style.top = `${currentY}px`;
                 crack.classList.add('active');
                 star.classList.add('active');
-                createParticles(currentX, currentY, 20, 1.2);
+                createParticles(e.clientX, e.clientY, 20, 1.2);
             }
         }, 350); 
     });
 
     window.addEventListener('pointermove', (e) => {
         if (!isTouching) return;
-        currentX = e.clientX;
-        currentY = e.clientY;
+
+        // LÀM MƯỢT TẠI ĐÂY: Ép tọa độ cập nhật liên tục bám theo ngón tay di chuyển
+        coreContainer.style.left = `${e.clientX}px`;
+        coreContainer.style.top = `${e.clientY}px`;
+        crack.style.left = `${e.clientX}px`;
+        crack.style.top = `${e.clientY}px`;
 
         if (isLongPress) {
-            crack.style.left = `${currentX}px`;
-            crack.style.top = `${currentY}px`;
-            container.style.left = `${currentX}px`;
-            container.style.top = `${currentY}px`;
-
-            if (Math.random() < 0.6) { 
-                createParticles(currentX, currentY, 3, 0.6);
+            if (Math.random() < 0.4) { 
+                createParticles(e.clientX, e.clientY, 3, 0.6);
             }
         }
     });
 
-    function endEffect() {
+    function endEffect(e) {
         if (!isTouching) return;
         isTouching = false;
         clearTimeout(pressTimer);
 
+        // Lấy tọa độ cuối cùng từ element thay vì biến lưu cũ
+        const endX = parseFloat(coreContainer.style.left);
+        const endY = parseFloat(coreContainer.style.top);
+
         if (isLongPress) {
-            crack.style.left = `${currentX}px`;
-            crack.style.top = `${currentY}px`;
-            createParticles(currentX, currentY, 15, 1.5);
+            createParticles(endX, endY, 15, 1.5);
             setTimeout(() => {
                 crack.classList.remove('active');
                 star.classList.remove('active');
             }, 300);
         } else {
-            createInstantShockwave(currentX, currentY);
-            createParticles(currentX, currentY, 12, 1.8); 
+            createInstantShockwave(endX, endY);
+            createParticles(endX, endY, 12, 1.8); 
         }
     }
 
     window.addEventListener('pointerup', endEffect);
     window.addEventListener('pointerleave', endEffect);
-    window.addEventListener('pointercancel', (e) => { if (e.pointerType !== 'touch') endEffect(); });
+    window.addEventListener('pointercancel', endEffect);
 
+            
     // ========================================================
     // ⚙️ XỬ LÝ CÔNG TẮC ĐỔI NỀN (KHÓA 2 GIÂY CHỐNG SPAM)
     // ========================================================
