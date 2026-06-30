@@ -38,7 +38,17 @@
             z-index: 999;
             transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1s ease;
         }
-
+canvas {
+    /* Khóa hành vi mặc định của trình duyệt khi chạm/đè ngón tay */
+    touch-action: none; 
+    
+    /* Đảm bảo nó không bị trượt ra sau các phần tử khác */
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1; /* Cho nó nổi lên trên hoặc tùy chỉnh để không đè mất nút bấm */
+}
+    
         #space-crack.active {
             transform: translate(-50%, -50%) scale(1) rotate(-15deg);
             opacity: 1;
@@ -281,7 +291,21 @@
   <p class="copyright" style="color:white"> version 1.0</p>
   </div>
   <script>
+canvas.addEventListener('touchstart', function(e) {
+    // Ngăn chặn hành vi cuộn mặc định của điện thoại
+    e.preventDefault(); 
 
+    // Lấy kích thước và vị trí thực tế của Canvas trên trang web
+    const rect = canvas.getBoundingClientRect();
+    
+    // Tính toán tọa độ chuẩn xác 100% không lệch đi đâu được
+    const touchX = e.touches[0].clientX - rect.left;
+    const touchY = e.touches[0].clientY - rect.top;
+
+    // Gọi hàm kích hoạt hiệu ứng khe nứt xuất hiện tại (touchX, touchY) của bạn
+    // Ví dụ: activateSpaceRift(touchX, touchY);
+});
+                        
 function toggle(card){
 
   const active =
