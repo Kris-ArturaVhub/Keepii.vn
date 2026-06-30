@@ -199,17 +199,63 @@ input:checked + .slider:before {
 /* ==========================================
    ĐỊNH NGHĨA BIẾN MÀU SẮC KHI CHUYỂN NỀN TRẮNG
    ========================================== */
-body.light-mode #container {
-  background: radial-gradient(circle, #ffffff 0%, #e0e0ea 100%) !important;
+/* Khung chứa tấm màn chuyển cảnh */
+#theme-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  pointer-events: none; /* Cho phép click xuyên qua */
+  z-index: 1; /* Nằm trên background chính nhưng nằm dưới các Card và Nút bấm */
+  
+  /* Trạng thái mặc định (Nền tối): Tấm màn bị đẩy ngược lên trên, biến mất */
+  transform: translateY(-100%);
+  opacity: 0;
+  
+  /* Nền trắng hoàn toàn ở trên, và mờ dần (nhòe biên) ở phía dưới đáy khoảng 20% */
+  background: linear-gradient(to bottom, 
+    #ffffff 0%, 
+    #ffffff 80%, 
+    rgba(255, 255, 255, 0.4) 90%, 
+    transparent 100%
+  );
+  
+  /* Sử dụng hàm cubic-bezier mượt mà (giống dạng easeInOutCubic hoặc ezicube bạn nói) */
+  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
 }
 
+/* ==========================================
+   KHI KÍCH HOẠT NỀN SÁNG (LAO TỪ TRÊN XUỐNG)
+   ========================================== */
+body.light-mode #theme-overlay {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Biến đổi các thành phần chữ/nền phụ khi ở chế độ Light Mode */
+body.light-mode h1 {
+  color: #101026 !important;
+  transition: color 0.5s ease;
+}
+
+body.light-mode .theme-switch-wrapper span {
+  color: #101026 !important;
+  transition: color 0.5s ease;
+}
+
+body.light-mode .copyright {
+  color: rgba(0, 0, 0, 0.4) !important;
+  transition: color 0.5s ease;
+}
+
+/* Khi sang nền sáng, ta đổi mờ cái Grid chìm phía sau thành màu đen nhẹ */
 body.light-mode #container::before {
-  /* Đổi lưới grid sang màu đen mờ khi nền trắng */
   background-image: 
     linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px) !important;
-}
-
+  }
+  
 body.light-mode h1 {
   color: #101026 !important; /* Đổi chữ Welcome sang màu tối */
 }
@@ -347,6 +393,8 @@ body.light-mode .copyright {
   </style>
 </head>
 <body>
+  <div id="theme-overlay"></div>
+  
   <div id="container">
     <div id="space-crack"></div>
     <div id="core-container">
@@ -617,17 +665,22 @@ body.light-mode .copyright {
             endEffect();
         }
     });
-    // --- XỬ LÝ CÔNG TẮC ĐỔI NỀN TRẮNG/ĐEN ---
+    // --- XỬ LÝ CÔNG TẮC ĐỔI NỀN CÓ ANIMATION QUÉT ---
 const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
 const switchText = document.querySelector('.theme-switch-wrapper span');
+const themeOverlay = document.getElementById('theme-overlay');
 
 toggleSwitch.addEventListener('change', function(e) {
     if (e.target.checked) {
-        // Bật chế độ Tối (Xóa class light-mode)
+        // KHI SANG NỀN TỐI: Cấu hình cho tấm màn rút ngược từ dưới LÊN TRÊN
+        themeOverlay.style.background = `linear-gradient(to top, #ffffff 0%, #ffffff 80%, rgba(255, 255, 255, 0.4) 90%, transparent 100%)`;
+        
         document.body.classList.remove('light-mode');
         switchText.textContent = "Chế độ tối";
     } else {
-        // Bật chế độ Sáng (Thêm class light-mode)
+        // KHI SANG NỀN SÁNG: Cấu hình cho tấm màn quét từ TRÊN XUỐNG DƯỚI
+        themeOverlay.style.background = `linear-gradient(to bottom, #ffffff 0%, #ffffff 80%, rgba(255, 255, 255, 0.4) 90%, transparent 100%)`;
+        
         document.body.classList.add('light-mode');
         switchText.textContent = "Chế độ sáng";
     }
