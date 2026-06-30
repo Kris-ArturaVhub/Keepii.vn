@@ -131,7 +131,97 @@
       50% { border-color: #d946ef; }
       100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; border-color: rgba(6, 182, 212, 0); box-shadow: 0 0 50px rgba(217, 70, 239, 0); }
     }
+/* Khung chứa nút công tắc */
+.theme-switch-wrapper {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  align-items: center;
+  z-index: 1002; /* Đảm bảo nổi lên trên hết */
+  gap: 10px;
+}
 
+/* Ẩn checkbox mặc định */
+.theme-switch input {
+  display: none;
+}
+
+/* Độ rộng và cao của công tắc */
+.theme-switch {
+  display: inline-block;
+  height: 26px;
+  position: relative;
+  width: 50px;
+}
+
+/* Phần nền của công tắc */
+.slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: .4s;
+}
+
+/* Nút tròn di chuyển bên trong */
+.slider:before {
+  background-color: #fff;
+  bottom: 3px;
+  content: "";
+  height: 20px;
+  left: 4px;
+  position: absolute;
+  transition: .4s;
+  width: 20px;
+}
+
+/* Khi công tắc được BẬT (Chế độ Tối) */
+input:checked + .slider {
+  background-color: #06b6d4; /* Đổi nền công tắc sang màu Cyan */
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px); /* Gạt cục tròn sang phải */
+}
+
+/* Bo tròn hoàn toàn công tắc */
+.slider.round {
+  border-radius: 34px;
+}
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* ==========================================
+   ĐỊNH NGHĨA BIẾN MÀU SẮC KHI CHUYỂN NỀN TRẮNG
+   ========================================== */
+body.light-mode #container {
+  background: radial-gradient(circle, #ffffff 0%, #e0e0ea 100%) !important;
+}
+
+body.light-mode #container::before {
+  /* Đổi lưới grid sang màu đen mờ khi nền trắng */
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px) !important;
+}
+
+body.light-mode h1 {
+  color: #101026 !important; /* Đổi chữ Welcome sang màu tối */
+}
+
+body.light-mode .theme-switch-wrapper span {
+  color: #101026 !important; /* Đổi chữ "Chế độ tối" sang màu tối */
+}
+
+body.light-mode .copyright {
+  color: rgba(0, 0, 0, 0.4) !important;
+  }
+    
     .cosmic-particle {
       position: fixed;
       pointer-events: none;
@@ -262,6 +352,13 @@
     <div id="core-container">
         <div id="core-star"></div>
         <div id="star-glow-ring"></div>
+    </div>
+    <div class="theme-switch-wrapper">
+  <span style="color: rgba(255,255,255,0.6); font-size: 14px; font-family: sans-serif;">Chế độ tối</span>
+  <label class="theme-switch" for="checkbox">
+    <input type="checkbox" id="checkbox" checked />
+    <div class="slider round"></div>
+  </label>
     </div>
     
     <h1 style="color:white; text-align:center;">
@@ -520,6 +617,22 @@
             endEffect();
         }
     });
+    // --- XỬ LÝ CÔNG TẮC ĐỔI NỀN TRẮNG/ĐEN ---
+const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+const switchText = document.querySelector('.theme-switch-wrapper span');
+
+toggleSwitch.addEventListener('change', function(e) {
+    if (e.target.checked) {
+        // Bật chế độ Tối (Xóa class light-mode)
+        document.body.classList.remove('light-mode');
+        switchText.textContent = "Chế độ tối";
+    } else {
+        // Bật chế độ Sáng (Thêm class light-mode)
+        document.body.classList.add('light-mode');
+        switchText.textContent = "Chế độ sáng";
+    }
+});
+    
   </script>
 </body>
   </html>
