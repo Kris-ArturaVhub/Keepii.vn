@@ -1,153 +1,154 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
-  <title>Keepweb.vn</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Keepii.vn</title>
   <style>
+    /* ✅ Hộp chứa tổng thể của toàn bộ app */
     #container {
-    width: 100%;  /* Tràn hết chiều ngang của cả PC lẫn Điện thoại */
-    height: 100vh; /* Tràn hết chiều cao màn hình */
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    position: relative;
-    background: #000;
-    touch-action: manipulation;
-    }
-    
-  html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #05050f;
-            overflow: hidden;
-            
-            touch-action: manipulation;
-        }
-
-        /* 1. KHE NỨT KHÔNG GIAN (Chỉ xuất hiện khi GIỮ đủ lâu) */
-        #space-crack {
-            position: fixed;
-            width: 220px;
-            height: 220px;
-            pointer-events: none;
-            transform: translate(-50%, -50%) scale(0) rotate(0deg);
-            opacity: 0;
-            clip-path: polygon(0% 45%, 45% 45%, 100% 0%, 55% 55%, 100% 100%, 45% 55%, 0% 100%, 35% 50%);
-            background: linear-gradient(135deg, #4f46e5, #d946ef, #06b6d4);
-            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.8);
-            z-index: 999;
-            transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1s ease;
-        }
-
-    
-        #space-crack.active {
-            transform: translate(-50%, -50%) scale(1) rotate(-15deg);
-            opacity: 1;
-        }
-
-        /* 2. NGÔI SAO 4 ĐỈNH & HÀO QUANG */
-        #core-container {
-            position: fixed;
-            width: 100px;
-            height: 100px;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-        }
-
-        #core-star {
-            position: absolute;
-            left: 15px; top: 15px;
-            width: 70px;
-            height: 70px;
-            transform: scale(0);
-            opacity: 0;
-            background: #ffffff;
-            clip-path: polygon(50% 0%, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0% 50%, 37% 37%);
-            filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 25px #06b6d4) drop-shadow(0 0 45px #d946ef);
-            transition: transform 1.2s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.8s ease;
-        }
-
-        #core-star.active {
-            transform: scale(1);
-            opacity: 1;
-            animation: starSpinPulse 2s infinite alternate ease-in-out;
-        }
-
-        /* Vòng sóng xung kích (Lan tỏa khi giữ) */
-        #star-glow-ring {
-            position: absolute;
-            left: 0; top: 0;
-            width: 100px;
-            height: 100px;
-            border: 2px solid rgba(6, 182, 212, 0.5);
-            border-radius: 50%;
-            transform: scale(0);
-            opacity: 0;
-        }
-        #core-star.active ~ #star-glow-ring {
-            animation: shockwave 1.5s infinite linear;
-        }
-
-        /* 3. LÀN SÓNG XUNG KÍCH RIÊNG BIỆT KHI THẢ NHANH (Tap Shockwave) */
-        .tap-shockwave {
-            position: fixed;
-            border: 4px solid #fff;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1001;
-            transform: translate(-50%, -50%) scale(0);
-            animation: instantShockwave 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-        }
-        
-        /* Animation phụ trợ */
-        @keyframes starSpinPulse {
-            0% { transform: scale(0.9) rotate(0deg); filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 20px #06b6d4); }
-            100% { transform: scale(1.15) rotate(30deg); filter: drop-shadow(0 0 20px #fff) drop-shadow(0 0 40px #d946ef); }
-        }
-
-        @keyframes shockwave {
-            0% { transform: scale(0.3); opacity: 1; box-shadow: 0 0 10px rgba(217, 70, 239, 0.6); }
-            100% { transform: scale(1.4); opacity: 0; box-shadow: 0 0 30px rgba(6, 182, 212, 0); }
-        }
-
-        @keyframes instantShockwave {
-            0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; border-color: #fff; box-shadow: 0 0 20px #06b6d4; }
-            50% { border-color: #d946ef; }
-            100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; border-color: rgba(6, 182, 212, 0); box-shadow: 0 0 50px rgba(217, 70, 239, 0); }
-        }
-
-        .cosmic-particle {
-            position: fixed;
-            pointer-events: none;
-            border-radius: 50%;
-            z-index: 998;
-        }
-    .signinp{
-      width: 80%;
-      height: 25px;
-      text-align: center;
-      background-color: green;
+      width: 100%;  
+      height: 100vh; 
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+      /* Background phong cách Cyberpunk không gian chìm, cực nhẹ không lag */
+      background: radial-gradient(circle, #101026 0%, #05050f 100%);
     }
 
-    .rbs{
-      background: linear-gradient(
-        90deg,
-        red,
-        orange,
-        yellow,
-        lime,
-        cyan,
-        blue,
-        violet,
-        red
-      );
+    /* Tạo lớp lưới không gian 3D mờ ảo làm nền cực nghệ */
+    #container::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: 
+        linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+      background-position: center;
+      pointer-events: none;
+    }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #05050f;
+      overflow: hidden;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none; /* Chống bôi đen text khi giữ lâu */
+    }
+
+    /* 1. KHE NỨT KHÔNG GIAN */
+    #space-crack {
+      position: fixed;
+      width: 220px;
+      height: 220px;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0) rotate(0deg);
+      opacity: 0;
+      clip-path: polygon(0% 45%, 45% 45%, 100% 0%, 55% 55%, 100% 100%, 45% 55%, 0% 100%, 35% 50%);
+      background: linear-gradient(135deg, #4f46e5, #d946ef, #06b6d4);
+      box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.8);
+      z-index: 999;
+      transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1s ease;
+    }
+
+    #space-crack.active {
+      transform: translate(-50%, -50%) scale(1) rotate(-15deg);
+      opacity: 1;
+    }
+
+    /* 2. NGÔI SAO 4 ĐỈNH & HÀO QUANG */
+    #core-container {
+      position: fixed;
+      width: 100px;
+      height: 100px;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+    }
+
+    #core-star {
+      position: absolute;
+      left: 15px; top: 15px;
+      width: 70px;
+      height: 70px;
+      transform: scale(0);
+      opacity: 0;
+      background: #ffffff;
+      clip-path: polygon(50% 0%, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0% 50%, 37% 37%);
+      filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 25px #06b6d4) drop-shadow(0 0 45px #d946ef);
+      transition: transform 1.2s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.8s ease;
+    }
+
+    #core-star.active {
+      transform: scale(1);
+      opacity: 1;
+      animation: starSpinPulse 2s infinite alternate ease-in-out;
+    }
+
+    #star-glow-ring {
+      position: absolute;
+      left: 0; top: 0;
+      width: 100px;
+      height: 100px;
+      border: 2px solid rgba(6, 182, 212, 0.5);
+      border-radius: 50%;
+      transform: scale(0);
+      opacity: 0;
+    }
+    #core-star.active ~ #star-glow-ring {
+      animation: shockwave 1.5s infinite linear;
+    }
+
+    /* 3. LÀN SÓNG XUNG KÍCH RIÊNG BIỆT KHI THẢ NHANH */
+    .tap-shockwave {
+      position: fixed;
+      border: 4px solid #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1001;
+      transform: translate(-50%, -50%) scale(0);
+      animation: instantShockwave 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    }
+    
+    @keyframes starSpinPulse {
+      0% { transform: scale(0.9) rotate(0deg); filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 20px #06b6d4); }
+      100% { transform: scale(1.15) rotate(30deg); filter: drop-shadow(0 0 20px #fff) drop-shadow(0 0 40px #d946ef); }
+    }
+
+    @keyframes shockwave {
+      0% { transform: scale(0.3); opacity: 1; box-shadow: 0 0 10px rgba(217, 70, 239, 0.6); }
+      100% { transform: scale(1.4); opacity: 0; box-shadow: 0 0 30px rgba(6, 182, 212, 0); }
+    }
+
+    @keyframes instantShockwave {
+      0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; border-color: #fff; box-shadow: 0 0 20px #06b6d4; }
+      50% { border-color: #d946ef; }
+      100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; border-color: rgba(6, 182, 212, 0); box-shadow: 0 0 50px rgba(217, 70, 239, 0); }
+    }
+
+    .cosmic-particle {
+      position: fixed;
+      pointer-events: none;
+      border-radius: 50%;
+      z-index: 998;
+    }
+
+    /* Hiệu ứng chữ chuyển màu cầu vồng của Keepii.vn */
+    .rbs {
+      background: linear-gradient(90deg, #ff0055, #ff9900, #33ff00, #00ffff, #ff00ff, #ff0055);
       background-size: 400%;
-      border-radius: 10px;
-      width: 20px;
-      animation: rainbow-smooth 8s linear infinite;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 900;
+      font-size: 42px;
+      filter: drop-shadow(0 0 10px rgba(0,255,255,0.3));
+      animation: rainbow-smooth 6s linear infinite;
     }
 
     @keyframes rainbow-smooth{
@@ -155,388 +156,371 @@
       100%{ background-position: 100% 50%; }
     }
 
-    /* ✅ Đặt quy tắc căn giữa CHÍNH THỨC ở đây, ưu tiên cao nhất */
-    .card{
+    .card {
       position: relative;
       transform-origin: top center;
       transition: 
-        transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-        background-color 0.4s ease;
+        transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+        background-color 0.4s ease,
+        box-shadow 0.4s ease;
       cursor: pointer;
-      
       display: flex !important;
       flex-direction: column !important;
-      align-items: center !important;   /* Căn ngang */
-      justify-content: center !important; /* Căn dọc */
-      
-      margin: 15px auto !important;
+      align-items: center !important;   
+      justify-content: center !important; 
+      margin: 20px auto !important;
       padding: 0 !important;
       box-sizing: border-box !important;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
 
-    .card.active{ transform: scale(1.05); }
+    /* ✅ SỬA: Khi Card được mở rộng (active), đổi sang màu xám đậm cực chất */
+    .card.active { 
+      transform: scale(1.05); 
+      background-color: #2a2a35 !important; 
+      box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3);
+    }
 
     .card-text {
-      display: block; /* ✅ Tách chữ "Sign in" thành khối riêng, không bị gắn với phần mô tả */
+      display: block; 
       text-align: center;
       width: 100%;
-      padding: 8px 0;
+      padding: 10px 0;
     }
 
-    .desc{
+    .desc {
       max-height: 0;
       overflow: hidden;
       opacity: 0;
-      transition:
-        max-height 1s cubic-bezier(0.25, 1, 0.5, 1),
-        opacity 0.3s ease;
+      transition: max-height 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
       width: 100%;
       text-align: center;
       margin: 0;
       padding: 0 10px;
       box-sizing: border-box;
-    }
-.copyright{
-    position:fixed;
-    bottom:15px;
-    left:50%;
-    transform:translateX(-50%);
-}
-    .card.active .desc{
-      max-height: 180px;
-      opacity: 1;
-      padding-bottom: 10px;
+      font-size: 15px;
     }
 
-    /* ✅ Xóa khoảng đệm mặc định của thẻ H1 gây lệch */
+    .copyright {
+      position: fixed;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: sans-serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .card.active .desc {
+      max-height: 250px; 
+      opacity: 1;
+      padding-bottom: 15px;
+    }
+
     h1 {
       margin: 0;
-      padding: 10px;
+      padding: 20px 10px 10px 10px;
       box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    /* Khóa toàn bộ các hành vi chọn chữ, hiện menu khi đè ngón tay trên điện thoại */
-/* Chỉ khóa bôi đen trên các phần tử hiển thị game, CHỪA NÚT BẤM RA */
-html, body, canvas, #game-container {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-    
-    /* Đổi lại thành auto để các nút bấm hoạt động bình thường */
-    touch-action: auto; 
-}
 
-/* Khóa triệt để trên riêng thẻ Canvas để đè ngón tay không bị lỗi */
-canvas {
-    touch-action: none; /* Chỉ cấm cuộn màn hình khi đang nghịch hiệu ứng trên canvas */
-    -webkit-tap-highlight-color: transparent;
-}
-    
+    .input-box {
+      margin: 6px 0;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      background-color: rgba(0,0,0,0.4);
+      outline: none;
+      transition: border-color 0.3s;
+    }
 
-/* Riêng cái Canvas vẽ hiệu ứng phải khóa triệt để hơn nữa */
-canvas {
-    outline: none;
-    -webkit-tap-highlight-color: transparent; /* Tắt cái vệt màu xanh đen xuất hiện khi tap vào trên Android */
-      }
+    .input-box:focus {
+      border-color: #06b6d4;
+    }
     
+    button.input-box {
+      cursor: pointer;
+      background: linear-gradient(135deg, #06b6d4, #4f46e5);
+      color: white;
+      font-weight: bold;
+      border: none;
+      padding: 8px 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+
+    button.input-box:active {
+      transform: scale(0.95);
+    }
   </style>
 </head>
 <body>
   <div id="container">
-  <div id="space-crack"></div>
+    <div id="space-crack"></div>
     <div id="core-container">
         <div id="core-star"></div>
         <div id="star-glow-ring"></div>
     </div>
-  <h1 style="color:white;">
-    Welcome to<br>
-    <div class="rbs" style="width: 250px; margin:0 auto;color:white;"> Keepweb.vn </div>
-    <br>
-    <div style="text-align:center;">
-      <div style="width:100%;height:5px;background-color:black;border-radius:2px;"></div>
-    </div>
-    <br>
     
-    <div onclick="toggle(this)" 
-         style="background-color:green;
-                border-radius:5px;
-                width: 80%;
-                min-height:40px;
-                color:white;
-                font-weight:bold;
-                font-size: 16px;" 
-         class="card">
-      
-      <!-- ✅ QUAN TRỌNG: gói chữ vào thẻ riêng để tách biệt -->
-      <span class="card-text">Sign in</span>
-      
-      <div class="desc">
-        
-        nickname:<input type="text" id="siNick" placeholder="Nickname" class="input-box"><br>
-        password:<input type="password" id="siPass" placeholder="Password" class="input-box"><br>
-        <br><button onclick="signin()" class="input-box">confirm✅</button>
-        
-        
+    <h1 style="color:white; text-align:center;">
+      Welcome to<br>
+      <div class="rbs" style="width: 280px; margin:10px auto;">Keepii.vn</div>
+      <br>
+      <div style="text-align:center;">
+        <div style="width:80%; height:2px; background: linear-gradient(90deg, transparent, #06b6d4, transparent); margin: 0 auto;"></div>
       </div>
-    </div>
-      <div style="text-align:center;color:white;">OR</div>
-      <div class="card"
-        onclick="toggle(this)"
-        style="background-color:blue;
-                border-radius:5px;
-                width: 80%;
-                min-height:40px;
-                color:white;
-                font-weight:bold;
-        font-size: 16px;" >
-        <span class="card-text">sign up</span>
+      <br>
+      
+      <div onclick="toggle(this)" 
+           style="background-color: #1b4332; border-radius:8px; width: 80%; min-height:45px; color:white; font-weight:bold; font-size: 16px;" 
+           class="card">
+        <span class="card-text">Sign in</span>
         <div class="desc">
-          <span style="text-align:center;">enter a nickname:</span><br>
-          <input class="input-box" id="suNick" placeholder="Nickname" type="text"><br>
-          <span style="text-align:center;">enter a password:</span><br>
-          <input class="input-box" id="suPass" placeholder="Password" type="password"><br>
-          <span style="text-align:center;">confirm password:</span><br>
-          <input class="input-box" id="suRe" placeholder="Confirm password" type="password"><br>
-          <br><button class="input-box" onclick="signup()"> confirm✅ </button><br>
+          nickname: <input type="text" id="siNick" placeholder="Nickname" class="input-box"><br>
+          password: <input type="password" id="siPass" placeholder="Password" class="input-box"><br>
+          <br><button onclick="signin()" class="input-box">confirm✅</button>
         </div>
       </div>
+      
+      <div style="text-align:center; color:rgba(255,255,255,0.4); font-size: 14px; margin: 15px 0; font-weight: normal;">OR</div>
+      
+      <div class="card" onclick="toggle(this)"
+           style="background-color: #1a3a5f; border-radius:8px; width: 80%; min-height:45px; color:white; font-weight:bold; font-size: 16px;">
+        <span class="card-text">sign up</span>
+        <div class="desc">
+          <span>enter a nickname:</span><br>
+          <input class="input-box" id="suNick" placeholder="Nickname" type="text"><br>
+          <span>enter a password:</span><br>
+          <input class="input-box" id="suPass" placeholder="Password" type="password"><br>
+          <span>confirm password:</span><br>
+          <input class="input-box" id="suRe" placeholder="Confirm password" type="password"><br>
+          <br><button class="input-box" onclick="signup()">confirm✅</button><br>
+        </div>
+      </div>
+    </h1>
     
-    
-  </h1>
-  <br>
-  <br>
-  <br>
-  <p class="copyright" style="color:white"> version 1.0</p>
+    <p class="copyright" style="color:rgba(255,255,255,0.3)">VERSION 1.0</p>
   </div>
+
   <script>
+    // --- KHỐI HÀM HỆ THỐNG ĐĂNG KÝ / ĐĂNG NHẬP ---
+    function toggle(card){
+      const active = card.classList.contains("active");
+      document.querySelectorAll(".card").forEach(c => {
+        c.classList.remove("active");
+      });
+      if(!active){
+        card.classList.add("active");
+      }
+    }
 
-    // Gọi hàm kích hoạt hiệu ứng khe nứt xuất hiện tại (touchX, touchY) của bạn
-    // Ví dụ: activateSpaceRift(touchX, touchY);
-});
-                        
-function toggle(card){
-
-  const active =
-  card.classList.contains("active");
-
-  document.querySelectorAll(".card")
-  .forEach(c=>{
-    c.classList.remove("active");
-  });
-
-  if(!active){
-    card.classList.add("active");
-  }
-
-}
-
-document.querySelectorAll(".input-box")
-.forEach(input=>{
-
-  input.addEventListener("click",function(e){
-
-    e.stopPropagation();
-
-  });
-
-});
-
-document.addEventListener("click",function(e){
-
-  if(!e.target.closest(".card")){
-
-    document.querySelectorAll(".card")
-    .forEach(c=>{
-
-      c.classList.remove("active");
-
+    // Chặn hiệu ứng lan tỏa khi click vào ô nhập liệu
+    document.querySelectorAll(".input-box").forEach(input => {
+      input.addEventListener("pointerdown", function(e){
+        e.stopPropagation();
+      });
+      input.addEventListener("click", function(e){
+        e.stopPropagation();
+      });
     });
 
-  }
-
-});
-function loadAccounts(){
- return JSON.parse(localStorage.getItem("accounts"))||[];
-}
-function saveAccounts(a){
- localStorage.setItem("accounts",JSON.stringify(a));
-}
-function signup(){
- let nick=suNick.value.trim();
- let pass=suPass.value;
- let re=suRe.value;
- if(!nick||!pass||!re){alert("Không được để trống");return;}
- if(pass.length<8){alert("Mật khẩu ít nhất 8 ký tự");return;}
- if(pass!==re){alert("Mật khẩu không khớp");return;}
- let accounts=loadAccounts();
- if(accounts.find(a=>a.nickname===nick)){alert("Nickname đã tồn tại");return;}
- accounts.push({nickname:nick,password:pass});
- saveAccounts(accounts);
- alert("Đăng ký thành công");
-}
-function signin(){
- let nick=siNick.value.trim();
- let pass=siPass.value;
- let accounts=loadAccounts();
- let acc=accounts.find(a=>a.nickname===nick && a.password===pass);
- if(acc) alert("Đăng nhập thành công");
- else alert("Sai nickname hoặc mật khẩu");
-}
-  const crack = document.getElementById('space-crack');
-        const container = document.getElementById('core-container');
-        const star = document.getElementById('core-star');
-        
-        let isTouching = false;
-        let isLongPress = false; // Biến kiểm tra xem đã đủ thời gian giữ chưa
-        let pressTimer = null;   // Bộ đếm thời gian
-        let currentX = 0, currentY = 0;
-
-        // Hàm tạo hạt xung quanh
-        function createParticles(x, y, count = 8, speedMultiplier = 1) {
-            for (let i = 0; i < count; i++) {
-                const p = document.createElement('div');
-                p.className = 'cosmic-particle';
-                
-                const size = Math.random() * 5 + 2;
-                p.style.width = `${size}px`;
-                p.style.height = `${size}px`;
-                
-                const colors = ['#fff', '#f472b6', '#38bdf8', '#c084fc'];
-                p.style.background = colors[Math.floor(Math.random() * colors.length)];
-                p.style.boxShadow = `0 0 10px ${p.style.background}, 0 0 20px ${p.style.background}`;
-
-                p.style.left = `${x}px`;
-                p.style.top = `${y}px`;
-                p.style.opacity = '1';
-                p.style.transform = 'translate(-50%, -50%) scale(1)';
-                
-                document.body.appendChild(p);
-
-                const angle = Math.random() * Math.PI * 2;
-                const distance = (Math.random() * 80 + 40) * speedMultiplier;
-                const tx = x + Math.cos(angle) * distance;
-                const ty = y + Math.sin(angle) * distance;
-                const duration = Math.random() * 800 + 700;
-
-                p.style.transition = `all ${duration}ms cubic-bezier(0.1, 0.8, 0.2, 1)`;
-                
-                requestAnimationFrame(() => {
-                    p.style.left = `${tx}px`;
-                    p.style.top = `${ty}px`;
-                    p.style.opacity = '0';
-                    p.style.transform = 'translate(-50%, -50%) scale(0)';
-                });
-
-                setTimeout(() => p.remove(), duration);
-            }
-        }
-
-        // Hàm tạo vòng tròn sóng kích nổ nhanh
-        function createInstantShockwave(x, y) {
-            const wave = document.createElement('div');
-            wave.className = 'tap-shockwave';
-            wave.style.left = `${x}px`;
-            wave.style.top = `${y}px`;
-            wave.style.width = '80px';
-            wave.style.height = '80px';
-            document.body.appendChild(wave);
-            
-            // Xóa phần tử sau khi chạy xong animation (0.6s = 600ms)
-            setTimeout(() => wave.remove(), 600);
-        }
-
-                // --- SỰ KIỆN CHẠM XUỐNG ---
-        window.addEventListener('pointerdown', (e) => {
-            // KHÔNG chặn nút bấm nữa, xóa dòng "return" cũ đi!
-            
-            // Chỉ preventDefault khi KHÔNG chạm vào nút bấm để tránh lỗi trình duyệt
-            // Nếu chạm trúng nút bấm, để nó tự do để nút còn ăn hiệu ứng click/hoạt họa
-            if (e.pointerType === 'touch' && e.target.tagName !== 'BUTTON') {
-                e.preventDefault(); 
-            }
-
-            isTouching = true;
-            isLongPress = false; 
-            currentX = e.clientX;
-            currentY = e.clientY;
-
-            // Xóa bộ đếm cũ nếu có để tránh trùng lặp luồng đếm
-            clearTimeout(pressTimer);
-
-            // Bắt đầu đếm ngược 350ms
-            pressTimer = setTimeout(() => {
-                if (isTouching) {
-                    isLongPress = true; // Xác nhận đã kích hoạt trạng thái GIỮ LÂU
-
-                    crack.style.left = `${currentX}px`;
-                    crack.style.top = `${currentY}px`;
-                    container.style.left = `${currentX}px`;
-                    container.style.top = `${currentY}px`;
-
-                    crack.classList.add('active');
-                    star.classList.add('active');
-
-                    createParticles(currentX, currentY, 20, 1.2);
-                }
-            }, 350); 
+    // Click ra ngoài vùng card thì đóng card lại
+    document.addEventListener("click", function(e){
+      if(!e.target.closest(".card")){
+        document.querySelectorAll(".card").forEach(c => {
+          c.classList.remove("active");
         });
+      }
+    });
 
-        // --- SỰ KIỆN DI CHUYỂN ---
-        window.addEventListener('pointermove', (e) => {
-            if (!isTouching) return;
+    function loadAccounts(){
+      return JSON.parse(localStorage.getItem("accounts")) || [];
+    }
+    function saveAccounts(a){
+      localStorage.setItem("accounts", JSON.stringify(a));
+    }
+    
+    // ✅ SỬA: Đăng ký xong là xoá sạch input công tâm
+    function signup(){
+      let nick = suNick.value.trim();
+      let pass = suPass.value;
+      let re = suRe.value;
+      if(!nick || !pass || !re){ alert("Không được để trống"); return; }
+      if(pass.length < 8){ alert("Mật khẩu ít nhất 8 ký tự"); return; }
+      if(pass !== re){ alert("Mật khẩu không khớp"); return; }
+      let accounts = loadAccounts();
+      if(accounts.find(a => a.nickname === nick)){ alert("Nickname đã tồn tại"); return; }
+      accounts.push({nickname: nick, password: pass});
+      saveAccounts(accounts);
+      alert("Đăng ký thành công 🎉");
+      
+      // Xóa toàn bộ dữ liệu ô nhập ký tự đăng ký
+      suNick.value = "";
+      suPass.value = "";
+      suRe.value = "";
+    }
 
-            currentX = e.clientX;
-            currentY = e.clientY;
+    // ✅ SỬA: Đăng nhập xong xoá sạch dữ liệu input bảo mật
+    function signin(){
+      let nick = siNick.value.trim();
+      let pass = siPass.value;
+      let accounts = loadAccounts();
+      let acc = accounts.find(a => a.nickname === nick && a.password === pass);
+      if(acc) alert("Đăng nhập thành công 🚀");
+      else alert("Sai nickname hoặc mật khẩu ❌");
+      
+      // Xóa toàn bộ dữ liệu ô nhập ký tự đăng nhập
+      siNick.value = "";
+      siPass.value = "";
+    }
 
-            // Nếu đã qua ngưỡng Giữ lâu, xử lý chuyển động bám đuôi như cũ
-            if (isLongPress) {
-                crack.classList.remove('active');
+    // --- KHỐI LOGIC HIỆU ỨNG KHE NỨT KHÔNG GIAN ---
+    const crack = document.getElementById('space-crack');
+    const container = document.getElementById('core-container');
+    const star = document.getElementById('core-star');
+    
+    let isTouching = false;
+    let isLongPress = false; 
+    let pressTimer = null;   
+    let currentX = 0, currentY = 0;
+
+    function createParticles(x, y, count = 8, speedMultiplier = 1) {
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.className = 'cosmic-particle';
+            
+            const size = Math.random() * 5 + 2;
+            p.style.width = `${size}px`;
+            p.style.height = `${size}px`;
+            
+            const colors = ['#fff', '#f472b6', '#38bdf8', '#c084fc'];
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.boxShadow = `0 0 10px ${p.style.background}, 0 0 20px ${p.style.background}`;
+
+            p.style.left = `${x}px`;
+            p.style.top = `${y}px`;
+            p.style.opacity = '1';
+            p.style.transform = 'translate(-50%, -50%) scale(1)';
+            
+            document.body.appendChild(p);
+
+            const angle = Math.random() * Math.PI * 2;
+            const distance = (Math.random() * 80 + 40) * speedMultiplier;
+            const tx = x + Math.cos(angle) * distance;
+            const ty = y + Math.sin(angle) * distance;
+            const duration = Math.random() * 800 + 700;
+
+            p.style.transition = `all ${duration}ms cubic-bezier(0.1, 0.8, 0.2, 1)`;
+            
+            requestAnimationFrame(() => {
+                p.style.left = `${tx}px`;
+                p.style.top = `${ty}px`;
+                p.style.opacity = '0';
+                p.style.transform = 'translate(-50%, -50%) scale(0)';
+            });
+
+            setTimeout(() => p.remove(), duration);
+        }
+    }
+
+    function createInstantShockwave(x, y) {
+        const wave = document.createElement('div');
+        wave.className = 'tap-shockwave';
+        wave.style.left = `${x}px`;
+        wave.style.top = `${y}px`;
+        wave.style.width = '80px';
+        wave.style.height = '80px';
+        document.body.appendChild(wave);
+        setTimeout(() => wave.remove(), 600);
+    }
+
+    // --- XỬ LÝ SỰ KIỆN CHẠM/CLICK TOÀN CỤC ---
+    window.addEventListener('pointerdown', (e) => {
+        // Tránh chạy hiệu ứng nứt khi nhấn trúng nút, input hoặc vùng điền form công cụ
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.desc')) {
+            return; 
+        }
+        
+        if (e.pointerType === 'touch') {
+            e.preventDefault(); 
+        }
+
+        isTouching = true;
+        isLongPress = false; 
+        currentX = e.clientX;
+        currentY = e.clientY;
+
+        clearTimeout(pressTimer);
+
+        pressTimer = setTimeout(() => {
+            if (isTouching) {
+                isLongPress = true; 
+
+                crack.style.left = `${currentX}px`;
+                crack.style.top = `${currentY}px`;
                 container.style.left = `${currentX}px`;
                 container.style.top = `${currentY}px`;
 
-                if (Math.random() < 0.6) { 
-                    createParticles(currentX, currentY, 3, 0.6);
-                }
-            }
-        });
-
-        // --- SỰ KIỆN THẢ TAY RA ---
-        function endEffect() {
-            if (!isTouching) return;
-            isTouching = false;
-            
-            // Hủy bộ đếm thời gian nếu người dùng nhấc tay sớm
-            clearTimeout(pressTimer);
-
-            if (isLongPress) {
-                // TRƯỜNG HỢP 1: Đã GIỮ ĐỦ LÂU -> Triệu hồi lại khe nứt rồi đóng
-                crack.style.left = `${currentX}px`;
-                crack.style.top = `${currentY}px`;
                 crack.classList.add('active');
+                star.classList.add('active');
 
-                createParticles(currentX, currentY, 15, 1.5);
+                createParticles(currentX, currentY, 20, 1.2);
+            }
+        }, 350); 
+    });
 
-                setTimeout(() => {
-                    crack.classList.remove('active');
-                    star.classList.remove('active');
-                }, 300);
-            } else {
-                // TRƯỜNG HỢP 2: NHẤN THẢ NHANH -> Chỉ tạo sóng xung kích kích nổ & bắn hạt hiệu ứng
-                createInstantShockwave(currentX, currentY);
-                createParticles(currentX, currentY, 12, 1.8); 
+    window.addEventListener('pointermove', (e) => {
+        if (!isTouching) return;
+
+        currentX = e.clientX;
+        currentY = e.clientY;
+
+        if (isLongPress) {
+            crack.style.left = `${currentX}px`;
+            crack.style.top = `${currentY}px`;
+            container.style.left = `${currentX}px`;
+            container.style.top = `${currentY}px`;
+
+            if (Math.random() < 0.6) { 
+                createParticles(currentX, currentY, 3, 0.6);
             }
         }
+    });
 
-        window.addEventListener('pointerup', endEffect);
-        window.addEventListener('pointerleave', endEffect);
+    function endEffect() {
+        if (!isTouching) return;
+        isTouching = false;
         
-        // MẸO: Không cho pointercancel tự ý hủy bộ đếm khi ngón tay hơi dịch chuyển
-        window.addEventListener('pointercancel', (e) => {
-            if (e.pointerType !== 'touch') {
-                endEffect();
-            }
-        });
+        clearTimeout(pressTimer);
+
+        if (isLongPress) {
+            crack.style.left = `${currentX}px`;
+            crack.style.top = `${currentY}px`;
+            crack.classList.add('active');
+
+            createParticles(currentX, currentY, 15, 1.5);
+
+            setTimeout(() => {
+                crack.classList.remove('active');
+                star.classList.remove('active');
+            }, 300);
+        } else {
+            createInstantShockwave(currentX, currentY);
+            createParticles(currentX, currentY, 12, 1.8); 
+        }
+    }
+
+    window.addEventListener('pointerup', endEffect);
+    window.addEventListener('pointerleave', endEffect);
     
-</script>
+    window.addEventListener('pointercancel', (e) => {
+        if (e.pointerType !== 'touch') {
+            endEffect();
+        }
+    });
+  </script>
 </body>
-              </html>
-    
+  </html>
+  
