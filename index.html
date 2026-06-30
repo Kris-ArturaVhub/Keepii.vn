@@ -12,6 +12,7 @@
     overflow: hidden;
     position: relative;
     background: #000;
+    touch-action: manipulation;
     }
     
   html, body {
@@ -21,7 +22,8 @@
             height: 100%;
             background-color: #05050f;
             overflow: hidden;
-            touch-action: none;
+            
+            touch-action: manipulation;
         }
 
         /* 1. KHE NỨT KHÔNG GIAN (Chỉ xuất hiện khi GIỮ đủ lâu) */
@@ -38,16 +40,7 @@
             z-index: 999;
             transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1s ease;
         }
-canvas {
-    /* Khóa hành vi mặc định của trình duyệt khi chạm/đè ngón tay */
-    touch-action: none; 
-    
-    /* Đảm bảo nó không bị trượt ra sau các phần tử khác */
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1; /* Cho nó nổi lên trên hoặc tùy chỉnh để không đè mất nút bấm */
-}
+
     
         #space-crack.active {
             transform: translate(-50%, -50%) scale(1) rotate(-15deg);
@@ -221,6 +214,22 @@ canvas {
       padding: 10px;
       box-sizing: border-box;
     }
+    /* Khóa toàn bộ các hành vi chọn chữ, hiện menu khi đè ngón tay trên điện thoại */
+* {
+    -webkit-touch-callout: none; /* Tắt menu pop-up khi đè lâu trên iOS Safari */
+    -webkit-user-select: none;   /* Tắt bôi đen chữ trên Chrome/Safari (iOS) */
+    -khtml-user-select: none;    
+    -moz-user-select: none;      /* Tắt bôi đen trên Firefox */
+    -ms-user-select: none;       /* Tắt bôi đen trên IE/Edge */
+    user-select: none;           /* Chuẩn chung cho các trình duyệt hiện đại */
+}
+
+/* Riêng cái Canvas vẽ hiệu ứng phải khóa triệt để hơn nữa */
+canvas {
+    outline: none;
+    -webkit-tap-highlight-color: transparent; /* Tắt cái vệt màu xanh đen xuất hiện khi tap vào trên Android */
+      }
+    
   </style>
 </head>
 <body>
@@ -291,16 +300,6 @@ canvas {
   <p class="copyright" style="color:white"> version 1.0</p>
   </div>
   <script>
-canvas.addEventListener('touchstart', function(e) {
-    // Ngăn chặn hành vi cuộn mặc định của điện thoại
-    e.preventDefault(); 
-
-    // Lấy kích thước và vị trí thực tế của Canvas trên trang web
-    const rect = canvas.getBoundingClientRect();
-    
-    // Tính toán tọa độ chuẩn xác 100% không lệch đi đâu được
-    const touchX = e.touches[0].clientX - rect.left;
-    const touchY = e.touches[0].clientY - rect.top;
 
     // Gọi hàm kích hoạt hiệu ứng khe nứt xuất hiện tại (touchX, touchY) của bạn
     // Ví dụ: activateSpaceRift(touchX, touchY);
@@ -437,14 +436,22 @@ function signin(){
             setTimeout(() => wave.remove(), 600);
         }
 
-        // --- SỰ KIỆN CHẠM XUỐNG ---
+                // --- SỰ KIỆN CHẠM XUỐNG ---
         window.addEventListener('pointerdown', (e) => {
+            // TUYỆT CHIÊU: Chặn trình duyệt kích hoạt cuộn trang hoặc cử chỉ mặc định gây lag/mất hiệu ứng
+            if (e.pointerType === 'touch') {
+                e.preventDefault(); 
+            }
+
             isTouching = true;
             isLongPress = false; 
             currentX = e.clientX;
             currentY = e.clientY;
 
-            // Bắt đầu đếm ngược 350ms (nằm trong khoảng 0.3s - 0.5s bạn yêu cầu)
+            // Xóa bộ đếm cũ nếu có để tránh trùng lặp luồng đếm
+            clearTimeout(pressTimer);
+
+            // Bắt đầu đếm ngược 350ms
             pressTimer = setTimeout(() => {
                 if (isTouching) {
                     isLongPress = true; // Xác nhận đã kích hoạt trạng thái GIỮ LÂU
@@ -490,7 +497,7 @@ function signin(){
             clearTimeout(pressTimer);
 
             if (isLongPress) {
-                // TRƯỜNG HỢP 1: Đã GIỮ ĐỦ LÂU -> Triệu hồi lại khe nứt rồi đóng (Giữ nguyên logic cũ)
+                // TRƯỜNG HỢP 1: Đã GIỮ ĐỦ LÂU -> Triệu hồi lại khe nứt rồi đóng
                 crack.style.left = `${currentX}px`;
                 crack.style.top = `${currentY}px`;
                 crack.classList.add('active');
@@ -504,14 +511,20 @@ function signin(){
             } else {
                 // TRƯỜNG HỢP 2: NHẤN THẢ NHANH -> Chỉ tạo sóng xung kích kích nổ & bắn hạt hiệu ứng
                 createInstantShockwave(currentX, currentY);
-                createParticles(currentX, currentY, 12, 1.8); // Bắn hạt bay nhanh và rộng hơn chút
+                createParticles(currentX, currentY, 12, 1.8); 
             }
         }
 
         window.addEventListener('pointerup', endEffect);
         window.addEventListener('pointerleave', endEffect);
-        window.addEventListener('pointercancel', endEffect);
-
+        
+        // MẸO: Không cho pointercancel tự ý hủy bộ đếm khi ngón tay hơi dịch chuyển
+        window.addEventListener('pointercancel', (e) => {
+            if (e.pointerType !== 'touch') {
+                endEffect();
+            }
+        });
+    
 </script>
 </body>
               </html>
