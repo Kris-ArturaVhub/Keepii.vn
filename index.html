@@ -5,7 +5,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>Keepii.vn</title>
   <style>
-    /* Hộp chứa tổng thể của toàn bộ app */
+    /* ✅ Hộp chứa tổng thể của toàn bộ app */
     #container {
       width: 100%;  
       height: 100vh; 
@@ -16,6 +16,7 @@
       background: radial-gradient(circle, #101026 0%, #05050f 100%);
     }
 
+    /* Lưới không gian 3D chìm */
     #container::before {
       content: "";
       position: absolute;
@@ -40,7 +41,7 @@
       user-select: none;
     }
 
-    /* Hiệu ứng cửa sập động */
+    /* ⚡ CỬA SẬP TRANSTITION KHI RELOAD */
     .gate-panel {
       position: fixed;
       width: 50%;
@@ -55,6 +56,7 @@
     body.gates-closed #gate-left { transform: translateX(0); }
     body.gates-closed #gate-right { transform: translateX(0); }
 
+    /* NGÔI SAO DỊCH CHUYỂN */
     #transition-star {
       position: fixed;
       top: 50%; left: 50%;
@@ -68,7 +70,7 @@
       transition: transform 1.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
     }
 
-    /* KHE NỨT KHÔNG GIAN */
+    /* KHE NỨT KHÔNG GIAN CŨ */
     #space-crack {
       position: fixed;
       width: 220px;
@@ -193,15 +195,8 @@
       transition: transform 0.95s cubic-bezier(0.85, 0, 0.15, 1), opacity 0.5s ease;
     }
 
-    body.light-mode #theme-overlay {
-      transform: translateY(-5vh); 
-      opacity: 1;
-    }
-
-    body.turning-dark #theme-overlay {
-      transform: translateY(135vh);
-      opacity: 0;
-    }
+    body.light-mode #theme-overlay { transform: translateY(-5vh); opacity: 1; }
+    body.turning-dark #theme-overlay { transform: translateY(135vh); opacity: 0; }
 
     h1, .card, .copyright, .rbs, .theme-switch-wrapper { position: relative; z-index: 2; }
 
@@ -253,7 +248,6 @@
   <div id="gate-left" class="gate-panel"></div>
   <div id="gate-right" class="gate-panel"></div>
   <div id="transition-star"></div>
-
   <div id="theme-overlay"></div>
   
   <div id="container">
@@ -262,6 +256,7 @@
         <div id="core-star"></div>
         <div id="star-glow-ring"></div>
     </div>
+    
     <div class="theme-switch-wrapper">
       <span style="color: rgba(255,255,255,0.6); font-size: 14px; font-family: sans-serif;">Chế độ tối</span>
       <label class="theme-switch" for="checkbox">
@@ -310,7 +305,7 @@
   </div>
 
   <script>
-    // --- KHÔI PHỤC NỀN TRẮNG/ĐEN KHI RELOAD ---
+    // --- ⚡ ĐỌC SỚM TRẠNG THÁI NỀN ĐỂ KHÔNG BỊ TRỐNG KHI REFRESH ---
     const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
     const switchText = document.querySelector('.theme-switch-wrapper span');
     
@@ -340,6 +335,73 @@
         }
     });
 
+    // --- HIỆU ỨNG HẠT BỤI VŨ TRỤ CŨ ---
+    function createParticles(x, y, count, speedMultiplier = 1) {
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.className = 'cosmic-particle';
+            const size = Math.random() * 4 + 2;
+            p.style.width = `${size}px`; p.style.height = `${size}px`;
+            const isLight = document.body.classList.contains('light-mode');
+            const colors = isLight ? ['#4f46e5', '#06b6d4', '#101026'] : ['#06b6d4', '#d946ef', '#ffffff', '#6366f1'];
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.left = `${x}px`; p.style.top = `${y}px`;
+            document.body.appendChild(p);
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = (Math.random() * 4 + 2) * speedMultiplier;
+            const vx = Math.cos(angle) * velocity; const vy = Math.sin(angle) * velocity;
+            let op = 1; let scale = 1;
+            const anim = () => {
+                if (op <= 0) { p.remove(); return; }
+                op -= 0.02; scale -= 0.015;
+                const curX = parseFloat(p.style.left) + vx;
+                const curY = parseFloat(p.style.top) + vy;
+                p.style.left = `${curX}px`; p.style.top = `${curY}px`;
+                p.style.opacity = op; p.style.transform = `scale(${scale < 0 ? 0 : scale})`;
+                requestAnimationFrame(anim);
+            };
+            requestAnimationFrame(anim);
+        }
+    }
+
+    function createInstantShockwave(x, y) {
+        const wave = document.createElement('div'); wave.className = 'tap-shockwave';
+        wave.style.left = `${x}px`; wave.style.top = `${y}px`;
+        document.body.appendChild(wave); setTimeout(() => wave.remove(), 600);
+    }
+
+    let isTouching = false; let currentX = 0; let currentY = 0; let touchTimer = null;
+    window.addEventListener('pointerdown', (e) => {
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.desc') || e.target.closest('#user-app-viewport')) return;
+        isTouching = true; currentX = e.clientX; currentY = e.clientY;
+        touchTimer = setTimeout(() => {
+            if (isTouching) {
+                const crack = document.getElementById('space-crack'); const star = document.getElementById('core-star');
+                const container = document.getElementById('core-container');
+                container.style.left = `${currentX}px`; container.style.top = `${currentY}px`;
+                crack.style.left = `${currentX}px`; crack.style.top = `${currentY}px`;
+                crack.classList.add('active'); star.classList.add('active');
+                createParticles(currentX, currentY, 25, 0.8);
+            }
+        }, 600);
+    });
+
+    const endEffect = () => {
+        clearTimeout(touchTimer);
+        if (isTouching) {
+            const crack = document.getElementById('space-crack'); const star = document.getElementById('core-star');
+            if (crack.classList.contains('active')) {
+                createInstantShockwave(currentX, currentY);
+                createParticles(currentX, currentY, 15, 1.5);
+                setTimeout(() => { crack.classList.remove('active'); star.classList.remove('active'); }, 300);
+            } else {
+                createInstantShockwave(currentX, currentY); createParticles(currentX, currentY, 12, 1.8);
+            }
+        }
+        isTouching = false;
+    };
+    window.addEventListener('pointerup', endEffect);
+
     function toggle(card){
       const active = card.classList.contains("active");
       document.querySelectorAll(".card").forEach(c => { c.classList.remove("active"); });
@@ -356,62 +418,45 @@
       if(pass !== re){ alert("Mật khẩu không khớp"); return; }
       let accounts = loadAccounts();
       if(accounts.find(a => a.nickname === nick)){ alert("Nickname đã tồn tại"); return; }
-      accounts.push({nickname: nick, password: pass});
-      saveAccounts(accounts);
-      alert("Đăng ký thành công 🎉");
-      suNick.value = ""; suPass.value = ""; suRe.value = "";
+      accounts.push({nickname: nick, password: pass}); saveAccounts(accounts);
+      alert("Đăng ký thành công 🎉"); suNick.value = ""; suPass.value = ""; suRe.value = "";
     }
 
     function signin(){
-      let nick = siNick.value.trim();
-      let pass = siPass.value;
-      let accounts = loadAccounts();
+      let nick = siNick.value.trim(); let pass = siPass.value; let accounts = loadAccounts();
       let acc = accounts.find(a => a.nickname === nick && a.password === pass);
-      if(acc) {
-        alert("Đăng nhập thành công 🚀");
-        executeTransitionGate(nick);
-      } else {
-        alert("Sai nickname hoặc mật khẩu ❌");
-      }
+      if(acc) { alert("Đăng nhập thành công 🚀"); executeTransitionGate(nick); } 
+      else { alert("Sai nickname hoặc mật khẩu ❌"); }
       siNick.value = ""; siPass.value = "";
     }
 
-    // --- CƠ CHẾ NẠP VIEWPORT USER VÀ KHỞI CHẠY ĐỒNG BỘ ---
+    // --- CHUYỂN HOÀN CẢNH KHI ĐĂNG NHẬP THÀNH CÔNG ---
     function executeTransitionGate(username) {
       const d = new Date(); d.setTime(d.getTime() + (24*60*60*1000));
       document.cookie = `user_session=${username}; expires=${d.toUTCString()}; path=/`;
-
       const transStar = document.getElementById('transition-star');
-      transStar.style.opacity = '1';
-      transStar.style.transform = 'translate(-50%, -50%) scale(1) rotate(360deg)';
-
+      transStar.style.opacity = '1'; transStar.style.transform = 'translate(-50%, -50%) scale(1) rotate(360deg)';
+      
       const isLight = document.body.classList.contains('light-mode');
       document.querySelectorAll('.gate-panel').forEach(gate => {
          gate.style.backgroundColor = isLight ? '#ffffff' : '#05050f';
          gate.style.transition = 'transform 1.1s cubic-bezier(0.85, 0, 0.15, 1)';
       });
-
       setTimeout(() => { document.body.classList.add('gates-closed'); }, 400);
 
       setTimeout(() => {
         document.getElementById('main-content-ui').style.display = 'none';
         fetch('user.html').then(res => res.text()).then(htmlData => {
-            const parser = new DOMParser(); const doc = parser.parseFromString(htmlData, 'text/html');
-            const userView = document.createElement('div');
-            userView.id = 'user-app-viewport'; userView.style.position = 'relative'; userView.style.zIndex = '2';
+            const userView = document.createElement('div'); userView.id = 'user-app-viewport';
+            userView.innerHTML = htmlData; document.getElementById('container').appendChild(userView);
             
-            doc.querySelectorAll('style').forEach(st => {
-                const s = document.createElement('style'); s.textContent = st.textContent; userView.appendChild(s);
+            // Tìm và kích hoạt toàn bộ thẻ script có trong file user.html
+            const scripts = userView.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
             });
-            userView.innerHTML += doc.body.innerHTML;
-            document.getElementById('container').appendChild(userView);
-            
-            doc.querySelectorAll('script').forEach(oldSc => {
-                const nSc = document.createElement('script'); nSc.textContent = oldSc.textContent; document.body.appendChild(nSc);
-            });
-
-            // Gọi ép render dữ liệu cũ ngay lập tức
-            if(window.renderNotes) window.renderNotes();
 
             transStar.style.transform = 'translate(-50%, -50%) scale(0) rotate(720deg)';
             setTimeout(() => { document.body.classList.remove('gates-closed'); transStar.style.opacity = '0'; }, 600);
@@ -419,7 +464,7 @@
       }, 1500);
     }
 
-    // TỰ ĐỘNG GIỮ TRANG CỬA SẬP KHI RELOAD
+    // --- KIỂM TRA COOKIE ĐỂ GIỮ PHIÊN KHI RELOAD ---
     window.addEventListener('DOMContentLoaded', () => {
         const getCookie = (name) => {
             const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
@@ -436,20 +481,15 @@
             document.getElementById('main-content-ui').style.display = 'none';
             
             fetch('user.html').then(res => res.text()).then(htmlData => {
-                const parser = new DOMParser(); const doc = parser.parseFromString(htmlData, 'text/html');
-                const userView = document.createElement('div');
-                userView.id = 'user-app-viewport'; userView.style.position = 'relative'; userView.style.zIndex = '2';
-                doc.querySelectorAll('style').forEach(st => {
-                    const s = document.createElement('style'); s.textContent = st.textContent; userView.appendChild(s);
-                });
-                userView.innerHTML += doc.body.innerHTML;
-                document.getElementById('container').appendChild(userView);
+                const userView = document.createElement('div'); userView.id = 'user-app-viewport';
+                userView.innerHTML = htmlData; document.getElementById('container').appendChild(userView);
                 
-                doc.querySelectorAll('script').forEach(oldSc => {
-                    const nSc = document.createElement('script'); nSc.textContent = oldSc.textContent; document.body.appendChild(nSc);
+                const scripts = userView.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    newScript.textContent = oldScript.textContent;
+                    document.body.appendChild(newScript);
                 });
-
-                if(window.renderNotes) window.renderNotes();
 
                 setTimeout(() => {
                     document.querySelectorAll('.gate-panel').forEach(gate => { gate.style.transition = 'transform 1.1s cubic-bezier(0.85, 0, 0.15, 1)'; });
@@ -458,16 +498,6 @@
             });
         }
     });
-
-    // Hiệu ứng hạt bụi vũ trụ tương tác nền
-    let isTouching = false; let currentX = 0, currentY = 0;
-    window.addEventListener('pointerdown', (e) => {
-        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.desc') || e.target.closest('#user-app-viewport')) return;
-        isTouching = true; currentX = e.clientX; currentY = e.clientY;
-        const wave = document.createElement('div'); wave.className = 'tap-shockwave'; wave.style.left = `${currentX}px`; wave.style.top = `${currentY}px`; document.body.appendChild(wave); setTimeout(() => wave.remove(), 600);
-    });
-    window.addEventListener('pointerup', () => isTouching = false);
   </script>
 </body>
-  </html>
-  
+</html>
