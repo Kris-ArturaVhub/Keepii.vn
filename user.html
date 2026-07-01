@@ -43,17 +43,23 @@
     background: rgba(255, 255, 255, 0.12);
   }
 
-  /* ── 2. GRID XẾP GHÉP Ô (1/4 MÀN HÌNH) ── */
+    /* ── 2. GRID XẾP GHÉP Ô (1/4 MÀN HÌNH) ── */
   #notes-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr); 
     gap: 15px;
-    flex: 1;
-    overflow-y: auto;
-    /* ✅ ĐÃ SỬA: Đảm bảo phần đệm vừa vặn với thanh controls đáy, tránh lún lút */
-    padding-bottom: 80px; 
+    
+    /* Khóa cứng chiều cao vùng grid, không cho phép lún xuống thanh điều hướng */
+    height: calc(100% - 170px); 
+    /* Tự động kích hoạt thanh cuộn nội bộ mượt mà khi nhiều box */
+    overflow-y: scroll; 
+    -webkit-overflow-scrolling: touch;
+    
+    /* Tạo khoảng đệm an toàn cách biệt hoàn toàn với nút bấm đáy */
+    padding-bottom: 100px; 
+    box-sizing: border-box;
   }
-
+  
   .note-card {
     background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(79, 70, 229, 0.15));
     border: 1px solid rgba(6, 182, 212, 0.3);
@@ -241,7 +247,7 @@
   #user-avatar-container {
     position: fixed;
     top: 15px;
-    right: 140px; /* Tránh đè lên công tắc theme-switch */
+    right: 250px; /* Tránh đè lên công tắc theme-switch */
     z-index: 5000;
   }
 
@@ -330,7 +336,7 @@
 </div>
 
 <div id="user-dashboard">
-  <div class="infinite-text-pad" contenteditable="true" placeholder="Gõ văn bản dài vô hạn tại đây..." id="infinitePad"></div>
+  <div class="infinite-text-pad" contenteditable="true" placeholder="Gõ văn bản tại đây..." id="infinitePad"></div>
 
   <div id="notes-grid"></div>
 </div>
@@ -455,7 +461,7 @@
         <div class="fullscreen-title">ĐANG CHỈNH SỬA GHI CHÚ #${index + 1}</div>
         <div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Thoát ✕</div>
       </div>
-      <textarea class="fullscreen-editor" id="editor-${index}" placeholder="Nhập nội dung... Tự động lưu khi gõ...">${userNotes[index]}</textarea>
+      <textarea class="fullscreen-editor" id="editor-${index}" placeholder="Nhập nội dung...">${userNotes[index]}</textarea>
     `;
     
     document.body.appendChild(fsContainer);
