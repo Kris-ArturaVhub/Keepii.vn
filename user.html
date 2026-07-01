@@ -2,7 +2,7 @@
   /* ── 1. KHÔNG GIAN APPS CHÍNH CỦA USER ── */
   #user-dashboard {
     position: absolute;
-    top: 60px; /* Chừa không gian cho nút Mode nền ở góc trên */
+    top: 60px; 
     left: 0;
     width: 100%;
     height: calc(100vh - 60px);
@@ -41,10 +41,10 @@
     background: rgba(255, 255, 255, 0.12);
   }
 
-  /* ── 2. GRID XẾP GHÉP O VÀNG (1/4 MÀN HÌNH) ── */
+  /* ── 2. GRID XẾP GHÉP Ô (1/4 MÀN HÌNH) ── */
   #notes-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 cột tạo tỷ lệ 1/4 màn hình mỗi ô */
+    grid-template-columns: repeat(2, 1fr); 
     gap: 15px;
     flex: 1;
     overflow-y: auto;
@@ -63,7 +63,8 @@
     cursor: pointer;
     overflow: hidden;
     position: relative;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Hiệu ứng đàn hồi Cubic-Bezier khi chạm nhẹ */
+    transition: transform 0.4s cubic-bezier(0.25, 1.5, 0.5, 1);
   }
   body.light-mode .note-card {
     background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(79, 70, 229, 0.1));
@@ -71,7 +72,7 @@
     color: #101026;
   }
   .note-card:active {
-    transform: scale(0.96);
+    transform: scale(0.92);
   }
   .note-card-title {
     font-weight: bold;
@@ -116,20 +117,8 @@
     font-size: 18px;
     resize: none;
   }
-  .close-edit-btn {
-    position: absolute;
-    bottom: 30px;
-    right: 20px;
-    background: #06b6d4;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-  }
 
-  /* ── 3. CÁC NÚT ĐIỀU HƯỚNG CHỨC NĂNG CHÌM ── */
+  /* ── 3. THIẾT KẾ NÚT BẰNG DIV + CUBIC-BEZIER ── */
   /* Nút Tạo Mới (+) */
   #add-note-btn {
     position: fixed;
@@ -142,23 +131,27 @@
     background: linear-gradient(135deg, #06b6d4, #4f46e5);
     color: white;
     font-size: 30px;
-    border: none;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1005;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  #add-note-btn:active {
+    transform: translateX(-50%) scale(0.85);
   }
 
-  /* Nút Đăng Xuất (Màu đỏ chìm góc trái) */
+  /* Nút Đăng Xuất Đỏ */
   #logout-btn {
     position: fixed;
     top: 15px;
     left: 15px;
     background: #ef4444;
     color: white;
-    border: none;
     padding: 6px 14px;
     border-radius: 6px;
     font-weight: bold;
@@ -166,9 +159,61 @@
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
     z-index: 1002;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  #logout-btn:active {
+    transform: scale(0.88);
   }
 
-  /* ── 4. POPUP LỰA CHỌN PHÂN LOẠI (CUBIC-BEZIER) ── */
+  /* Nút Xong & Lưu */
+  .close-edit-btn {
+    position: absolute;
+    bottom: 30px;
+    right: 20px;
+    background: #06b6d4;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .close-edit-btn:active {
+    transform: scale(0.9);
+  }
+
+  /* Nút Tùy Chọn Trong Popup */
+  .type-option-btn {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
+  }
+  body.light-mode .type-option-btn {
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.1);
+    color: #101026;
+  }
+  .type-option-btn:active {
+    transform: scale(0.96);
+    background: rgba(6, 182, 212, 0.2);
+  }
+
+  /* ── 4. POPUP LỰA CHỌN PHÂN LOẠI ── */
   #type-popup-mask {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -194,7 +239,6 @@
     max-width: 320px;
     text-align: center;
     transform: scale(0.6);
-    /* Hiệu ứng mượt mà cubic-bezier theo yêu cầu của bạn */
     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   body.light-mode .type-popup-box {
@@ -210,23 +254,6 @@
     font-size: 16px;
   }
   body.light-mode .popup-title { color: #101026; }
-  .type-option-btn {
-    width: 100%;
-    padding: 12px;
-    margin: 6px 0;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.05);
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: left;
-  }
-  body.light-mode .type-option-btn {
-    background: rgba(0,0,0,0.03);
-    border: 1px solid rgba(0,0,0,0.1);
-    color: #101026;
-  }
 </style>
 
 <div id="user-dashboard">
@@ -235,32 +262,34 @@
   <div id="notes-grid"></div>
 </div>
 
-<button id="logout-btn" onclick="userLogout()">Log out</button>
-<button id="add-note-btn" onclick="openTypePopup()">+</button>
+<div id="logout-btn" onclick="userLogout()">Log out</div>
+<div id="add-note-btn" onclick="openTypePopup()">+</div>
 
 <div id="type-popup-mask" onclick="closeTypePopup()">
   <div class="type-popup-box" onclick="event.stopPropagation()">
     <div class="popup-title">Tạo một ghi chú mới</div>
-    <button class="type-option-btn type-text-class" onclick="createNewTextNote()">
+    
+    <div class="type-option-btn type-text-class" onclick="createNewTextNote()">
       <span class="note-icon">📝</span> Văn bản thuần túy
-    </button>
-    <button class="type-option-btn type-future-class" style="opacity: 0.4;" disabled>
+    </div>
+    <div class="type-option-btn type-future-class" style="opacity: 0.3; cursor: not-allowed;">
       <span class="note-icon">🔒</span> Loại ghi chú khác (Sắp ra mắt)
-    </button>
+    </div>
   </div>
 </div>
 
 <script>
-  // Chặn hiệu ứng nổi bọt chạm ngón tay không gian lên các phần tử điều khiển UI
+  // Sửa lỗi nuốt sự kiện: Đổi pointerdown sang chặn nổi bọt nhưng vẫn cho phép click kích hoạt hàm
   ['user-dashboard', 'add-note-btn', 'logout-btn', 'type-popup-mask'].forEach(id => {
     const el = document.getElementById(id);
     if(el){
-      el.addEventListener('pointerdown', (e) => e.stopPropagation());
-      el.addEventListener('click', (e) => e.stopPropagation());
+      el.addEventListener('pointerdown', (e) => {
+        // Chỉ chặn nổi bọt, KHÔNG dùng preventDefault để hàm onclick() chạy bình thường
+        e.stopPropagation(); 
+      });
     }
   });
 
-  // Lấy tên định danh người dùng từ cookie giả lập
   function getUsernameFromCookie() {
     const match = document.cookie.match(new RegExp('(^| )user_session=([^;]+)'));
     return match ? decodeURIComponent(match[2]) : 'guest';
@@ -274,7 +303,7 @@
   const infPad = document.getElementById('infinitePad');
   if(savedInfiniteText) infPad.innerText = savedInfiniteText;
 
-  // Lắng nghe lưu tự động văn bản vô hạn
+  // Tự động lưu văn bản vô hạn
   infPad.addEventListener('input', () => {
     localStorage.setItem(`inf_text_${currentUser}`, infPad.innerText);
   });
@@ -288,78 +317,72 @@
       card.className = 'note-card';
       card.onclick = () => openFullscreenNote(index);
       card.innerHTML = `
-        <div class="note-card-title">Ghi chú #${index + 1}</div>
+        <div class="note-card-title">Ghi chú #<span class="note-index-span">${index + 1}</span></div>
         <div class="note-card-body">${note.replace(/\n/g, '<br>')}</div>
       `;
       grid.appendChild(card);
     });
   }
 
-  // Quản lý popup tạo loại ghi chú
+  // Popup điều khiển
   function openTypePopup() { document.getElementById('type-popup-mask').classList.add('open'); }
   function closeTypePopup() { document.getElementById('type-popup-mask').classList.remove('open'); }
 
-  // Tạo ghi chú văn bản thuần túy mới
+  // Tạo ghi chú
   function createNewTextNote() {
     userNotes.push("Nội dung ghi chú mới...");
     localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
     closeTypePopup();
     renderNotes();
-    openFullscreenNote(userNotes.length - 1); // Mở trình chỉnh sửa ngay khi tạo
+    openFullscreenNote(userNotes.length - 1);
   }
 
-  // Bật chế độ phóng to chỉnh sửa toàn màn hình
+  // Phóng to chỉnh sửa toàn màn hình
   function openFullscreenNote(index) {
     const card = document.createElement('div');
     card.className = 'note-card fullscreen-mode';
+    // Dùng div thay cho button cho nút lưu toàn màn hình
     card.innerHTML = `
       <textarea class="fullscreen-editor" id="editor-${index}">${userNotes[index]}</textarea>
-      <button class="close-edit-btn" onclick="closeFullscreenNote(${index})">Xong & Lưu ✅</button>
+      <div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Xong & Lưu ✅</div>
     `;
     document.body.appendChild(card);
   }
 
-  // Tắt phóng to và đồng bộ dữ liệu vào LocalStorage
+  // Thu nhỏ và lưu
   window.closeFullscreenNote = function(index) {
     const textVal = document.getElementById(`editor-${index}`).value;
     userNotes[index] = textVal;
     localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
     
-    // Gỡ bỏ khung toàn màn hình khỏi DOM
     const fsCard = document.querySelector('.note-card.fullscreen-mode');
     if(fsCard) fsCard.remove();
     
     renderNotes();
   };
 
-  // 🚀 ENGINE ĐĂNG XUẤT: KẾT HỢP CỬA SẬP INDEX.HTML VÀ XÓA COOKIE
+  // HÀM ĐĂNG XUẤT KẾT HỢP CỬA SẬP
   window.userLogout = function() {
-    // 1. Kích hoạt hiệu ứng ngôi sao xanh lá trung tâm có sẵn trên index
     const transStar = document.getElementById('transition-star');
     if(transStar) {
       transStar.style.opacity = '1';
       transStar.style.transform = 'translate(-50%, -50%) scale(1) rotate(360deg)';
     }
 
-    // 2. Kéo rèm đóng cửa sập 
     setTimeout(() => {
       document.body.classList.add('gates-closed');
     }, 400);
 
-    // 3. Tiến hành chuyển đổi trả lại giao diện index nguyên bản trong lúc cửa đóng kín
     setTimeout(() => {
-      // Xóa cookie giả lập đăng nhập
+      // Xóa cookie phiên làm việc
       document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       
-      // Gỡ bỏ phân vùng app user
       const viewport = document.getElementById('user-app-viewport');
       if(viewport) viewport.remove();
 
-      // Hiện lại Form đăng nhập gốc
       const loginUI = document.getElementById('main-content-ui');
       if(loginUI) loginUI.style.display = 'block';
 
-      // Thu hồi ngôi sao và mở cánh cửa ra lại
       if(transStar) transStar.style.transform = 'translate(-50%, -50%) scale(0) rotate(720deg)';
       setTimeout(() => {
         document.body.classList.remove('gates-closed');
@@ -369,7 +392,6 @@
     }, 1400);
   };
 
-  // Khởi chạy nạp danh sách ban đầu khi vừa đăng nhập vào
+  // Chạy nạp dữ liệu ban đầu
   renderNotes();
-  </script>
-  
+</script>
