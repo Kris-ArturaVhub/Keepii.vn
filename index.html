@@ -136,11 +136,11 @@
     .theme-switch-wrapper {
       position: fixed;
       top: 15px;
-      right: 15px; /* Thêm padding nhẹ để cân đối */
+      right: 15px;
       display: flex;
       align-items: center;
       flex-direction: row; 
-      z-index: 7000; /* Đẩy hẳn lên trên để không bị che khuất khi nạp user dashboard */
+      z-index: 7000;
       gap: 10px;
     }
 
@@ -347,10 +347,7 @@
     }
     button.input-box:active { transform: scale(0.95); }
 
-    /* ========================================================
-       ✨ CÁC STYLE PHỤC VỤ CHO BIG UPDATE CHUYỂN CẢNH ✨
-       ======================================================== */
-    /* Custom Toast Thông Báo Thay Thế Alert */
+    /* Custom Toast */
     #custom-toast {
       position: fixed;
       top: 20px;
@@ -480,7 +477,6 @@
   </div>
 
   <script>
-    // Hàm gọi thông báo UI thay thế alert gốc
     function showToast(msg) {
       const toast = document.getElementById('custom-toast');
       toast.textContent = msg;
@@ -498,7 +494,6 @@
       }
     }
 
-    // Chặn sự kiện nổi bọt trên Form
     document.querySelectorAll(".input-box").forEach(input => {
       input.addEventListener("pointerdown", function(e){ e.stopPropagation(); });
       input.addEventListener("click", function(e){ e.stopPropagation(); });
@@ -544,9 +539,6 @@
       siNick.value = ""; siPass.value = "";
     }
 
-    // ========================================================
-    // 🚀 ENGINE BIG UPDATE: HIỆU ỨNG ĐÓNG CỬA CHUYỂN CẢNH 3D
-    // ========================================================
     function executeTransitionGate(username) {
       const d = new Date();
       d.setTime(d.getTime() + (24*60*60*1000));
@@ -575,49 +567,36 @@
             return response.text();
           })
           .then(htmlData => {
+            const oldViewport = document.getElementById('user-app-viewport');
+            if(oldViewport) oldViewport.remove();
+
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlData, 'text/html');
             
-            // 1. Tạo một phân vùng viewport sạch cho user
             const userView = document.createElement('div');
             userView.id = 'user-app-viewport';
             userView.style.position = 'relative';
             userView.style.zIndex = '2';
             
-            // 2. ÉP BÓC TÁCH VÀ NẠP CSS (<style>) hợp lệ
             doc.querySelectorAll('style').forEach(styleBlock => {
                 const newStyle = document.createElement('style');
                 newStyle.textContent = styleBlock.textContent;
                 userView.appendChild(newStyle);
             });
 
-            // 3. Nạp phần thân HTML
             userView.innerHTML += doc.body.innerHTML;
             document.getElementById('container').appendChild(userView);
             
-            // 4. ÉP TRÌNH DUYỆT PHẢI CHẠY JAVASCRIPT (<script>)
             doc.querySelectorAll('script').forEach(oldScript => {
                 const newScript = document.createElement('script');
                 newScript.textContent = oldScript.textContent;
                 document.body.appendChild(newScript); 
             });
-            
-            // Thu hồi cửa sập
-            transStar.style.transform = 'translate(-50%, -50%) scale(0) rotate(720deg)';
-            setTimeout(() => {
-              document.body.classList.remove('gates-closed');
-              transStar.style.opacity = '0';
-            }, 600);
-          })
-          .catch(err => {
-          console.error(err);
-            const backupDiv = document.createElement('div');
-            backupDiv.id = 'user-app-viewport';
-            backupDiv.style.color = '#fff';
-            backupDiv.style.textAlign = 'center';
-            backupDiv.style.marginTop = '100px';
-            backupDiv.innerHTML = `<h2>Chào mừng, ${username}!</h2><p>Lỗi nạp file user.html thực tế.</p>`;
-            document.getElementById('container').appendChild(backupDiv);
+
+            // ✅ SỬA LỖI ĐĂNG XUẤT XONG VÔ LẠI BỊ MẤT BOX: Gọi lại hàm đồng bộ dữ liệu nếu nó tồn tại trong script vừa nạp
+            if (typeof syncUserData === 'function') {
+                syncUserData();
+            }
             
             transStar.style.transform = 'translate(-50%, -50%) scale(0) rotate(720deg)';
             setTimeout(() => {
@@ -625,14 +604,9 @@
               transStar.style.opacity = '0';
             }, 600);
           });
-
       }, 1900);
     }
     
-
-    // ========================================================
-    // 🌟 KHỐI HIỆU ỨNG KHÔNG GIAN (ĐÃ VÁ LỖI XUNG ĐỘT HOÀN TOÀN)
-    // ========================================================
     const crack = document.getElementById('space-crack');
     const coreContainer = document.getElementById('core-container');
     const star = document.getElementById('core-star');
@@ -680,7 +654,7 @@
     }
 
     window.addEventListener('pointerdown', (e) => {
-        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.desc') || e.target.closest('.theme-switch-wrapper') || e.target.closest('.card-text') || e.target.closest('#user-avatar-area')) return; 
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.desc') || e.target.closest('.theme-switch-wrapper') || e.target.closest('.card-text') || e.target.closest('#user-avatar-container')) return; 
         if (e.pointerType === 'touch') e.preventDefault(); 
 
         isTouching = true;
@@ -741,10 +715,6 @@
     window.addEventListener('pointerleave', endEffect);
     window.addEventListener('pointercancel', endEffect);
 
-            
-    // ========================================================
-    // ⚙️ XỬ LÝ CÔNG TẮC ĐỔI NỀN (KHÓA 2 GIÂY CHỐNG SPAM)
-    // ========================================================
     const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
     const switchText = document.querySelector('.theme-switch-wrapper span');
 
@@ -755,6 +725,7 @@
             document.body.classList.remove('light-mode');
             document.body.classList.add('turning-dark'); 
             switchText.textContent = "Chế độ tối";
+            localStorage.setItem('theme', 'dark');
             
             setTimeout(() => {
                 if(toggleSwitch.checked) {
@@ -765,6 +736,7 @@
             document.body.classList.remove('turning-dark');
             document.body.classList.add('light-mode'); 
             switchText.textContent = "Chế độ sáng";
+            localStorage.setItem('theme', 'light');
         }
 
         setTimeout(() => {
@@ -772,10 +744,19 @@
         }, 2000);
     });
 
-    // ========================================================
-    // ⚡ KIỂM TRA COOKIE KHI RELOAD - TỰ ĐỘNG ĐÓNG/MỞ CỬA SẬP
-    // ========================================================
     window.addEventListener('DOMContentLoaded', () => {
+        // ✅ SỬA LỖI RELOAD TRANG MẤT NỀN SÁNG: Khôi phục chính xác trạng thái nút bấm và giao diện từ LocalStorage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            toggleSwitch.checked = false;
+            document.body.classList.add('light-mode');
+            switchText.textContent = "Chế độ sáng";
+        } else {
+            toggleSwitch.checked = true;
+            document.body.classList.remove('light-mode');
+            switchText.textContent = "Chế độ tối";
+        }
+
         const getCookie = (name) => {
             const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
             return match ? decodeURIComponent(match[2]) : null;
@@ -818,6 +799,11 @@
                     nSc.textContent = oldSc.textContent;
                     document.body.appendChild(nSc);
                 });
+
+                // ✅ Đồng bộ lại dữ liệu của user khi reload trang trực tiếp
+                if (typeof syncUserData === 'function') {
+                    syncUserData();
+                }
 
                 setTimeout(() => {
                     document.querySelectorAll('.gate-panel').forEach(gate => {
