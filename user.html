@@ -1,1 +1,375 @@
+<style>
+  /* ── 1. KHÔNG GIAN APPS CHÍNH CỦA USER ── */
+  #user-dashboard {
+    position: absolute;
+    top: 60px; /* Chừa không gian cho nút Mode nền ở góc trên */
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 60px);
+    box-sizing: border-box;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-family: sans-serif;
+  }
 
+  /* Khu vực gõ văn bản vô hạn */
+  .infinite-text-pad {
+    width: 100%;
+    min-height: 80px;
+    max-height: 150px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: #fff;
+    padding: 12px;
+    box-sizing: border-box;
+    outline: none;
+    font-size: 16px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  body.light-mode .infinite-text-pad {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    color: #101026;
+  }
+  .infinite-text-pad:focus {
+    border-color: #06b6d4;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  /* ── 2. GRID XẾP GHÉP O VÀNG (1/4 MÀN HÌNH) ── */
+  #notes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 cột tạo tỷ lệ 1/4 màn hình mỗi ô */
+    gap: 15px;
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 80px;
+  }
+
+  /* Khung ghi chú nhỏ */
+  .note-card {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(79, 70, 229, 0.15));
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 12px;
+    height: 140px;
+    padding: 12px;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  body.light-mode .note-card {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(79, 70, 229, 0.1));
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    color: #101026;
+  }
+  .note-card:active {
+    transform: scale(0.96);
+  }
+  .note-card-title {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #06b6d4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .note-card-body {
+    font-size: 13px;
+    opacity: 0.8;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* TRẠNG THÁI PHÓNG TO TOÀN MÀN HÌNH */
+  .note-card.fullscreen-mode {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 4000;
+    margin: 0; border-radius: 0;
+    background: #0d0d1e;
+    border: none;
+    padding: 30px 20px;
+    cursor: default;
+    transform: scale(1) !important;
+  }
+  body.light-mode .note-card.fullscreen-mode {
+    background: #ffffff;
+  }
+  .fullscreen-editor {
+    width: 100%;
+    height: 85%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: inherit;
+    font-size: 18px;
+    resize: none;
+  }
+  .close-edit-btn {
+    position: absolute;
+    bottom: 30px;
+    right: 20px;
+    background: #06b6d4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  /* ── 3. CÁC NÚT ĐIỀU HƯỚNG CHỨC NĂNG CHÌM ── */
+  /* Nút Tạo Mới (+) */
+  #add-note-btn {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #06b6d4, #4f46e5);
+    color: white;
+    font-size: 30px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1005;
+  }
+
+  /* Nút Đăng Xuất (Màu đỏ chìm góc trái) */
+  #logout-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    z-index: 1002;
+  }
+
+  /* ── 4. POPUP LỰA CHỌN PHÂN LOẠI (CUBIC-BEZIER) ── */
+  #type-popup-mask {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 4500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  #type-popup-mask.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .type-popup-box {
+    background: #151525;
+    border: 2px solid #06b6d4;
+    border-radius: 16px;
+    padding: 25px;
+    width: 85%;
+    max-width: 320px;
+    text-align: center;
+    transform: scale(0.6);
+    /* Hiệu ứng mượt mà cubic-bezier theo yêu cầu của bạn */
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  body.light-mode .type-popup-box {
+    background: #ffffff;
+  }
+  #type-popup-mask.open .type-popup-box {
+    transform: scale(1);
+  }
+  .popup-title {
+    color: #fff;
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 16px;
+  }
+  body.light-mode .popup-title { color: #101026; }
+  .type-option-btn {
+    width: 100%;
+    padding: 12px;
+    margin: 6px 0;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+  }
+  body.light-mode .type-option-btn {
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.1);
+    color: #101026;
+  }
+</style>
+
+<div id="user-dashboard">
+  <div class="infinite-text-pad" contenteditable="true" placeholder="Gõ văn bản dài vô hạn tại đây..." id="infinitePad"></div>
+
+  <div id="notes-grid"></div>
+</div>
+
+<button id="logout-btn" onclick="userLogout()">Log out</button>
+<button id="add-note-btn" onclick="openTypePopup()">+</button>
+
+<div id="type-popup-mask" onclick="closeTypePopup()">
+  <div class="type-popup-box" onclick="event.stopPropagation()">
+    <div class="popup-title">Tạo một ghi chú mới</div>
+    <button class="type-option-btn type-text-class" onclick="createNewTextNote()">
+      <span class="note-icon">📝</span> Văn bản thuần túy
+    </button>
+    <button class="type-option-btn type-future-class" style="opacity: 0.4;" disabled>
+      <span class="note-icon">🔒</span> Loại ghi chú khác (Sắp ra mắt)
+    </button>
+  </div>
+</div>
+
+<script>
+  // Chặn hiệu ứng nổi bọt chạm ngón tay không gian lên các phần tử điều khiển UI
+  ['user-dashboard', 'add-note-btn', 'logout-btn', 'type-popup-mask'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){
+      el.addEventListener('pointerdown', (e) => e.stopPropagation());
+      el.addEventListener('click', (e) => e.stopPropagation());
+    }
+  });
+
+  // Lấy tên định danh người dùng từ cookie giả lập
+  function getUsernameFromCookie() {
+    const match = document.cookie.match(new RegExp('(^| )user_session=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : 'guest';
+  }
+
+  const currentUser = getUsernameFromCookie();
+  let userNotes = JSON.parse(localStorage.getItem(`notes_${currentUser}`)) || [];
+  let savedInfiniteText = localStorage.getItem(`inf_text_${currentUser}`) || "";
+
+  // Khôi phục văn bản vô hạn
+  const infPad = document.getElementById('infinitePad');
+  if(savedInfiniteText) infPad.innerText = savedInfiniteText;
+
+  // Lắng nghe lưu tự động văn bản vô hạn
+  infPad.addEventListener('input', () => {
+    localStorage.setItem(`inf_text_${currentUser}`, infPad.innerText);
+  });
+
+  // Render danh sách ghi chú
+  function renderNotes() {
+    const grid = document.getElementById('notes-grid');
+    grid.innerHTML = '';
+    userNotes.forEach((note, index) => {
+      const card = document.createElement('div');
+      card.className = 'note-card';
+      card.onclick = () => openFullscreenNote(index);
+      card.innerHTML = `
+        <div class="note-card-title">Ghi chú #${index + 1}</div>
+        <div class="note-card-body">${note.replace(/\n/g, '<br>')}</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // Quản lý popup tạo loại ghi chú
+  function openTypePopup() { document.getElementById('type-popup-mask').classList.add('open'); }
+  function closeTypePopup() { document.getElementById('type-popup-mask').classList.remove('open'); }
+
+  // Tạo ghi chú văn bản thuần túy mới
+  function createNewTextNote() {
+    userNotes.push("Nội dung ghi chú mới...");
+    localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
+    closeTypePopup();
+    renderNotes();
+    openFullscreenNote(userNotes.length - 1); // Mở trình chỉnh sửa ngay khi tạo
+  }
+
+  // Bật chế độ phóng to chỉnh sửa toàn màn hình
+  function openFullscreenNote(index) {
+    const card = document.createElement('div');
+    card.className = 'note-card fullscreen-mode';
+    card.innerHTML = `
+      <textarea class="fullscreen-editor" id="editor-${index}">${userNotes[index]}</textarea>
+      <button class="close-edit-btn" onclick="closeFullscreenNote(${index})">Xong & Lưu ✅</button>
+    `;
+    document.body.appendChild(card);
+  }
+
+  // Tắt phóng to và đồng bộ dữ liệu vào LocalStorage
+  window.closeFullscreenNote = function(index) {
+    const textVal = document.getElementById(`editor-${index}`).value;
+    userNotes[index] = textVal;
+    localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
+    
+    // Gỡ bỏ khung toàn màn hình khỏi DOM
+    const fsCard = document.querySelector('.note-card.fullscreen-mode');
+    if(fsCard) fsCard.remove();
+    
+    renderNotes();
+  };
+
+  // 🚀 ENGINE ĐĂNG XUẤT: KẾT HỢP CỬA SẬP INDEX.HTML VÀ XÓA COOKIE
+  window.userLogout = function() {
+    // 1. Kích hoạt hiệu ứng ngôi sao xanh lá trung tâm có sẵn trên index
+    const transStar = document.getElementById('transition-star');
+    if(transStar) {
+      transStar.style.opacity = '1';
+      transStar.style.transform = 'translate(-50%, -50%) scale(1) rotate(360deg)';
+    }
+
+    // 2. Kéo rèm đóng cửa sập 
+    setTimeout(() => {
+      document.body.classList.add('gates-closed');
+    }, 400);
+
+    // 3. Tiến hành chuyển đổi trả lại giao diện index nguyên bản trong lúc cửa đóng kín
+    setTimeout(() => {
+      // Xóa cookie giả lập đăng nhập
+      document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      
+      // Gỡ bỏ phân vùng app user
+      const viewport = document.getElementById('user-app-viewport');
+      if(viewport) viewport.remove();
+
+      // Hiện lại Form đăng nhập gốc
+      const loginUI = document.getElementById('main-content-ui');
+      if(loginUI) loginUI.style.display = 'block';
+
+      // Thu hồi ngôi sao và mở cánh cửa ra lại
+      if(transStar) transStar.style.transform = 'translate(-50%, -50%) scale(0) rotate(720deg)';
+      setTimeout(() => {
+        document.body.classList.remove('gates-closed');
+        if(transStar) transStar.style.opacity = '0';
+      }, 600);
+
+    }, 1400);
+  };
+
+  // Khởi chạy nạp danh sách ban đầu khi vừa đăng nhập vào
+  renderNotes();
+  </script>
+  
