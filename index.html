@@ -136,7 +136,7 @@
     .theme-switch-wrapper {
       position: fixed;
       top: 15px;
-      right: 27px;
+      right: 5px;
       display: flex;
       align-items: center;
       flex-direction: row; /* Đảm bảo switch nằm trái, chữ nằm phải */
@@ -547,55 +547,62 @@
     // ========================================================
     // 🚀 ENGINE BIG UPDATE: HIỆU ỨNG ĐÓNG CỬA CHUYỂN CẢNH 3D
     // ========================================================
-    function executeTransitionGate(username) {
-      // 1. Tạo Cookie giả lập thời hạn 1 ngày
+        function executeTransitionGate(username) {
       const d = new Date();
       d.setTime(d.getTime() + (24*60*60*1000));
       document.cookie = `user_session=${username}; expires=${d.toUTCString()}; path=/`;
 
-      // 2. Kích hoạt hiện Ngôi sao xanh lá trung tâm (size 0% -> 100% rồi xoay)
       const transStar = document.getElementById('transition-star');
       transStar.style.opacity = '1';
       transStar.style.transform = 'translate(-50%, -50%) scale(1) rotate(360deg)';
 
-      // Định hình màu cửa theo mode nền hiện tại
       const isLight = document.body.classList.contains('light-mode');
       const gateColor = isLight ? '#ffffff' : '#05050f';
       document.querySelectorAll('.gate-panel').forEach(gate => {
         gate.style.backgroundColor = gateColor;
       });
 
-      // 3. Đợi ngôi sao xoay, tiến hành ĐÓNG CỬA sập từ bên ngoài vào tâm
       setTimeout(() => {
         document.body.classList.add('gates-closed');
       }, 800);
 
-      // 4. Trong khi cửa đang đóng kín (sau 1.2s), nạp ngầm cấu trúc file user.html
       setTimeout(() => {
-        // Ẩn UI đăng nhập cũ để giải phóng không gian
         document.getElementById('main-content-ui').style.display = 'none';
         
-        // Cơ chế đọc toàn bộ code user.html đẩy sang index.html qua AJAX Fetch
         fetch('user.html')
           .then(response => {
             if (!response.ok) throw new Error('Chưa khởi tạo file user.html');
             return response.text();
           })
           .then(htmlData => {
-            // Trích xuất phần nội dung body của user.html hoặc dán đè tùy biến cấu trúc
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlData, 'text/html');
-            const newContent = doc.body.innerHTML || htmlData;
             
-            // Tạo một phân vùng chứa nội dung mới tách biệt z-index: 2
+            // 1. Tạo một phân vùng viewport sạch cho user
             const userView = document.createElement('div');
             userView.id = 'user-app-viewport';
             userView.style.position = 'relative';
             userView.style.zIndex = '2';
-            userView.innerHTML = newContent;
+            
+            // 2. ÉP BÓC TÁCH VÀ NẠP CSS (<style>) hợp lệ
+            doc.querySelectorAll('style').forEach(styleBlock => {
+                const newStyle = document.createElement('style');
+                newStyle.textContent = styleBlock.textContent;
+                userView.appendChild(newStyle);
+            });
+
+            // 3. Nạp phần thân HTML (Bỏ các thẻ style/script thừa bên trong body)
+            userView.innerHTML += doc.body.innerHTML;
             document.getElementById('container').appendChild(userView);
             
-            // Thực thi tiếp vòng xoay ngôi sao quyết định để mở cửa ra lại
+            // 4. ÉP TRÌNH DUYỆT PHẢI CHẠY JAVASCRIPT (<script>)
+            doc.querySelectorAll('script').forEach(oldScript => {
+                const newScript = document.createElement('script');
+                newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript); // Đẩy vào cuối body của index để kích hoạt engine
+            });
+            
+            // Thu hồi cửa sập
             transStar.style.transform = 'translate(-50%, -50%) scale(0) rotate(720deg)';
             setTimeout(() => {
               document.body.classList.remove('gates-closed');
@@ -603,12 +610,14 @@
             }, 600);
           })
           .catch(err => {
-            // Phương án dự phòng nếu chưa có 
-           const backupDiv = document.createElement('div');
+            console.error(err);
+            // Phương án dự phòng nếu file user.html lỗi tải
+            const backupDiv = document.createElement('div');
+            backupDiv.id = 'user-app-viewport';
             backupDiv.style.color = '#fff';
             backupDiv.style.textAlign = 'center';
             backupDiv.style.marginTop = '100px';
-            backupDiv.innerHTML = `<h2>Chào mừng, ${username}!</h2><p>Đang giả lập kết nối hệ thống user.html thành công.</p>`;
+            backupDiv.innerHTML = `<h2>Chào mừng, ${username}!</h2><p>Lỗi nạp file user.html thực tế.</p>`;
             document.getElementById('container').appendChild(backupDiv);
             
             transStar.style.transform = 'translate(-50%, -50%) scale(0) rotate(720deg)';
@@ -620,6 +629,7 @@
 
       }, 1900);
     }
+    
 
     // ========================================================
     // 🌟 KHỐI HIỆU ỨNG KHÔNG GIAN (ĐÃ VÁ LỖI XUNG ĐỘT HOÀN TOÀN)
