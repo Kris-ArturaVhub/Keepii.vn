@@ -48,7 +48,7 @@
     gap: 15px;
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 90px; /* Chừa khoảng trống rộng cho cụm nút điều hướng đáy */
+    padding-bottom: 90px; 
   }
 
   .note-card {
@@ -89,24 +89,55 @@
     overflow: hidden;
   }
 
-  /* ── 3. KHU VỰC TRÌNH CHỈNH SỬA TOÀN MÀN HÌNH CHUẨN (FIXED) ── */
+  /* ── 3. KHU VỰC TRÌNH CHỈNH SỬA TOÀN MÀN HÌNH CHUẨN ── */
   .fullscreen-note-container {
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: 6000; /* Nổi lên trên cùng mọi thành phần */
+    z-index: 6000; 
     background: #090915;
     box-sizing: border-box;
-    padding: 30px 20px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
   }
   body.light-mode .fullscreen-note-container { background: #ffffff; }
 
+  /* Header chứa tiêu đề chỉnh sửa bên trái và nút thoát bên phải */
+  .fullscreen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+  }
+
+  .fullscreen-title {
+    color: #06b6d4;
+    font-weight: bold;
+    font-family: sans-serif;
+    font-size: 16px;
+  }
+
+  /* NÚT THOÁT GÓC TRÊN BÊN PHẢI (DIV + CUBIC BEZIER) */
+  .close-edit-btn {
+    background: #ef4444;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .close-edit-btn:active { transform: scale(0.88) !important; }
+
   .fullscreen-editor {
     width: 100%;
-    flex: 1; /* Chiếm trọn không gian trống */
-    background: rgba(255,255,255,0.02);
+    flex: 1; 
+    background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 12px;
     padding: 15px;
@@ -123,8 +154,7 @@
     color: #101026;
   }
 
-  /* ── 4. THIẾT KẾ CÁC NÚT ĐIỀU HƯỚNG DIV + CUBIC-BEZIER ── */
-  /* Thanh chứa cụm nút chức năng ở đáy màn hình tránh đè lên góc trên */
+  /* ── 4. THIẾT KẾ CÁC NÚT ĐIỀU HƯỚNG ĐÁY MÀN HÌNH ── */
   .bottom-controls-bar {
     position: fixed;
     bottom: 20px;
@@ -170,21 +200,6 @@
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   #logout-btn:active { transform: scale(0.88); }
-
-  .close-edit-btn {
-    width: 100%;
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    color: white;
-    padding: 14px 0;
-    text-align: center;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    user-select: none;
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  .close-edit-btn:active { transform: scale(0.95); }
 
   /* Nút Tùy Chọn Trong Popup */
   .type-option-btn {
@@ -262,15 +277,15 @@
 </div>
 
 <script>
-  // Chặn nổi bọt xử lý sự kiện click
+  // Chặn nổi bọt click cơ bản
   ['user-dashboard', 'type-popup-mask'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('click', (e) => e.stopPropagation());
   });
 
-  // Chặn hiệu ứng chạm nền của index làm phiền khu vực gõ text
+  // Khóa vùng chạm không gian nền
   document.addEventListener('pointerdown', (e) => {
-    if(e.target.closest('#infinitePad') || e.target.closest('.fullscreen-editor') || e.target.closest('.bottom-controls-bar') || e.target.closest('.type-popup-box')) {
+    if(e.target.closest('#infinitePad') || e.target.closest('.fullscreen-note-container') || e.target.closest('.bottom-controls-bar') || e.target.closest('.type-popup-box')) {
       e.stopPropagation();
     }
   });
@@ -310,36 +325,49 @@
   function closeTypePopup() { document.getElementById('type-popup-mask').classList.remove('open'); }
 
   function createNewTextNote() {
-    userNotes.push(""); // Tạo trang trống cho người dùng gõ từ đầu
+    userNotes.push(""); 
     localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
     closeTypePopup();
     renderNotes();
     openFullscreenNote(userNotes.length - 1);
   }
 
-  // 🔥 FIX TRIỆT ĐỂ: Giao diện soạn thảo toàn màn hình chuẩn xác, có textarea và nút lưu rõ ràng
+  // 🔥 THAY ĐỔI LỚN: Layout nút thoát góc trên bên phải + Cơ chế Auto-Save thời gian thực
   function openFullscreenNote(index) {
     const fsContainer = document.createElement('div');
     fsContainer.id = 'active-fullscreen-editor';
     fsContainer.className = 'fullscreen-note-container';
     
-    // Thêm trực tiếp sự kiện chặn bọt lên container soạn thảo toàn màn hình
     fsContainer.addEventListener('pointerdown', (e) => e.stopPropagation());
     fsContainer.addEventListener('click', (e) => e.stopPropagation());
 
     fsContainer.innerHTML = `
-      <div style="color: #06b6d4; font-weight: bold; font-family: sans-serif;">ĐANG CHỈNH SỬA GHI CHÚ #${index + 1}</div>
-      <textarea class="fullscreen-editor" id="editor-${index}" placeholder="Bắt đầu nhập nội dung ghi chú tại đây...">${userNotes[index]}</textarea>
-      <div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Xong & Lưu Ghi Chú ✅</div>
+      <div class="fullscreen-header">
+        <div class="fullscreen-title">ĐANG CHỈNH SỬA GHI CHÚ #${index + 1}</div>
+        <div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Thoát ✕</div>
+      </div>
+      <textarea class="fullscreen-editor" id="editor-${index}" placeholder="Nhập nội dung... Tự động lưu khi gõ...">${userNotes[index]}</textarea>
     `;
+    
     document.body.appendChild(fsContainer);
-    document.getElementById(`editor-${index}`).focus();
+    
+    const textarea = document.getElementById(`editor-${index}`);
+    textarea.focus();
+
+    // ⚡ CƠ CHẾ AUTO-SAVE: Thêm hoặc xóa một chữ cái bất kỳ đều lập tức lưu lại
+    textarea.addEventListener('input', (e) => {
+      userNotes[index] = e.target.value;
+      localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
+    });
   }
 
   window.closeFullscreenNote = function(index) {
-    const textVal = document.getElementById(`editor-${index}`).value;
-    userNotes[index] = textVal;
-    localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
+    // Lưu lại phát cuối phòng hờ trước khi đóng
+    const textarea = document.getElementById(`editor-${index}`);
+    if (textarea) {
+      userNotes[index] = textarea.value;
+      localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
+    }
     
     const fsContainer = document.getElementById('active-fullscreen-editor');
     if(fsContainer) fsContainer.remove();
@@ -359,7 +387,6 @@
     }, 400);
 
     setTimeout(() => {
-      // Xóa cookie
       document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       
       const viewport = document.getElementById('user-app-viewport');
