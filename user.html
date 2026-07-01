@@ -1,5 +1,5 @@
 <style>
-  /* ── 1. KHÔNG GIAN KHUNG NHÌN CHÍNH ── */
+  /* Khu vực dashboard chính */
   #user-dashboard {
     position: absolute;
     top: 75px; 
@@ -15,10 +15,10 @@
     transition: filter 0.4s ease, opacity 0.4s ease;
   }
 
-  /* Làm mờ mờ mượt mà các div khác khi mở ngăn kéo profile */
+  /* Tạo bộ lọc mờ mờ cho các thành phần khác khi mở profile trượt xuống */
   .dashboard-dimmed {
-    filter: blur(3px);
-    opacity: 0.4;
+    filter: blur(4px) brightness(0.6);
+    opacity: 0.5;
     pointer-events: none;
   }
 
@@ -39,14 +39,14 @@
   }
   body.light-mode .infinite-text-pad { background: rgba(0, 0, 0, 0.04); border: 1px solid rgba(0, 0, 0, 0.12); color: #101026; }
 
-  /* LƯỚI GRID Ô ĐƯỢC ĐẨY ĐÁY ĐẢM BẢO KHÔNG BỊ CHÈN KHUẤT KHUNG THỨ 5 */
+  /* Grid danh sách note - Đã nới rộng padding đáy lên hẳn 140px cực kỳ thông thoáng */
   #notes-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr); 
     gap: 12px;
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 140px; /* Thêm dôi dư khoảng cách đáy cực kỳ an toàn */
+    padding-bottom: 140px; 
   }
 
   .note-card {
@@ -68,67 +68,66 @@
   .note-card-title { font-weight: bold; font-size: 13px; margin-bottom: 4px; color: #06b6d4; }
   .note-card-body { font-size: 12px; opacity: 0.8; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-  /* ── 2. ĐẶC TÍNH NÚT PROFILE VÀ NGÂN KÉO (Z-INDEX PHÂN TẦNG) ── */
+  /* ── PHÂN CẤP Z-INDEX: AVATAR > NGÂN KÉO TRƯỢT > KHÔNG GIAN KHÁC ── */
   #user-profile-avatar {
     position: fixed;
     top: 12px;
-    left: 15px; /* Đặt ở rìa trái để không cấn nút đổi nền bên phải */
+    left: 15px; 
     width: 42px;
     height: 42px;
     border-radius: 50%;
     background: linear-gradient(135deg, #a855f7, #ec4899);
     border: 2px solid #fff;
-    box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+    box-shadow: 0 0 12px rgba(236, 72, 153, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 22px;
     cursor: pointer;
-    z-index: 8500; /* Lớn nhất */
+    z-index: 8500; /* Lớn nhất hệ thống */
     user-select: none;
     transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  #user-profile-avatar:active { transform: scale(0.88); }
 
   #profile-drawer {
     position: fixed;
-    top: -25vh; /* Ẩn hẳn lên trên */
+    top: -22vh; /* Kéo ẩn giấu hẳn lên trên */
     left: 0.5%;
     width: 99%;
     height: 20vh;
-    background: #111122;
+    background: #0e0e1a;
     border: 2px solid #a855f7;
     border-top: none;
     border-radius: 0 0 16px 16px;
     box-sizing: border-box;
     padding: 15px;
-    z-index: 8000; /* Nhỏ hơn avatar nhưng lớn hơn tất cả phần khác */
+    z-index: 8000; /* Nằm dưới Avatar nhưng nằm trên View chính */
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
     transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   body.light-mode #profile-drawer { background: #ffffff; border-color: #a855f7; }
   
+  /* Lệnh kích hoạt ngăn kéo trượt xuống */
   #profile-drawer.open {
-    transform: translateY(25vh + 5px);
-    top: 0;
+    transform: translateY(22vh);
   }
 
   .drawer-username { font-size: 16px; font-weight: bold; color: #06b6d4; font-family: sans-serif; }
   body.light-mode .drawer-username { color: #4f46e5; }
 
-  #logout-btn {
-    background: #ef4444; color: white; height: 36px; padding: 0 20px; border-radius: 18px;
+  #drawer-logout-inner {
+    background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; height: 38px; padding: 0 24px; border-radius: 20px;
     font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); border: none; outline: none;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
-  #logout-btn:active { transform: scale(0.9); }
+  #drawer-logout-inner:active { transform: scale(0.9); }
 
-  /* Nút Tạo Ghi Chú đáy */
+  /* Nút tròn tạo Note nhanh đặt ở đáy */
   #add-note-btn {
     position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
     width: 55px; height: 55px; border-radius: 50%;
@@ -139,62 +138,64 @@
   }
   #add-note-btn:active { transform: translateX(-50%) scale(0.86); }
 
-  /* ── 3. HIỆU ỨNG TRIỆU HỒI NGÔI SAO VÀNG VÀ CHỈNH SỬA TOÀN MÀN HÌNH ── */
+  /* ── 3. NGÔI SAO VÀNG TƯNG NẢY XOAY TRÒN & EDITOR TỪ TÂM MÀN HÌNH ── */
   #summon-gold-star {
     position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-    width: 60px; height: 60px; background: #eab308;
+    width: 65px; height: 65px; background: #eab308;
     clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
     z-index: 9000; opacity: 0;
-    filter: drop-shadow(0 0 15px #eab308);
+    filter: drop-shadow(0 0 20px #eab308);
   }
-  /* Animation tưng nảy cho sao vàng */
-  @keyframes starSummon {
+  
+  @keyframes starElasticSummon {
     0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 0; }
-    50% { transform: translate(-50%, -50%) scale(1.4) rotate(180deg); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.5) rotate(180deg); opacity: 1; }
     100% { transform: translate(-50%, -50%) scale(1) rotate(360deg); opacity: 1; }
   }
 
+  /* Khung soạn thảo - Mặc định kích thước 0 ẩn giữa tâm màn hình */
   .fullscreen-note-container {
     position: fixed; top: 50%; left: 50%; width: 100vw; height: 100vh;
-    transform: translate(-50%, -50%) scale(0); /* Xuất phát điểm từ tâm kích thước 0 */
-    z-index: 7000; background: #090915; box-sizing: border-box; padding: 20px;
+    transform: translate(-50%, -50%) scale(0); 
+    z-index: 7000; background: #070712; box-sizing: border-box; padding: 20px;
     display: flex; flex-direction: column; gap: 15px; opacity: 0;
-    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+    transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
   }
   body.light-mode .fullscreen-note-container { background: #ffffff; }
   
+  /* Lệnh kích hoạt mở rộng khung từ 0 lên 100 */
   .fullscreen-note-container.active-open {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
   }
 
   .fullscreen-header { display: flex; justify-content: space-between; align-items: center; width: 100%; height: 40px; }
-  .fullscreen-title { color: #06b6d4; font-weight: bold; font-size: 15px; }
+  .fullscreen-title { color: #06b6d4; font-weight: bold; font-size: 15px; font-family: sans-serif; }
   
   .close-edit-btn {
-    background: #ef4444; color: white; padding: 6px 16px; border-radius: 20px;
+    background: #ef4444; color: white; padding: 7px 18px; border-radius: 20px;
     font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
-  .close-edit-btn:active { transform: scale(0.88); }
+  .close-edit-btn:active { transform: scale(0.88) !important; }
 
   .fullscreen-editor {
-    width: 100%; flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+    width: 100%; flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
     border-radius: 12px; padding: 15px; box-sizing: border-box; outline: none; color: #fff; font-size: 16px; resize: none;
   }
   body.light-mode .fullscreen-editor { background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1); color: #101026; }
 
-  /* Popup tùy chọn loại note */
+  /* Popup mặt nạ */
   #type-popup-mask {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
     z-index: 4500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none;
     transition: opacity 0.4s ease;
   }
   #type-popup-mask.open { opacity: 1; pointer-events: auto; }
-  .type-popup-box { background: #151525; border: 2px solid #06b6d4; border-radius: 16px; padding: 25px; width: 85%; max-width: 320px; text-align: center; transform: scale(0.6); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .type-popup-box { background: #121222; border: 2px solid #06b6d4; border-radius: 16px; padding: 25px; width: 85%; max-width: 320px; text-align: center; transform: scale(0.6); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
   body.light-mode .type-popup-box { background: #ffffff; }
   #type-popup-mask.open .type-popup-box { transform: scale(1); }
-  .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; font-size: 16px; }
+  .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; font-size: 16px; font-family: sans-serif; }
   body.light-mode .popup-title { color: #101026; }
   .type-option-btn { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-weight: bold; cursor: pointer; text-align: left; box-sizing: border-box; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   body.light-mode .type-option-btn { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); color: #101026; }
@@ -206,8 +207,8 @@
 <div id="user-profile-avatar" onclick="toggleProfileDrawer()">🧑‍💻</div>
 
 <div id="profile-drawer">
-  <div class="drawer-username">Xin chào: <span id="span-display-name">User</span></div>
-  <div id="logout-btn" onclick="userLogout()">Đăng xuất tài khoản</div>
+  <div class="drawer-username">Tài khoản: <span id="span-display-name">...</span></div>
+  <button id="drawer-logout-inner" onclick="userLogout()">Đăng xuất ứng dụng</button>
 </div>
 
 <div id="user-dashboard">
@@ -231,15 +232,16 @@
     <div class="fullscreen-title" id="fullscreen-editor-title">ĐANG CHỈNH SỬA</div>
     <div class="close-edit-btn" id="global-editor-close-trigger">Thoát ✕</div>
   </div>
-  <textarea class="fullscreen-editor" id="global-textarea-input" placeholder="Nhập nội dung... Tự động lưu khi gõ..."></textarea>
+  <textarea class="fullscreen-editor" id="global-textarea-input" placeholder="Nhập nội dung... Hệ thống sẽ lưu ký tự tự động liên tục..."></textarea>
 </div>
 
 <script>
-  // Chặn nổi bọt các vùng thao tác cốt lõi
+  // Chặn lan truyền bong bóng sự kiện
   ['type-popup-mask', 'profile-drawer', 'global-fullscreen-editor'].forEach(id => {
     const el = document.getElementById(id); if(el) el.addEventListener('click', (e) => e.stopPropagation());
   });
 
+  // Chặn kích hoạt nhầm hệ thống hiệu ứng chạm nền của index
   document.addEventListener('pointerdown', (e) => {
     if(e.target.closest('#infinitePad') || e.target.closest('.fullscreen-note-container') || e.target.closest('#add-note-btn') || e.target.closest('#user-profile-avatar') || e.target.closest('#profile-drawer')) {
       e.stopPropagation();
@@ -254,6 +256,7 @@
   const currentUser = getUsernameFromCookie();
   document.getElementById('span-display-name').textContent = currentUser;
 
+  // Gọi nạp dữ liệu chuẩn xác bọc theo tên User tránh lỗi mất giao diện trống
   let userNotes = JSON.parse(localStorage.getItem(`notes_${currentUser}`)) || [];
   let savedInfiniteText = localStorage.getItem(`inf_text_${currentUser}`) || "";
 
@@ -264,8 +267,8 @@
     localStorage.setItem(`inf_text_${currentUser}`, infPad.innerText);
   });
 
-  // HÀM RENDER TOÀN CỤC ĐƯỢC BÁM VÀO WINDOW ĐỂ TRÁNH LỖI KHI ĐĂNG NHẬP LẠI
-  window.renderNotes = function() {
+  // HÀM RENDER ĐỒNG BỘ HIỂN THỊ DỮ LIỆU
+  function runNotesRenderingEngine() {
     const activeUser = getUsernameFromCookie();
     userNotes = JSON.parse(localStorage.getItem(`notes_${activeUser}`)) || [];
     
@@ -276,16 +279,16 @@
     userNotes.forEach((note, index) => {
       const card = document.createElement('div');
       card.className = 'note-card';
-      card.onclick = () => triggerStarNoteAnimation(index);
+      card.onclick = () => launchStarNoteAnimationSeq(index);
       card.innerHTML = `
         <div class="note-card-title">Ghi chú văn bản mới #${index + 1}</div>
         <div class="note-card-body">${note ? note.replace(/\n/g, '<br>') : 'Trống...'}</div>
       `;
       grid.appendChild(card);
     });
-  };
+  }
 
-  // CONTROL PROFILE NGÂN KÉO TRƯỢT 
+  // ĐIỀU KHIỂN HỘP THÔNG TIN PROFILE TRƯỢT XUỐNG KHÉP LẠI VÀ XOAY CHUYỂN AVATAR
   let isDrawerOpen = false;
   let currentRotation = 0;
   
@@ -309,20 +312,20 @@
   };
 
   function openTypePopup() { document.getElementById('type-popup-mask').classList.add('open'); }
-  function closeTypePopup() { document.getElementById('type-popup-mask').classList.remove('remove'); document.getElementById('type-popup-mask').classList.remove('open'); }
+  function closeTypePopup() { document.getElementById('type-popup-mask').classList.remove('open'); }
 
   function createNewTextNote() {
     userNotes.push(""); 
     localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
     closeTypePopup();
-    window.renderNotes();
-    triggerStarNoteAnimation(userNotes.length - 1);
+    runNotesRenderingEngine();
+    launchStarNoteAnimationSeq(userNotes.length - 1);
   }
 
-  // 🔥 HIỆU ỨNG TRIỆU HỒI SAO VÀNG VÀ CHUYỂN TRANG EDITOR TỪ TÂM MÀN HÌNH
+  // ⚡ HIỆU ỨNG CHUẨN: SAO VÀNG ĐÀN HỒI (0.6S) -> BUNG KHUNG TỪ TÂM (0.7S)
   let currentActiveEditingIndex = null;
 
-  function triggerStarNoteAnimation(index) {
+  function launchStarNoteAnimationSeq(index) {
     currentActiveEditingIndex = index;
     const star = document.getElementById('summon-gold-star');
     const editor = document.getElementById('global-fullscreen-editor');
@@ -331,18 +334,18 @@
     document.getElementById('fullscreen-editor-title').textContent = `ĐANG CHỈNH SỬA GHI CHÚ #${index + 1}`;
     textarea.value = userNotes[index] || "";
 
-    // Gán cơ chế Auto-save thực tế: thay đổi/xóa 1 chữ cái cũng lưu lập tức
+    // ⚡ CƠ CHẾ AUTO-SAVE THỜI GIAN THỰC: Thay đổi hay xóa 1 chữ cái cũng lưu tức khắc
     textarea.oninput = (e) => {
         userNotes[currentActiveEditingIndex] = e.target.value;
         localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
     };
 
-    // BƯỚC 1: Gọi ngôi sao vàng tưng nảy xoay tròn trong 0.6 giây
+    // Bước 1: Triệu hồi sao vàng xoay tưng nảy trong 0.6s
     star.style.animation = 'none';
-    star.offsetHeight; /* Trigger reflow */
-    star.style.animation = 'starSummon 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+    star.offsetHeight; // Kích reflow nhận diện lại hiệu ứng
+    star.style.animation = 'starElasticSummon 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
     
-    // BƯỚC 2: Hết 0.6s, thu hồi sao và bung mở khung soạn thảo to từ tâm (kéo dài trong 0.7s tiếp)
+    // Bước 2: Sau 0.6s thu sao và phóng khung editor từ kích thước 0 ra toàn màn hình (chạy trong 0.7s tiếp theo)
     setTimeout(() => {
         star.style.animation = 'none';
         star.style.transform = 'translate(-50%, -50%) scale(0)';
@@ -352,12 +355,12 @@
     }, 600);
   }
 
-  // THOÁT GHI CHÚ TOÀN MÀN HÌNH
+  // Nút đóng khung soạn thảo
   document.getElementById('global-editor-close-trigger').onclick = function() {
     const editor = document.getElementById('global-fullscreen-editor');
     editor.classList.remove('active-open');
     currentActiveEditingIndex = null;
-    window.renderNotes();
+    runNotesRenderingEngine(); // Render làm tươi dữ liệu chữ ngoài card
   };
 
   // ĐĂNG XUẤT 
@@ -384,6 +387,6 @@
     }, 1400);
   };
 
-  // Gọi nạp dữ liệu lần đầu
-  window.renderNotes();
+  // Tự động kích hoạt hiển thị dữ liệu ngay khi tải xong tệp
+  runNotesRenderingEngine();
 </script>
