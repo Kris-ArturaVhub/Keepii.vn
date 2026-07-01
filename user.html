@@ -5,6 +5,7 @@
     top: 60px; 
     left: 0;
     width: 100%;
+    /* ✅ ĐÃ SỬA: Khóa cứng chiều cao vùng dashboard để tránh box bị lún xuống dưới */
     height: calc(100vh - 60px);
     box-sizing: border-box;
     padding: 20px;
@@ -12,6 +13,7 @@
     flex-direction: column;
     gap: 20px;
     font-family: sans-serif;
+    overflow: hidden;
   }
 
   /* Khu vực gõ văn bản vô hạn */
@@ -48,7 +50,8 @@
     gap: 15px;
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 90px; 
+    /* ✅ ĐÃ SỬA: Đảm bảo phần đệm vừa vặn với thanh controls đáy, tránh lún lút */
+    padding-bottom: 80px; 
   }
 
   .note-card {
@@ -62,8 +65,7 @@
     cursor: pointer;
     overflow: hidden;
     position: relative;
-    /* ✅ ĐÃ THÊM: Hoạt họa scale mượt mà khi render/tương tác */
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.4s;
+    transition: transform 0.4s cubic-bezier(0.25, 1.5, 0.5, 1);
   }
   body.light-mode .note-card {
     background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(79, 70, 229, 0.1));
@@ -101,14 +103,6 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    /* ✅ ĐÃ THÊM: Hiệu ứng hoạt họa mở Box bật từ tâm mượt mà chuẩn cubic-bezier */
-    opacity: 0;
-    transform: scale(0.85);
-    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease;
-  }
-  .fullscreen-note-container.active {
-    opacity: 1;
-    transform: scale(1);
   }
   body.light-mode .fullscreen-note-container { background: #ffffff; }
 
@@ -171,7 +165,7 @@
     transform: translateX(-50%);
     display: flex;
     align-items: center;
-    gap: 20px;
+    justify-content: center;
     z-index: 1005;
   }
 
@@ -191,24 +185,6 @@
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   #add-note-btn:active { transform: scale(0.85); }
-
-  #logout-btn {
-    background: #ef4444;
-    color: white;
-    height: 42px;
-    padding: 0 16px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 13px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  #logout-btn:active { transform: scale(0.88); }
 
   /* Nút Tùy Chọn Trong Popup */
   .type-option-btn {
@@ -261,23 +237,20 @@
   .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; font-size: 16px; }
   body.light-mode .popup-title { color: #101026; }
 
-  /* ========================================================
-     ✨ CƠ CHẾ AVATAR GÓC PHẢI + HỘP THÔNG TIN TÀI KHOẢN (ĐÃ THÊM)
-     ======================================================== */
-  #user-avatar-area {
+  /* ── 6. CƠ CHẾ AVATAR + BOX NGĂN KÉO TRƯỢT (ANM SLIDE) ── */
+  #user-avatar-container {
     position: fixed;
     top: 15px;
-    right: 145px; /* Đặt né dải nút công tắc theme-switch (15px + 50px + text gap) để tránh va chạm */
+    right: 140px; /* Tránh đè lên công tắc theme-switch */
     z-index: 5000;
-    font-family: sans-serif;
   }
 
-  .avatar-trigger-circle {
-    width: 28px;
-    height: 28px;
+  .avatar-circle-btn {
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #06b6d4, #d946ef);
-    color: #fff;
+    background: linear-gradient(135deg, #06b6d4, #4f46e5);
+    color: white;
     font-weight: bold;
     font-size: 14px;
     display: flex;
@@ -285,60 +258,74 @@
     justify-content: center;
     cursor: pointer;
     user-select: none;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
-    transition: transform 0.2s;
+    border: 2px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 10px rgba(6,182,212,0.4);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
-  .avatar-trigger-circle:active { transform: scale(0.9); }
+  .avatar-circle-btn:active { transform: scale(0.9); }
 
-  /* Hộp thông tin nhỏ gọn xổ từ Avatar */
-  .avatar-info-panel {
+  /* Box thông tin dạng ngăn kéo trượt (Slide Panel) */
+  .info-drawer-panel {
     position: absolute;
-    top: 36px;
+    top: 38px;
     right: 0;
-    background: #121222;
+    background: #111122;
     border: 1px solid rgba(6, 182, 212, 0.3);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-    padding: 12px 15px;
-    min-width: 140px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    border-radius: 12px;
+    padding: 15px;
+    min-width: 160px;
+    box-sizing: border-box;
+    /* Hiệu ứng trượt và ẩn mượt mà */
     opacity: 0;
     pointer-events: none;
-    transform: translateY(-10px) scale(0.95);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s;
+    transform: translateY(-15px) scale(0.9);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
   }
-  .avatar-info-panel.show {
+  .info-drawer-panel.open {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0) scale(1);
   }
-  body.light-mode .avatar-info-panel {
+  body.light-mode .info-drawer-panel {
     background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0,0,0,0.12);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   }
 
-  .info-user-name {
-    color: #06b6d4;
-    font-weight: bold;
+  .drawer-greeting {
     font-size: 14px;
-    margin-bottom: 4px;
+    font-weight: bold;
+    color: #06b6d4;
+    margin-bottom: 12px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .info-user-status {
-    color: rgba(255,255,255,0.5);
-    font-size: 11px;
+
+  /* Nút Đăng xuất được chuyển vào trong Ngăn kéo thông tin */
+  .drawer-logout-btn {
+    background: #ef4444;
+    color: white;
+    width: 100%;
+    padding: 8px 0;
+    border-radius: 18px;
+    font-weight: bold;
+    font-size: 12px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
-  body.light-mode .info-user-status { color: rgba(0,0,0,0.5); }
+  .drawer-logout-btn:active { transform: scale(0.92); }
 </style>
 
-<div id="user-avatar-area">
-  <div class="avatar-trigger-circle" onclick="toggleAvatarPanel(event)" id="avatarLetter">U</div>
-  <div class="avatar-info-panel" id="avatarInfoPanel">
-    <div class="info-user-name" id="infoUsername">Người dùng</div>
-    <div class="info-user-status">Online ●</div>
+<div id="user-avatar-container">
+  <div class="avatar-circle-btn" onclick="toggleUserDrawer(event)" id="avtLetter">U</div>
+  <div class="info-drawer-panel" id="userDrawerPanel">
+    <div class="drawer-greeting" id="drawerWelcomeTxt">Xin chào!</div>
+    <div class="drawer-logout-btn" onclick="userLogout()">Đăng xuất</div>
   </div>
 </div>
 
@@ -349,7 +336,6 @@
 </div>
 
 <div class="bottom-controls-bar">
-  <div id="logout-btn" onclick="userLogout()">Đăng xuất</div>
   <div id="add-note-btn" onclick="openTypePopup()">+</div>
 </div>
 
@@ -366,15 +352,15 @@
 </div>
 
 <script>
-  // Chặn nổi bọt click cơ bản
-  ['user-dashboard', 'type-popup-mask', 'user-avatar-area'].forEach(id => {
+  // Chặn nổi bọt các thành phần UI
+  ['user-dashboard', 'type-popup-mask', 'user-avatar-container'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('click', (e) => e.stopPropagation());
   });
 
-  // Khóa vùng chạm không gian nền
+  // Chặn vùng chạm nền không gian của index.html
   document.addEventListener('pointerdown', (e) => {
-    if(e.target.closest('#infinitePad') || e.target.closest('.fullscreen-note-container') || e.target.closest('.bottom-controls-bar') || e.target.closest('.type-popup-box') || e.target.closest('#user-avatar-area')) {
+    if(e.target.closest('#infinitePad') || e.target.closest('.fullscreen-note-container') || e.target.closest('.bottom-controls-bar') || e.target.closest('.type-popup-box') || e.target.closest('#user-avatar-container')) {
       e.stopPropagation();
     }
   });
@@ -395,27 +381,27 @@
     localStorage.setItem(`inf_text_${currentUser}`, infPad.innerText);
   });
 
-  // Đồng bộ hóa thông tin tài khoản lên Avatar hệ thống
-  (function syncAvatarProfile() {
-    const nameEl = document.getElementById('infoUsername');
-    const letterEl = document.getElementById('avatarLetter');
-    if(currentUser !== 'guest') {
-      if(nameEl) nameEl.textContent = currentUser;
+  // Khởi tạo thông tin người dùng lên Avatar & Panel trượt
+  (function initUserProfile() {
+    const welcomeEl = document.getElementById('drawerWelcomeTxt');
+    const letterEl = document.getElementById('avtLetter');
+    if (currentUser !== 'guest') {
+      if(welcomeEl) welcomeEl.textContent = `Xin chào ${currentUser}`;
       if(letterEl) letterEl.textContent = currentUser.charAt(0).toUpperCase();
     }
   })();
 
-  // ✅ ĐÃ THÊM: Hàm điều khiển bật tắt mở Hộp thông tin Avatar
-  window.toggleAvatarPanel = function(e) {
+  // Hàm bật/tắt Panel ngăn kéo trượt
+  window.toggleUserDrawer = function(e) {
     e.stopPropagation();
-    const panel = document.getElementById('avatarInfoPanel');
-    if(panel) panel.classList.toggle('show');
+    const panel = document.getElementById('userDrawerPanel');
+    if(panel) panel.classList.toggle('open');
   };
 
-  // Tự động khép hộp thông tin khi click ra ngoài vùng avatar
+  // Đóng panel khi bấm bất cứ nơi nào ngoài màn hình
   document.addEventListener('click', () => {
-    const panel = document.getElementById('avatarInfoPanel');
-    if(panel) panel.classList.remove('show');
+    const panel = document.getElementById('userDrawerPanel');
+    if(panel) panel.classList.remove('open');
   });
 
   function renderNotes() {
@@ -444,7 +430,6 @@
     openFullscreenNote(userNotes.length - 1);
   }
 
-  // 🔥 THAY ĐỔI LỚN: Layout nút thoát góc trên bên phải + Cơ chế Auto-Save thời gian thực + Hoạt họa cubic-bezier mở rộng
   function openFullscreenNote(index) {
     const fsContainer = document.createElement('div');
     fsContainer.id = 'active-fullscreen-editor';
@@ -463,15 +448,9 @@
     
     document.body.appendChild(fsContainer);
     
-    // Kích hoạt animation mượt mà sau khi đính vào body
-    requestAnimationFrame(() => {
-      fsContainer.classList.add('active');
-    });
-    
     const textarea = document.getElementById(`editor-${index}`);
     textarea.focus();
 
-    // ⚡ CƠ CHẾ AUTO-SAVE: Thêm hoặc xóa một chữ cái bất kỳ đều lập tức lưu lại
     textarea.addEventListener('input', (e) => {
       userNotes[index] = e.target.value;
       localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
@@ -486,13 +465,7 @@
     }
     
     const fsContainer = document.getElementById('active-fullscreen-editor');
-    if(fsContainer) {
-      // Tắt trạng thái hoạt họa trước khi gỡ khỏi DOM
-      fsContainer.classList.remove('active');
-      setTimeout(() => {
-        fsContainer.remove();
-      }, 350);
-    }
+    if(fsContainer) fsContainer.remove();
     
     renderNotes();
   };
@@ -511,9 +484,9 @@
     setTimeout(() => {
       document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       
-      // Dọn sạch dải Avatar và khung view cũ
-      const avatarArea = document.getElementById('user-avatar-area');
-      if(avatarArea) avatarArea.remove();
+      // Gỡ vùng chứa avatar khi đăng xuất để dọn giao diện sạch
+      const avtContainer = document.getElementById('user-avatar-container');
+      if(avtContainer) avtContainer.remove();
 
       const viewport = document.getElementById('user-app-viewport');
       if(viewport) viewport.remove();
@@ -532,4 +505,4 @@
 
   renderNotes();
   </script>
-        
+  
