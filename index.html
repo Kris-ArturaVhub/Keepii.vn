@@ -136,7 +136,7 @@
     .theme-switch-wrapper {
       position: fixed;
       top: 15px;
-      right: 5px;
+      right: 0px;
       display: flex;
       align-items: center;
       flex-direction: row; /* Đảm bảo switch nằm trái, chữ nằm phải */
@@ -780,6 +780,68 @@
             toggleSwitch.disabled = false;
         }, 2000);
     });
+    // ========================================================
+// ⚡ KIỂM TRA COOKIE KHI RELOAD - TỰ ĐỘNG ĐÓNG/MỞ CỬA SẬP
+// ========================================================
+window.addEventListener('DOMContentLoaded', () => {
+    // Hàm nhanh để đọc cookie
+    const getCookie = (name) => {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[2]) : null;
+    };
+
+    const savedUser = getCookie('user_session');
+    if (savedUser) {
+        // 1. Ép cửa sập ĐÓNG NGAY LẬP TỨC để che form đăng nhập, tránh bị giựt giao diện
+        document.body.classList.add('gates-closed');
+        
+        // Thay đổi màu nền cánh cửa dựa theo chế độ sáng/tối hiện tại
+        const isLight = document.body.classList.contains('light-mode');
+        document.querySelectorAll('.gate-panel').forEach(gate => {
+            gate.style.backgroundColor = isLight ? '#ffffff' : '#05050f';
+            gate.style.transition = 'none'; // Tắt transition để đóng khít ngay lập tức
+        });
+
+        // 2. Nạp âm thầm giao diện user.html chạy ngầm phía sau cánh cửa
+        document.getElementById('main-content-ui').style.display = 'none';
+        
+        fetch('user.html')
+          .then(res => res.text())
+          .then(htmlData => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlData, 'text/html');
+            
+            const userView = document.createElement('div');
+            userView.id = 'user-app-viewport';
+            userView.style.position = 'relative';
+            userView.style.zIndex = '2';
+            
+            doc.querySelectorAll('style').forEach(st => {
+                const s = document.createElement('style');
+                s.textContent = st.textContent;
+                userView.appendChild(s);
+            });
+
+            userView.innerHTML += doc.body.innerHTML;
+            document.getElementById('container').appendChild(userView);
+            
+            doc.querySelectorAll('script').forEach(oldSc => {
+                const nSc = document.createElement('script');
+                nSc.textContent = oldSc.textContent;
+                document.body.appendChild(nSc);
+            });
+
+            // 3. Sau khi nạp xong xuôi, bật lại hiệu ứng mượt và MỞ CỬA SẬP RA
+            setTimeout(() => {
+                document.querySelectorAll('.gate-panel').forEach(gate => {
+                    gate.style.transition = 'transform 1.1s cubic-bezier(0.85, 0, 0.15, 1)';
+                });
+                document.body.classList.remove('gates-closed');
+            }, 500); // Khoảng hoãn ngắn đủ để DOM ổn định cấu trúc
+          });
+    }
+});
+    
   </script>
 </body>
 </html>
