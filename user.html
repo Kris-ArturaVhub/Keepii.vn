@@ -1,392 +1,291 @@
-<style>
-  /* Khu vực dashboard chính */
-  #user-dashboard {
-    position: absolute;
-    top: 75px; 
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 75px);
-    box-sizing: border-box;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    font-family: sans-serif;
-    transition: filter 0.4s ease, opacity 0.4s ease;
-  }
-
-  /* Tạo bộ lọc mờ mờ cho các thành phần khác khi mở profile trượt xuống */
-  .dashboard-dimmed {
-    filter: blur(4px) brightness(0.6);
-    opacity: 0.5;
-    pointer-events: none;
-  }
-
-  .infinite-text-pad {
-    width: 100%;
-    min-height: 75px;
-    max-height: 120px;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 12px;
-    color: #fff;
-    padding: 12px;
-    box-sizing: border-box;
-    outline: none;
-    font-size: 15px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-  }
-  body.light-mode .infinite-text-pad { background: rgba(0, 0, 0, 0.04); border: 1px solid rgba(0, 0, 0, 0.12); color: #101026; }
-
-  /* Grid danh sách note - Đã nới rộng padding đáy lên hẳn 140px cực kỳ thông thoáng */
-  #notes-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); 
-    gap: 12px;
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 140px; 
-  }
-
-  .note-card {
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(79, 70, 229, 0.15));
-    border: 1px solid rgba(6, 182, 212, 0.25);
-    border-radius: 12px;
-    height: 120px;
-    padding: 10px;
-    box-sizing: border-box;
-    color: #fff;
-    cursor: pointer;
-    overflow: hidden;
-    position: relative;
-    transition: transform 0.4s cubic-bezier(0.25, 1.5, 0.5, 1);
-  }
-  body.light-mode .note-card { background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(79, 70, 229, 0.08)); border: 1px solid rgba(6, 182, 212, 0.35); color: #101026; }
-  .note-card:active { transform: scale(0.94); }
+<div id="user-dashboard-wrapper">
   
-  .note-card-title { font-weight: bold; font-size: 13px; margin-bottom: 4px; color: #06b6d4; }
-  .note-card-body { font-size: 12px; opacity: 0.8; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-
-  /* ── PHÂN CẤP Z-INDEX: AVATAR > NGÂN KÉO TRƯỢT > KHÔNG GIAN KHÁC ── */
-  #user-profile-avatar {
-    position: fixed;
-    top: 12px;
-    left: 15px; 
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #a855f7, #ec4899);
-    border: 2px solid #fff;
-    box-shadow: 0 0 12px rgba(236, 72, 153, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    cursor: pointer;
-    z-index: 8500; /* Lớn nhất hệ thống */
-    user-select: none;
-    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  #profile-drawer {
-    position: fixed;
-    top: -22vh; /* Kéo ẩn giấu hẳn lên trên */
-    left: 0.5%;
-    width: 99%;
-    height: 20vh;
-    background: #0e0e1a;
-    border: 2px solid #a855f7;
-    border-top: none;
-    border-radius: 0 0 16px 16px;
-    box-sizing: border-box;
-    padding: 15px;
-    z-index: 8000; /* Nằm dưới Avatar nhưng nằm trên View chính */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
-    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  body.light-mode #profile-drawer { background: #ffffff; border-color: #a855f7; }
-  
-  /* Lệnh kích hoạt ngăn kéo trượt xuống */
-  #profile-drawer.open {
-    transform: translateY(22vh);
-  }
-
-  .drawer-username { font-size: 16px; font-weight: bold; color: #06b6d4; font-family: sans-serif; }
-  body.light-mode .drawer-username { color: #4f46e5; }
-
-  #drawer-logout-inner {
-    background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; height: 38px; padding: 0 24px; border-radius: 20px;
-    font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); border: none; outline: none;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  #drawer-logout-inner:active { transform: scale(0.9); }
-
-  /* Nút tròn tạo Note nhanh đặt ở đáy */
-  #add-note-btn {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-    width: 55px; height: 55px; border-radius: 50%;
-    background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white;
-    font-size: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4); z-index: 1005;
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  #add-note-btn:active { transform: translateX(-50%) scale(0.86); }
-
-  /* ── 3. NGÔI SAO VÀNG TƯNG NẢY XOAY TRÒN & EDITOR TỪ TÂM MÀN HÌNH ── */
-  #summon-gold-star {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-    width: 65px; height: 65px; background: #eab308;
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-    z-index: 9000; opacity: 0;
-    filter: drop-shadow(0 0 20px #eab308);
-  }
-  
-  @keyframes starElasticSummon {
-    0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 0; }
-    50% { transform: translate(-50%, -50%) scale(1.5) rotate(180deg); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(1) rotate(360deg); opacity: 1; }
-  }
-
-  /* Khung soạn thảo - Mặc định kích thước 0 ẩn giữa tâm màn hình */
-  .fullscreen-note-container {
-    position: fixed; top: 50%; left: 50%; width: 100vw; height: 100vh;
-    transform: translate(-50%, -50%) scale(0); 
-    z-index: 7000; background: #070712; box-sizing: border-box; padding: 20px;
-    display: flex; flex-direction: column; gap: 15px; opacity: 0;
-    transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
-  }
-  body.light-mode .fullscreen-note-container { background: #ffffff; }
-  
-  /* Lệnh kích hoạt mở rộng khung từ 0 lên 100 */
-  .fullscreen-note-container.active-open {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
-
-  .fullscreen-header { display: flex; justify-content: space-between; align-items: center; width: 100%; height: 40px; }
-  .fullscreen-title { color: #06b6d4; font-weight: bold; font-size: 15px; font-family: sans-serif; }
-  
-  .close-edit-btn {
-    background: #ef4444; color: white; padding: 7px 18px; border-radius: 20px;
-    font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  .close-edit-btn:active { transform: scale(0.88) !important; }
-
-  .fullscreen-editor {
-    width: 100%; flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 12px; padding: 15px; box-sizing: border-box; outline: none; color: #fff; font-size: 16px; resize: none;
-  }
-  body.light-mode .fullscreen-editor { background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1); color: #101026; }
-
-  /* Popup mặt nạ */
-  #type-popup-mask {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
-    z-index: 4500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none;
-    transition: opacity 0.4s ease;
-  }
-  #type-popup-mask.open { opacity: 1; pointer-events: auto; }
-  .type-popup-box { background: #121222; border: 2px solid #06b6d4; border-radius: 16px; padding: 25px; width: 85%; max-width: 320px; text-align: center; transform: scale(0.6); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  body.light-mode .type-popup-box { background: #ffffff; }
-  #type-popup-mask.open .type-popup-box { transform: scale(1); }
-  .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; font-size: 16px; font-family: sans-serif; }
-  body.light-mode .popup-title { color: #101026; }
-  .type-option-btn { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-weight: bold; cursor: pointer; text-align: left; box-sizing: border-box; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  body.light-mode .type-option-btn { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); color: #101026; }
-  .type-option-btn:active { transform: scale(0.96); }
-</style>
-
-<div id="summon-gold-star"></div>
-
-<div id="user-profile-avatar" onclick="toggleProfileDrawer()">🧑‍💻</div>
-
-<div id="profile-drawer">
-  <div class="drawer-username">Tài khoản: <span id="span-display-name">...</span></div>
-  <button id="drawer-logout-inner" onclick="userLogout()">Đăng xuất ứng dụng</button>
-</div>
-
-<div id="user-dashboard">
-  <div class="infinite-text-pad" contenteditable="true" placeholder="Gõ văn bản dài vô hạn tại đây..." id="infinitePad"></div>
-  <div id="notes-grid"></div>
-</div>
-
-<div id="add-note-btn" onclick="openTypePopup()">+</div>
-
-<div id="type-popup-mask" onclick="closeTypePopup()">
-  <div class="type-popup-box" onclick="event.stopPropagation()">
-    <div class="popup-title">Tạo một ghi chú mới</div>
-    <div class="type-option-btn" onclick="createNewTextNote()">
-      📝 Tạo ghi chú văn bản mới
+  <div class="user-header">
+    <div class="header-left">
+      <span class="welcome-txt">Xin chào, <span id="display-username">Người dùng</span> ✨</span>
+    </div>
+    <div class="header-right">
+      <div class="avatar-box" onclick="toggleProfileMenu(event)">
+        <div class="avatar-circle">K</div>
+        <div id="profile-dropdown" class="dropdown-content">
+          <button onclick="logoutApp()">Đăng xuất 🚪</button>
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="user-main-content">
+    <div class="grid-container">
+      
+      <div class="feature-box" onclick="openBoxPopup('popup-notepad')">
+        <div class="box-icon">📝</div>
+        <h3>Sổ ghi chú</h3>
+        <p>Lưu trữ các ý tưởng và kế hoạch cá nhân của bạn.</p>
+      </div>
+
+      <div class="feature-box" onclick="openBoxPopup('popup-tools')">
+        <div class="box-icon">⚙️</div>
+        <h3>Cài đặt ứng dụng</h3>
+        <p>Tùy chỉnh cấu hình và quản lý tài khoản.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="popup-notepad" class="box-popup-overlay" onclick="closeBoxPopup('popup-notepad')">
+    <div class="box-popup-content" onclick="event.stopPropagation()">
+      <button class="popup-close-btn" onclick="closeBoxPopup('popup-notepad')">✕</button>
+      
+      <div class="popup-header">
+        <h2>Sổ Ghi Chú Không Gian</h2>
+      </div>
+      
+      <div class="popup-body">
+        <textarea id="notepad-area" placeholder="Viết gì đó vào đây... Hệ thống sẽ tự động lưu lại."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div id="popup-tools" class="box-popup-overlay" onclick="closeBoxPopup('popup-tools')">
+    <div class="box-popup-content" onclick="event.stopPropagation()">
+      <button class="popup-close-btn" onclick="closeBoxPopup('popup-tools')">✕</button>
+      <div class="popup-header">
+        <h2>Cài Đặt Hệ Thống</h2>
+      </div>
+      <div class="popup-body">
+        <p>Phiên bản ứng dụng: <strong>v1.0 (Cosmic Build)</strong></p>
+        <p>Trạng thái hệ thống: <span style="color: #22c55e;">Ổn định mượt mà ●</span></p>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<div id="global-fullscreen-editor" class="fullscreen-note-container">
-  <div class="fullscreen-header">
-    <div class="fullscreen-title" id="fullscreen-editor-title">ĐANG CHỈNH SỬA</div>
-    <div class="close-edit-btn" id="global-editor-close-trigger">Thoát ✕</div>
-  </div>
-  <textarea class="fullscreen-editor" id="global-textarea-input" placeholder="Nhập nội dung... Hệ thống sẽ lưu ký tự tự động liên tục..."></textarea>
-</div>
+<style>
+  /* ==========================================
+     THIẾT LẬP HỆ THỐNG Z-INDEX CHUẨN ĐỂ CHỐNG ĐÈ KHUẤT:
+     z-index: 10 (Nền trang / Card) < 20 (Avatar) < 30 (Box khi mở Popup) < 9500 (Cửa sập chuyển cảnh)
+     ========================================== */
+  
+  #user-dashboard-wrapper {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100vh;
+    display: flex; flex-direction: column;
+    font-family: sans-serif;
+    color: #fff;
+    z-index: 10; /* Nằm dưới lớp cửa sập */
+    box-sizing: border-box;
+  }
+
+  /* --- THANH HEADER --- */
+  .user-header {
+    height: 60px; width: 100%;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 20px; box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .welcome-txt { font-size: 16px; font-weight: 500; }
+
+  /* Đã sửa: Đẩy cụm Avatar sang bên phải */
+  .header-right {
+    display: flex; align-items: center;
+  }
+  .avatar-box {
+    position: relative; cursor: pointer;
+    z-index: 20; /* Đảm bảo nổi lên trên các nút nội dung thông thường */
+  }
+  .avatar-circle {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, #06b6d4, #d946ef);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: bold; color: white; border: 2px solid rgba(255,255,255,0.2);
+    transition: transform 0.2s;
+  }
+  .avatar-circle:active { transform: scale(0.92); }
+
+  /* Menu thả xuống từ Avatar */
+  .dropdown-content {
+    display: none; position: absolute; right: 0; top: 45px;
+    background-color: #151525; min-width: 120px;
+    border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5); overflow: hidden;
+  }
+  .dropdown-content.show { display: block; }
+  .dropdown-content button {
+    width: 100%; padding: 10px 15px; background: none; border: none;
+    color: #ff4a4a; text-align: left; font-size: 14px; cursor: pointer; font-weight: bold;
+  }
+  .dropdown-content button:hover { background-color: rgba(255,255,255,0.08); }
+
+  /* --- VÙNG NỘI DUNG CHÍNH --- */
+  .user-main-content {
+    flex: 1; overflow-y: auto; padding: 25px; box-sizing: border-box;
+  }
+  .grid-container {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px;
+  }
+  .feature-box {
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 20px; text-align: center; cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1), background-color 0.3s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .feature-box:active { transform: scale(0.96); }
+  .box-icon { font-size: 32px; margin-bottom: 8px; }
+  .feature-box h3 { margin: 10px 0 5px 0; font-size: 16px; }
+  .feature-box p { margin: 0; font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.4; }
+
+  /* ==========================================
+     ĐÃ SỬA LỖI NỀN TRẮNG CHE KHUẤT CÁC BOX TRÊN MÀN HÌNH LIGHT-MODE
+     ========================================== */
+  body.light-mode #user-dashboard-wrapper { color: #101026 !important; }
+  body.light-mode .user-header { border-bottom-color: rgba(0, 0, 0, 0.08); background: rgba(0, 0, 0, 0.02); }
+  body.light-mode .feature-box {
+    background: rgba(0, 0, 0, 0.03) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+  }
+  body.light-mode .feature-box p { color: rgba(0, 0, 0, 0.5) !important; }
+  body.light-mode .box-popup-content {
+    background-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
+  }
+  body.light-mode .popup-header h2 { color: #101026 !important; }
+  body.light-mode .popup-close-btn { color: #555 !important; background: rgba(0,0,0,0.05) !important; }
+  body.light-mode #notepad-area {
+    background: rgba(0,0,0,0.03) !important; color: #101026 !important; border-color: rgba(0,0,0,0.1) !important;
+  }
+
+  /* --- CẤU TRÚC POPUP (SỬA LỖI LỆCH NÚT THOÁT VÀ QUÁ TRỚN CHIỀU CAO) --- */
+  .box-popup-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    z-index: 30; /* Lớp Popup luôn phải lớn hơn Avatar và nội dung bên dưới */
+    transition: opacity 0.4s ease;
+    padding: 20px; box-sizing: border-box;
+  }
+  .box-popup-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .box-popup-content {
+    position: relative; /* Cố định gốc tọa độ cho nút thoát bên trong */
+    background-color: #141424; border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px; width: 100%; max-width: 450px;
+    max-height: 80vh; /* Giới hạn chiều cao tối đa không vượt quá màn hình */
+    display: flex; flex-direction: column;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+    transform: scale(0.85); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+    padding: 20px; box-sizing: border-box;
+  }
+  .box-popup-overlay.open .box-popup-content { transform: scale(1); }
+
+  /* Nút thoát nằm trọn vẹn bên TRONG góc phải của box nội dung, không bao giờ lệch ra ngoài */
+  .popup-close-btn {
+    position: absolute; top: 15px; right: 15px;
+    width: 30px; height: 30px; border-radius: 50%;
+    border: none; background: rgba(255,255,255,0.08);
+    color: #fff; font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .popup-close-btn:active { transform: scale(0.9); }
+
+  .popup-header { margin-bottom: 15px; padding-right: 35px; }
+  .popup-header h2 { margin: 0; font-size: 18px; color: #06b6d4; }
+  
+  /* Phần thân điều tiết linh hoạt theo flex, ngăn chặn lỗi quá trớn chiều cao phần dưới */
+  .popup-body {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+  }
+
+  /* Textarea chuyên dụng cho ghi chú */
+  #notepad-area {
+    width: 100%; flex: 1; min-height: 180px; max-height: 350px;
+    resize: none; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 12px; color: #fff; font-size: 14px; line-height: 1.5;
+    outline: none; box-sizing: border-box; transition: border-color 0.3s;
+  }
+  #notepad-area:focus { border-color: #06b6d4; }
+</style>
 
 <script>
-  // Chặn lan truyền bong bóng sự kiện
-  ['type-popup-mask', 'profile-drawer', 'global-fullscreen-editor'].forEach(id => {
-    const el = document.getElementById(id); if(el) el.addEventListener('click', (e) => e.stopPropagation());
-  });
-
-  // Chặn kích hoạt nhầm hệ thống hiệu ứng chạm nền của index
-  document.addEventListener('pointerdown', (e) => {
-    if(e.target.closest('#infinitePad') || e.target.closest('.fullscreen-note-container') || e.target.closest('#add-note-btn') || e.target.closest('#user-profile-avatar') || e.target.closest('#profile-drawer')) {
-      e.stopPropagation();
-    }
-  });
-
-  function getUsernameFromCookie() {
-    const match = document.cookie.match(new RegExp('(^| )user_session=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : 'guest';
-  }
-
-  const currentUser = getUsernameFromCookie();
-  document.getElementById('span-display-name').textContent = currentUser;
-
-  // Gọi nạp dữ liệu chuẩn xác bọc theo tên User tránh lỗi mất giao diện trống
-  let userNotes = JSON.parse(localStorage.getItem(`notes_${currentUser}`)) || [];
-  let savedInfiniteText = localStorage.getItem(`inf_text_${currentUser}`) || "";
-
-  const infPad = document.getElementById('infinitePad');
-  if(savedInfiniteText) infPad.innerText = savedInfiniteText;
-
-  infPad.addEventListener('input', () => {
-    localStorage.setItem(`inf_text_${currentUser}`, infPad.innerText);
-  });
-
-  // HÀM RENDER ĐỒNG BỘ HIỂN THỊ DỮ LIỆU
-  function runNotesRenderingEngine() {
-    const activeUser = getUsernameFromCookie();
-    userNotes = JSON.parse(localStorage.getItem(`notes_${activeUser}`)) || [];
-    
-    const grid = document.getElementById('notes-grid');
-    if(!grid) return;
-    grid.innerHTML = '';
-    
-    userNotes.forEach((note, index) => {
-      const card = document.createElement('div');
-      card.className = 'note-card';
-      card.onclick = () => launchStarNoteAnimationSeq(index);
-      card.innerHTML = `
-        <div class="note-card-title">Ghi chú văn bản mới #${index + 1}</div>
-        <div class="note-card-body">${note ? note.replace(/\n/g, '<br>') : 'Trống...'}</div>
-      `;
-      grid.appendChild(card);
-    });
-  }
-
-  // ĐIỀU KHIỂN HỘP THÔNG TIN PROFILE TRƯỢT XUỐNG KHÉP LẠI VÀ XOAY CHUYỂN AVATAR
-  let isDrawerOpen = false;
-  let currentRotation = 0;
-  
-  window.toggleProfileDrawer = function() {
-    const avatar = document.getElementById('user-profile-avatar');
-    const drawer = document.getElementById('profile-drawer');
-    const dashboard = document.getElementById('user-dashboard');
-    
-    currentRotation += 360;
-    avatar.style.transform = `rotate(${currentRotation}deg)`;
-    
-    if(!isDrawerOpen) {
-      drawer.classList.add('open');
-      dashboard.classList.add('dashboard-dimmed');
-      isDrawerOpen = true;
-    } else {
-      drawer.classList.remove('open');
-      dashboard.classList.remove('dashboard-dimmed');
-      isDrawerOpen = false;
-    }
-  };
-
-  function openTypePopup() { document.getElementById('type-popup-mask').classList.add('open'); }
-  function closeTypePopup() { document.getElementById('type-popup-mask').classList.remove('open'); }
-
-  function createNewTextNote() {
-    userNotes.push(""); 
-    localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
-    closeTypePopup();
-    runNotesRenderingEngine();
-    launchStarNoteAnimationSeq(userNotes.length - 1);
-  }
-
-  // ⚡ HIỆU ỨNG CHUẨN: SAO VÀNG ĐÀN HỒI (0.6S) -> BUNG KHUNG TỪ TÂM (0.7S)
-  let currentActiveEditingIndex = null;
-
-  function launchStarNoteAnimationSeq(index) {
-    currentActiveEditingIndex = index;
-    const star = document.getElementById('summon-gold-star');
-    const editor = document.getElementById('global-fullscreen-editor');
-    const textarea = document.getElementById('global-textarea-input');
-    
-    document.getElementById('fullscreen-editor-title').textContent = `ĐANG CHỈNH SỬA GHI CHÚ #${index + 1}`;
-    textarea.value = userNotes[index] || "";
-
-    // ⚡ CƠ CHẾ AUTO-SAVE THỜI GIAN THỰC: Thay đổi hay xóa 1 chữ cái cũng lưu tức khắc
-    textarea.oninput = (e) => {
-        userNotes[currentActiveEditingIndex] = e.target.value;
-        localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
-    };
-
-    // Bước 1: Triệu hồi sao vàng xoay tưng nảy trong 0.6s
-    star.style.animation = 'none';
-    star.offsetHeight; // Kích reflow nhận diện lại hiệu ứng
-    star.style.animation = 'starElasticSummon 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
-    
-    // Bước 2: Sau 0.6s thu sao và phóng khung editor từ kích thước 0 ra toàn màn hình (chạy trong 0.7s tiếp theo)
-    setTimeout(() => {
-        star.style.animation = 'none';
-        star.style.transform = 'translate(-50%, -50%) scale(0)';
-        
-        editor.classList.add('active-open');
-        textarea.focus();
-    }, 600);
-  }
-
-  // Nút đóng khung soạn thảo
-  document.getElementById('global-editor-close-trigger').onclick = function() {
-    const editor = document.getElementById('global-fullscreen-editor');
-    editor.classList.remove('active-open');
-    currentActiveEditingIndex = null;
-    runNotesRenderingEngine(); // Render làm tươi dữ liệu chữ ngoài card
-  };
-
-  // ĐĂNG XUẤT 
-  window.userLogout = function() {
-    const transStar = document.getElementById('transition-star');
-    if(transStar) {
-      transStar.style.opacity = '1';
-      transStar.style.transform = 'translate(-50%, -50%) scale(1) rotate(360deg)';
-    }
-    setTimeout(() => { document.body.classList.add('gates-closed'); }, 400);
-
-    setTimeout(() => {
-      document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      const viewport = document.getElementById('user-app-viewport'); if(viewport) viewport.remove();
+  // --- TỰ ĐỘNG HIỂN THỊ TÊN TÀI KHOẢN TỪ COOKIE ---
+  (function initUserDashboard() {
+      const getCookie = (name) => {
+          const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+          return match ? decodeURIComponent(match[2]) : null;
+      };
+      const activeUser = getCookie('user_session') || "Khách";
+      const nameEl = document.getElementById('display-username');
+      if(nameEl) nameEl.textContent = activeUser;
       
-      const drawer = document.getElementById('profile-drawer'); if(drawer) drawer.classList.remove('open');
-      const dashboard = document.getElementById('user-dashboard'); if(dashboard) dashboard.classList.remove('dashboard-dimmed');
-      isDrawerOpen = false;
+      const avatarCircle = document.querySelector('.avatar-circle');
+      if(avatarCircle && activeUser !== "Khách") {
+          avatarCircle.textContent = activeUser.charAt(0).toUpperCase();
+      }
 
-      const loginUI = document.getElementById('main-content-ui'); if(loginUI) loginUI.style.display = 'block';
+      // Tải lại dữ liệu ghi chú cũ từ localStorage nếu có
+      const savedNotes = localStorage.getItem(`note_${activeUser}`);
+      const notepad = document.getElementById('notepad-area');
+      if(notepad && savedNotes) {
+          notepad.value = savedNotes;
+      }
+      
+      // Lắng nghe sự kiện gõ phím để tự động lưu ghi chú
+      if(notepad) {
+          notepad.addEventListener('input', function() {
+              localStorage.setItem(`note_${activeUser}`, this.value);
+          });
+      }
+  })();
 
-      if(transStar) transStar.style.transform = 'translate(-50%, -50%) scale(0) rotate(720deg)';
-      setTimeout(() => { document.body.classList.remove('gates-closed'); if(transStar) transStar.style.opacity = '0'; }, 600);
-    }, 1400);
-  };
+  // --- LOGIC ĐIỀU KHIỂN POPUP BOX CHỨC NĂNG ---
+  function openBoxPopup(id) {
+      const pop = document.getElementById(id);
+      if(pop) pop.classList.add('open');
+  }
 
-  // Tự động kích hoạt hiển thị dữ liệu ngay khi tải xong tệp
-  runNotesRenderingEngine();
-</script>
+  function closeBoxPopup(id) {
+      const pop = document.getElementById(id);
+      if(pop) pop.classList.remove('open');
+  }
+
+  // --- BẬT/TẮT MENU AVATAR ---
+  function toggleProfileMenu(e) {
+      e.stopPropagation();
+      document.getElementById('profile-dropdown').classList.toggle('show');
+  }
+
+  // Tự động đóng menu nếu nhấn trượt ra ngoài
+  document.addEventListener('click', function() {
+      const drop = document.getElementById('profile-dropdown');
+      if(drop) drop.classList.remove('show');
+  });
+
+  // --- CƠ CHẾ ĐĂNG XUẤT AN TOÀN - ĐỒNG BỘ CỬA SẬP VŨ TRỤ ---
+  function logoutApp() {
+      // Xóa cookie phiên đăng nhập
+      document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      
+      // Kích hoạt dải cửa sập đóng lại trước khi dọn dẹp viewport
+      document.body.classList.add('gates-closed');
+      
+      setTimeout(() => {
+          // Gỡ bỏ hoàn toàn viewport của user.html ra khỏi bộ nhớ
+          const userViewport = document.getElementById('user-app-viewport');
+          if(userViewport) userViewport.remove();
+          
+          // Trả lại giao diện chính cho trang index.html
+          const mainUI = document.getElementById('main-content-ui');
+          if(mainUI) mainUI.style.display = 'block';
+          
+          // Mở dải cửa sập ra mượt mà, đưa người dùng về lại màn hình đăng nhập ban đầu
+          setTimeout(() => {
+              document.body.classList.remove('gates-closed');
+          }, 400);
+      }, 1100);
+  }
+</style>
+  
