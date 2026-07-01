@@ -48,22 +48,20 @@
     gap: 15px;
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 80px;
+    padding-bottom: 90px; /* Chừa khoảng trống rộng cho cụm nút điều hướng đáy */
   }
 
-  /* Khung ghi chú nhỏ */
   .note-card {
     background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(79, 70, 229, 0.15));
     border: 1px solid rgba(6, 182, 212, 0.3);
     border-radius: 12px;
-    height: 140px;
+    height: 130px;
     padding: 12px;
     box-sizing: border-box;
     color: #fff;
     cursor: pointer;
     overflow: hidden;
     position: relative;
-    /* Hiệu ứng đàn hồi Cubic-Bezier khi chạm nhẹ */
     transition: transform 0.4s cubic-bezier(0.25, 1.5, 0.5, 1);
   }
   body.light-mode .note-card {
@@ -71,9 +69,8 @@
     border: 1px solid rgba(6, 182, 212, 0.4);
     color: #101026;
   }
-  .note-card:active {
-    transform: scale(0.92);
-  }
+  .note-card:active { transform: scale(0.94); }
+  
   .note-card-title {
     font-weight: bold;
     font-size: 14px;
@@ -92,39 +89,54 @@
     overflow: hidden;
   }
 
-  /* TRẠNG THÁI PHÓNG TO TOÀN MÀN HÌNH */
-  .note-card.fullscreen-mode {
+  /* ── 3. KHU VỰC TRÌNH CHỈNH SỬA TOÀN MÀN HÌNH CHUẨN (FIXED) ── */
+  .fullscreen-note-container {
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: 4000;
-    margin: 0; border-radius: 0;
-    background: #0d0d1e;
-    border: none;
+    z-index: 6000; /* Nổi lên trên cùng mọi thành phần */
+    background: #090915;
+    box-sizing: border-box;
     padding: 30px 20px;
-    cursor: default;
-    transform: scale(1) !important;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
-  body.light-mode .note-card.fullscreen-mode {
-    background: #ffffff;
-  }
+  body.light-mode .fullscreen-note-container { background: #ffffff; }
+
   .fullscreen-editor {
     width: 100%;
-    height: 85%;
-    background: transparent;
-    border: none;
+    flex: 1; /* Chiếm trọn không gian trống */
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 15px;
+    box-sizing: border-box;
     outline: none;
-    color: inherit;
-    font-size: 18px;
+    color: #fff;
+    font-size: 16px;
     resize: none;
+    font-family: sans-serif;
+  }
+  body.light-mode .fullscreen-editor {
+    background: rgba(0,0,0,0.02);
+    border: 1px solid rgba(0,0,0,0.1);
+    color: #101026;
   }
 
-  /* ── 3. THIẾT KẾ NÚT BẰNG DIV + CUBIC-BEZIER ── */
-  /* Nút Tạo Mới (+) */
-  #add-note-btn {
+  /* ── 4. THIẾT KẾ CÁC NÚT ĐIỀU HƯỚNG DIV + CUBIC-BEZIER ── */
+  /* Thanh chứa cụm nút chức năng ở đáy màn hình tránh đè lên góc trên */
+  .bottom-controls-bar {
     position: fixed;
-    bottom: 25px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 1005;
+  }
+
+  #add-note-btn {
     width: 55px;
     height: 55px;
     border-radius: 50%;
@@ -136,55 +148,43 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1005;
-    -webkit-user-select: none;
     user-select: none;
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  #add-note-btn:active {
-    transform: translateX(-50%) scale(0.85);
-  }
+  #add-note-btn:active { transform: scale(0.85); }
 
-  /* Nút Đăng Xuất Đỏ */
   #logout-btn {
-    position: fixed;
-    top: 15px;
-    left: 15px;
     background: #ef4444;
     color: white;
-    padding: 6px 14px;
-    border-radius: 6px;
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 20px;
     font-weight: bold;
     font-size: 13px;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-    z-index: 1002;
-    -webkit-user-select: none;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     user-select: none;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
-  #logout-btn:active {
-    transform: scale(0.88);
-  }
+  #logout-btn:active { transform: scale(0.88); }
 
-  /* Nút Xong & Lưu */
   .close-edit-btn {
-    position: absolute;
-    bottom: 30px;
-    right: 20px;
-    background: #06b6d4;
+    width: 100%;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
     color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 14px 0;
+    text-align: center;
+    border-radius: 10px;
     font-weight: bold;
     cursor: pointer;
-    -webkit-user-select: none;
     user-select: none;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
-  .close-edit-btn:active {
-    transform: scale(0.9);
-  }
+  .close-edit-btn:active { transform: scale(0.95); }
 
   /* Nút Tùy Chọn Trong Popup */
   .type-option-btn {
@@ -199,21 +199,13 @@
     cursor: pointer;
     text-align: left;
     box-sizing: border-box;
-    -webkit-user-select: none;
     user-select: none;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
   }
-  body.light-mode .type-option-btn {
-    background: rgba(0,0,0,0.03);
-    border: 1px solid rgba(0,0,0,0.1);
-    color: #101026;
-  }
-  .type-option-btn:active {
-    transform: scale(0.96);
-    background: rgba(6, 182, 212, 0.2);
-  }
+  body.light-mode .type-option-btn { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); color: #101026; }
+  .type-option-btn:active { transform: scale(0.96); background: rgba(6, 182, 212, 0.2); }
 
-  /* ── 4. POPUP LỰA CHỌN PHÂN LOẠI ── */
+  /* ── 5. POPUP LỰA CHỌN PHÂN LOẠI ── */
   #type-popup-mask {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -226,10 +218,8 @@
     pointer-events: none;
     transition: opacity 0.4s ease;
   }
-  #type-popup-mask.open {
-    opacity: 1;
-    pointer-events: auto;
-  }
+  #type-popup-mask.open { opacity: 1; pointer-events: auto; }
+  
   .type-popup-box {
     background: #151525;
     border: 2px solid #06b6d4;
@@ -241,18 +231,10 @@
     transform: scale(0.6);
     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  body.light-mode .type-popup-box {
-    background: #ffffff;
-  }
-  #type-popup-mask.open .type-popup-box {
-    transform: scale(1);
-  }
-  .popup-title {
-    color: #fff;
-    font-weight: bold;
-    margin-bottom: 15px;
-    font-size: 16px;
-  }
+  body.light-mode .type-popup-box { background: #ffffff; }
+  #type-popup-mask.open .type-popup-box { transform: scale(1); }
+  
+  .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; font-size: 16px; }
   body.light-mode .popup-title { color: #101026; }
 </style>
 
@@ -262,15 +244,16 @@
   <div id="notes-grid"></div>
 </div>
 
-<div id="logout-btn" onclick="userLogout()">Log out</div>
-<div id="add-note-btn" onclick="openTypePopup()">+</div>
+<div class="bottom-controls-bar">
+  <div id="logout-btn" onclick="userLogout()">Đăng xuất</div>
+  <div id="add-note-btn" onclick="openTypePopup()">+</div>
+</div>
 
 <div id="type-popup-mask" onclick="closeTypePopup()">
   <div class="type-popup-box" onclick="event.stopPropagation()">
     <div class="popup-title">Tạo một ghi chú mới</div>
-    
     <div class="type-option-btn type-text-class" onclick="createNewTextNote()">
-      <span class="note-icon">📝</span> Văn bản thuần túy
+      <span class="note-icon">📝</span> Tạo ghi chú văn bản mới
     </div>
     <div class="type-option-btn type-future-class" style="opacity: 0.3; cursor: not-allowed;">
       <span class="note-icon">🔒</span> Loại ghi chú khác (Sắp ra mắt)
@@ -279,14 +262,16 @@
 </div>
 
 <script>
-  // Sửa lỗi nuốt sự kiện: Đổi pointerdown sang chặn nổi bọt nhưng vẫn cho phép click kích hoạt hàm
-  ['user-dashboard', 'add-note-btn', 'logout-btn', 'type-popup-mask'].forEach(id => {
+  // Chặn nổi bọt xử lý sự kiện click
+  ['user-dashboard', 'type-popup-mask'].forEach(id => {
     const el = document.getElementById(id);
-    if(el){
-      el.addEventListener('pointerdown', (e) => {
-        // Chỉ chặn nổi bọt, KHÔNG dùng preventDefault để hàm onclick() chạy bình thường
-        e.stopPropagation(); 
-      });
+    if(el) el.addEventListener('click', (e) => e.stopPropagation());
+  });
+
+  // Chặn hiệu ứng chạm nền của index làm phiền khu vực gõ text
+  document.addEventListener('pointerdown', (e) => {
+    if(e.target.closest('#infinitePad') || e.target.closest('.fullscreen-editor') || e.target.closest('.bottom-controls-bar') || e.target.closest('.type-popup-box')) {
+      e.stopPropagation();
     }
   });
 
@@ -299,16 +284,13 @@
   let userNotes = JSON.parse(localStorage.getItem(`notes_${currentUser}`)) || [];
   let savedInfiniteText = localStorage.getItem(`inf_text_${currentUser}`) || "";
 
-  // Khôi phục văn bản vô hạn
   const infPad = document.getElementById('infinitePad');
   if(savedInfiniteText) infPad.innerText = savedInfiniteText;
 
-  // Tự động lưu văn bản vô hạn
   infPad.addEventListener('input', () => {
     localStorage.setItem(`inf_text_${currentUser}`, infPad.innerText);
   });
 
-  // Render danh sách ghi chú
   function renderNotes() {
     const grid = document.getElementById('notes-grid');
     grid.innerHTML = '';
@@ -317,51 +299,54 @@
       card.className = 'note-card';
       card.onclick = () => openFullscreenNote(index);
       card.innerHTML = `
-        <div class="note-card-title">Ghi chú #<span class="note-index-span">${index + 1}</span></div>
-        <div class="note-card-body">${note.replace(/\n/g, '<br>')}</div>
+        <div class="note-card-title">Ghi chú văn bản mới #${index + 1}</div>
+        <div class="note-card-body">${note ? note.replace(/\n/g, '<br>') : 'Trống...'}</div>
       `;
       grid.appendChild(card);
     });
   }
 
-  // Popup điều khiển
   function openTypePopup() { document.getElementById('type-popup-mask').classList.add('open'); }
   function closeTypePopup() { document.getElementById('type-popup-mask').classList.remove('open'); }
 
-  // Tạo ghi chú
   function createNewTextNote() {
-    userNotes.push("Nội dung ghi chú mới...");
+    userNotes.push(""); // Tạo trang trống cho người dùng gõ từ đầu
     localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
     closeTypePopup();
     renderNotes();
     openFullscreenNote(userNotes.length - 1);
   }
 
-  // Phóng to chỉnh sửa toàn màn hình
+  // 🔥 FIX TRIỆT ĐỂ: Giao diện soạn thảo toàn màn hình chuẩn xác, có textarea và nút lưu rõ ràng
   function openFullscreenNote(index) {
-    const card = document.createElement('div');
-    card.className = 'note-card fullscreen-mode';
-    // Dùng div thay cho button cho nút lưu toàn màn hình
-    card.innerHTML = `
-      <textarea class="fullscreen-editor" id="editor-${index}">${userNotes[index]}</textarea>
-      <div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Xong & Lưu ✅</div>
+    const fsContainer = document.createElement('div');
+    fsContainer.id = 'active-fullscreen-editor';
+    fsContainer.className = 'fullscreen-note-container';
+    
+    // Thêm trực tiếp sự kiện chặn bọt lên container soạn thảo toàn màn hình
+    fsContainer.addEventListener('pointerdown', (e) => e.stopPropagation());
+    fsContainer.addEventListener('click', (e) => e.stopPropagation());
+
+    fsContainer.innerHTML = `
+      <div style="color: #06b6d4; font-weight: bold; font-family: sans-serif;">ĐANG CHỈNH SỬA GHI CHÚ #${index + 1}</div>
+      <textarea class="fullscreen-editor" id="editor-${index}" placeholder="Bắt đầu nhập nội dung ghi chú tại đây...">${userNotes[index]}</textarea>
+      <div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Xong & Lưu Ghi Chú ✅</div>
     `;
-    document.body.appendChild(card);
+    document.body.appendChild(fsContainer);
+    document.getElementById(`editor-${index}`).focus();
   }
 
-  // Thu nhỏ và lưu
   window.closeFullscreenNote = function(index) {
     const textVal = document.getElementById(`editor-${index}`).value;
     userNotes[index] = textVal;
     localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
     
-    const fsCard = document.querySelector('.note-card.fullscreen-mode');
-    if(fsCard) fsCard.remove();
+    const fsContainer = document.getElementById('active-fullscreen-editor');
+    if(fsContainer) fsContainer.remove();
     
     renderNotes();
   };
 
-  // HÀM ĐĂNG XUẤT KẾT HỢP CỬA SẬP
   window.userLogout = function() {
     const transStar = document.getElementById('transition-star');
     if(transStar) {
@@ -374,7 +359,7 @@
     }, 400);
 
     setTimeout(() => {
-      // Xóa cookie phiên làm việc
+      // Xóa cookie
       document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       
       const viewport = document.getElementById('user-app-viewport');
@@ -392,6 +377,5 @@
     }, 1400);
   };
 
-  // Chạy nạp dữ liệu ban đầu
   renderNotes();
 </script>
