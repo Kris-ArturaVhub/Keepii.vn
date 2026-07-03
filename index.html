@@ -521,7 +521,7 @@
       if(pass.length < 8){ showToast("Mật khẩu ít nhất 8 ký tự ⚠️"); return; }
       if(pass !== re){ showToast("Mật khẩu không khớp ❌"); return; }
       
-      const SERVER_URL = "https://Keepii.vn.onrender.com/api/signup"; 
+      const SERVER_URL = "https://Keepii-vn.onrender.com/api/signup"; 
       
       try {
         showToast("Đang xử lý đăng ký... ⏳");
@@ -553,7 +553,7 @@
       if(!nick || !pass) { showToast("Vui lòng điền đủ tài khoản và mật khẩu! ⚠️"); return; }
       if(hasInvalidChars(nick) || hasInvalidChars(pass)) { showToast("Tài khoản hoặc Mật khẩu chứa ký tự không hợp lệ! 🛑"); return; }
 
-      const SERVER_URL = "https://Keepii.vn.onrender.com/api/signin";
+      const SERVER_URL = "https://Keepii-vn.onrender.com/api/signin";
 
       try {
         showToast("Đang xác thực tài khoản... ⏳");
