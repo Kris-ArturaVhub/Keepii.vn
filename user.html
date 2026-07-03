@@ -357,17 +357,15 @@
   </div>
 </div>
 
-<script>
-  // Biến toàn cục khai báo bằng var để tránh lỗi redeclare khi chèn lại thẻ script
+    <script>
   var currentUser, userNotes, savedInfiniteText;
+  const CLOUD_URL = "https://keepii-api.onrender.com/api";
 
-  // Chặn nổi bọt các thành phần UI
   ['user-dashboard', 'type-popup-mask', 'user-avatar-container'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('click', (e) => e.stopPropagation());
   });
 
-  // Chặn vùng chạm nền không gian của index.html
   document.addEventListener('pointerdown', (e) => {
     if(e.target.closest('#infinitePad') || e.target.closest('.fullscreen-note-container') || e.target.closest('.bottom-controls-bar') || e.target.closest('.type-popup-box') || e.target.closest('#user-avatar-container')) {
       e.stopPropagation();
@@ -379,45 +377,82 @@
     return match ? decodeURIComponent(match[2]) : 'guest';
   }
 
-  // ✅ HÀM ĐỒNG BỘ DỮ LIỆU CHÍNH XÁC KHI ĐĂNG NHẬP LẠI HOẶC RELOAD KHÔNG BỊ MẤT BOX
-  window.syncUserData = function() {
+  // ☁️ HÀM ĐỒNG BỘ DỮ LIỆU TỪ CLOUD (MONGODB ATLAS) KHI MỞ APP HOẶC RELOAD
+  window.syncUserData = async function() {
     currentUser = getUsernameFromCookie();
-    userNotes = JSON.parse(localStorage.getItem(`notes_${currentUser}`)) || [];
-    savedInfiniteText = localStorage.getItem(`inf_text_${currentUser}`) || "";
+    if (currentUser === 'guest') return;
+
+    // Thiết lập giao diện tạm thời trong khi đợi tải dữ liệu
+    const welcomeEl = document.getElementById('drawerWelcomeTxt');
+    const letterEl = document.getElementById('avtLetter');
+    if(welcomeEl) welcomeEl.textContent = `Xin chào ${currentUser}`;
+    if(letterEl) letterEl.textContent = currentUser.charAt(0).toUpperCase();
+
+    try {
+      // Gọi API lấy dữ liệu ghi chú và text pad lưu trên MongoDB của user này
+      const response = await fetch(`${CLOUD_URL}/get_user_data`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname: currentUser })
+      });
+      const data = await response.json();
+      
+      if(data.success) {
+        userNotes = data.notes || [];
+        savedInfiniteText = data.inf_text || "";
+      } else {
+        userNotes = [];
+        savedInfiniteText = "";
+      }
+    } catch (error) {
+      console.error("Lỗi tải dữ liệu Cloud:", error);
+      userNotes = [];
+      savedInfiniteText = "";
+    }
 
     const infPad = document.getElementById('infinitePad');
     if(infPad) {
       infPad.innerText = savedInfiniteText;
     }
 
-    const welcomeEl = document.getElementById('drawerWelcomeTxt');
-    const letterEl = document.getElementById('avtLetter');
-    if (currentUser !== 'guest') {
-      if(welcomeEl) welcomeEl.textContent = `Xin chào ${currentUser}`;
-      if(letterEl) letterEl.textContent = currentUser.charAt(0).toUpperCase();
-    }
-
     renderNotes();
   };
+
+  // ☁️ HÀM ĐẨY DỮ LIỆU LÊN MÂY (Mỗi lần có thay đổi ghi chú hoặc text pad)
+  async function saveUserDataToCloud() {
+    if (currentUser === 'guest') return;
+    try {
+      await fetch(`${CLOUD_URL}/save_user_data`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nickname: currentUser,
+          notes: userNotes,
+          inf_text: savedInfiniteText
+        })
+      });
+    } catch (error) {
+      console.error("Lỗi đồng bộ Cloud:", error);
+    }
+  }
 
   const infPad = document.getElementById('infinitePad');
   if(infPad) {
     infPad.addEventListener('input', () => {
-      localStorage.setItem(`inf_text_${currentUser}`, infPad.innerText);
+      savedInfiniteText = infPad.innerText;
+      saveUserDataToCloud(); // Lưu thời gian thực lên mây
     });
   }
 
-  // Hàm bật/tắt Panel ngăn kéo trượt
   window.toggleUserDrawer = function(e) {
     e.stopPropagation();
     const panel = document.getElementById('userDrawerPanel');
     if(panel) panel.classList.toggle('open');
   };
 
-  // Đóng panel khi bấm bất cứ nơi nào ngoài màn hình
   document.addEventListener('click', () => {
     const panel = document.getElementById('userDrawerPanel');
-    if(panel) panel.classList.remove('remove'); // Giữ nguyên logic remove/open ban đầu
+    if(panel) panel.classList.remove('remove');
     if(panel) panel.classList.remove('open');
   });
 
@@ -442,9 +477,9 @@
 
   function createNewTextNote() {
     userNotes.push(""); 
-    localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
     closeTypePopup();
     renderNotes();
+    saveUserDataToCloud();
     openFullscreenNote(userNotes.length - 1);
   }
 
@@ -472,7 +507,7 @@
     if(textarea) {
       textarea.addEventListener('input', (e) => {
         userNotes[index] = e.target.value;
-        localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
+        saveUserDataToCloud();
       });
     }
   }
@@ -481,7 +516,7 @@
     const textarea = document.getElementById(`editor-${index}`);
     if (textarea) {
       userNotes[index] = textarea.value;
-      localStorage.setItem(`notes_${currentUser}`, JSON.stringify(userNotes));
+      saveUserDataToCloud();
     }
     
     const fsContainer = document.getElementById('active-fullscreen-editor');
@@ -504,7 +539,6 @@
     setTimeout(() => {
       document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       
-      // Gỡ vùng chứa avatar khi đăng xuất để dọn giao diện sạch
       const avtContainer = document.getElementById('user-avatar-container');
       if(avtContainer) avtContainer.remove();
 
@@ -523,6 +557,6 @@
     }, 1400);
   };
 
-  // Kích hoạt đồng bộ dữ liệu ngay lần đầu tải giao diện user
   window.syncUserData();
-</script>
+      </script>
+      
