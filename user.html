@@ -356,11 +356,12 @@
     </div>
   </div>
 </div>
-
-    <script>
+<script>
   var currentUser, userNotes, savedInfiniteText;
   const CLOUD_URL = "https://Keepii-vn.onrender.com/api";
+  let saveTimeout = null; // Bộ đếm thời gian hoãn 3 giây
 
+  // Chặn sự kiện lan truyền để bảo vệ các vùng nhập liệu
   ['user-dashboard', 'type-popup-mask', 'user-avatar-container'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('click', (e) => e.stopPropagation());
@@ -377,19 +378,31 @@
     return match ? decodeURIComponent(match[2]) : 'guest';
   }
 
-  // ☁️ HÀM ĐỒNG BỘ DỮ LIỆU TỪ CLOUD (MONGODB ATLAS) KHI MỞ APP HOẶC RELOAD
+  // ☁️ 1. HÀM ĐỒNG BỘ DỮ LIỆU TỪ CLOUD HOẶC LOCAL STORAGE KHI MỞ APP
   window.syncUserData = async function() {
     currentUser = getUsernameFromCookie();
     if (currentUser === 'guest') return;
 
-    // Thiết lập giao diện tạm thời trong khi đợi tải dữ liệu
     const welcomeEl = document.getElementById('drawerWelcomeTxt');
     const letterEl = document.getElementById('avtLetter');
     if(welcomeEl) welcomeEl.textContent = `Xin chào ${currentUser}`;
     if(letterEl) letterEl.textContent = currentUser.charAt(0).toUpperCase();
 
+    // KIỂM TRA TRƯỚC: Nếu máy cục bộ có dữ liệu tạm chưa kịp lên mây do tắt web, nạp ra trước
+    const localNotes = localStorage.getItem(`keepii_notes_${currentUser}`);
+    const localInfText = localStorage.getItem(`keepii_inf_text_${currentUser}`);
+    
+    if (localNotes) userNotes = JSON.parse(localNotes);
+    if (localInfText !== null) savedInfiniteText = localInfText;
+
+    const infPad = document.getElementById('infinitePad');
+    if(infPad && savedInfiniteText !== undefined) {
+      infPad.innerText = savedInfiniteText;
+    }
+    renderNotes();
+
+    // ĐỒNG THỜI: Gọi API lấy bản chuẩn nhất từ MongoDB Atlas về cập nhật tiếp
     try {
-      // Gọi API lấy dữ liệu ghi chú và text pad lưu trên MongoDB của user này
       const response = await fetch(`${CLOUD_URL}/get_user_data`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -398,27 +411,40 @@
       const data = await response.json();
       
       if(data.success) {
+        // Nếu trên Cloud có dữ liệu thì cập nhật bản mới nhất
         userNotes = data.notes || [];
         savedInfiniteText = data.inf_text || "";
-      } else {
-        userNotes = [];
-        savedInfiniteText = "";
+        
+        // Cập nhật lại bộ nhớ máy
+        localStorage.setItem(`keepii_notes_${currentUser}`, JSON.stringify(userNotes));
+        localStorage.setItem(`keepii_inf_text_${currentUser}`, savedInfiniteText);
+        
+        if(infPad) infPad.innerText = savedInfiniteText;
+        renderNotes();
       }
     } catch (error) {
-      console.error("Lỗi tải dữ liệu Cloud:", error);
-      userNotes = [];
-      savedInfiniteText = "";
+      console.error("Lỗi tải dữ liệu Cloud, đang dùng dữ liệu Local:", error);
     }
-
-    const infPad = document.getElementById('infinitePad');
-    if(infPad) {
-      infPad.innerText = savedInfiniteText;
-    }
-
-    renderNotes();
   };
 
-  // ☁️ HÀM ĐẨY DỮ LIỆU LÊN MÂY (Mỗi lần có thay đổi ghi chú hoặc text pad)
+  // ☁️ 2. HÀM KÍCH HOẠT TIẾN TRÌNH AUTO SAVE THÔNG THƯỜNG (LocalStorage ngay lập tức + Debounce 3s)
+  function triggerAutoSave() {
+    if (currentUser === 'guest') return;
+
+    // A. Lưu lập tức vào máy người dùng (0.001 giây)
+    localStorage.setItem(`keepii_notes_${currentUser}`, JSON.stringify(userNotes));
+    localStorage.setItem(`keepii_inf_text_${currentUser}`, savedInfiniteText);
+
+    // B. Xóa bộ đếm cũ nếu tay vẫn đang gõ liên tục
+    clearTimeout(saveTimeout);
+
+    // C. Đặt hẹn giờ đúng 3 giây (3000ms) không đổi thì gửi request lên đám mây toàn cầu
+    saveTimeout = setTimeout(() => {
+      saveUserDataToCloud();
+    }, 3000);
+  }
+
+  // Hàm thực hiện bắn request lưu lên MongoDB Atlas
   async function saveUserDataToCloud() {
     if (currentUser === 'guest') return;
     try {
@@ -431,16 +457,50 @@
           inf_text: savedInfiniteText
         })
       });
+      console.log("Đã đồng bộ thành công lên đám mây MongoDB Atlas! ✅");
     } catch (error) {
-      console.error("Lỗi đồng bộ Cloud:", error);
+      console.error("Lỗi đồng bộ đám mây ngầm:", error);
     }
   }
 
+  // 🚨 3. HÀM ÉP LƯU KHẨN CẤP (Gọi lập tức khi tắt trang, reload hoặc Đăng xuất trước 3s chờ)
+  function triggerEmergencySave() {
+    if (!currentUser || currentUser === 'guest') return;
+
+    // Xóa bộ hẹn giờ lơ lửng để tránh kích hoạt trùng request
+    clearTimeout(saveTimeout);
+
+    const payload = JSON.stringify({
+      nickname: currentUser,
+      notes: userNotes,
+      inf_text: savedInfiniteText
+    });
+
+    // Sử dụng công nghệ ép gói dữ liệu Beacon chuyên dụng, chạy ngầm xuyên màn hình khi web đóng
+    if (navigator.sendBeacon) {
+      const blob = new Blob([payload], { type: 'application/json' });
+      navigator.sendBeacon(`${CLOUD_URL}/save_user_data`, blob);
+    } else {
+      // Phương án dự phòng cho trình duyệt cũ (keepalive giữ kết nối kể cả khi đóng tab)
+      fetch(`${CLOUD_URL}/save_user_data`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+        keepalive: true
+      });
+    }
+  }
+
+  // Gắn máy lắng nghe sự kiện khi người dùng Reload trang hoặc đóng tab trình duyệt ngắt quãng
+  window.addEventListener('beforeunload', triggerEmergencySave);
+  window.addEventListener('pagehide', triggerEmergencySave);
+
+  // Lắng nghe sự kiện gõ chữ trên vùng text pad vô hạn
   const infPad = document.getElementById('infinitePad');
   if(infPad) {
     infPad.addEventListener('input', () => {
       savedInfiniteText = infPad.innerText;
-      saveUserDataToCloud(); // Lưu thời gian thực lên mây
+      triggerAutoSave(); // Chạy tiến trình auto save 3s
     });
   }
 
@@ -452,7 +512,6 @@
 
   document.addEventListener('click', () => {
     const panel = document.getElementById('userDrawerPanel');
-    if(panel) panel.classList.remove('remove');
     if(panel) panel.classList.remove('open');
   });
 
@@ -479,7 +538,7 @@
     userNotes.push(""); 
     closeTypePopup();
     renderNotes();
-    saveUserDataToCloud();
+    triggerAutoSave(); // Kích hoạt lưu trạng thái mảng ghi chú mới tăng lên
     openFullscreenNote(userNotes.length - 1);
   }
 
@@ -507,7 +566,7 @@
     if(textarea) {
       textarea.addEventListener('input', (e) => {
         userNotes[index] = e.target.value;
-        saveUserDataToCloud();
+        triggerAutoSave(); // Liên tục cập nhật máy cục bộ và đếm ngược 3 giây đẩy Cloud
       });
     }
   }
@@ -516,8 +575,9 @@
     const textarea = document.getElementById(`editor-${index}`);
     if (textarea) {
       userNotes[index] = textarea.value;
-      saveUserDataToCloud();
     }
+    // Khi chủ động đóng trình sửa, ép lưu lên đám mây ngay lập tức không cần đợi 3s
+    saveUserDataToCloud();
     
     const fsContainer = document.getElementById('active-fullscreen-editor');
     if(fsContainer) fsContainer.remove();
@@ -526,6 +586,9 @@
   };
 
   window.userLogout = function() {
+    // 1. Ép đồng bộ vét cạn toàn bộ chữ mới nhất lên mây trước khi bay màu session
+    triggerEmergencySave();
+
     const transStar = document.getElementById('transition-star');
     if(transStar) {
       transStar.style.opacity = '1';
@@ -537,6 +600,9 @@
     }, 400);
 
     setTimeout(() => {
+      // Xóa bộ nhớ đệm cục bộ và cookie phiên đăng nhập
+      localStorage.removeItem(`keepii_notes_${currentUser}`);
+      localStorage.removeItem(`keepii_inf_text_${currentUser}`);
       document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       
       const avtContainer = document.getElementById('user-avatar-container');
@@ -557,6 +623,11 @@
     }, 1400);
   };
 
+  // Kích hoạt nạp dữ liệu ngay khi giao diện hiển thị
   window.syncUserData();
-      </script>
+    </script>
+
+    
+
+  
       
