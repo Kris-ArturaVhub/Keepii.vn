@@ -410,7 +410,8 @@
     /* =========================================
        PHẦN 1: QUẢN LÝ APP & ĐỒNG BỘ MONGODB ATLAS
        ========================================= */
-    let currentUser = "user_demo"; // Giả lập user để test
+    let currentUser = getUsernameFromCookie(); // Lấy tên User từ cookie đăng nhập
+    // Giả lập user để test
     let userNotes = [];
     let savedInfiniteText = "";
     const CLOUD_URL = "https://Keepii-vn.onrender.com/api";
