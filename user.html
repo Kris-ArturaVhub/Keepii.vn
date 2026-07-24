@@ -19,390 +19,251 @@
 
     #user-dashboard {
       position: absolute;
-      top: 60px; 
-      left: 0;
-      width: 100%;
-      height: calc(100vh - 60px);
-      box-sizing: border-box;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      overflow: hidden;
+      top: 60px; left: 0; width: 100%; height: calc(100vh - 60px);
+      box-sizing: border-box; padding: 20px;
+      display: flex; flex-direction: column; gap: 20px; overflow: hidden;
     }
 
     .infinite-text-pad {
-      width: 100%;
-      min-height: 80px;
-      max-height: 150px;
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 12px;
-      color: #fff;
-      padding: 12px;
-      box-sizing: border-box;
-      outline: none;
-      font-size: 16px;
-      overflow-y: auto;
-      white-space: pre-wrap;
+      width: 100%; min-height: 80px; max-height: 150px;
+      background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px; color: #fff; padding: 12px; box-sizing: border-box;
+      outline: none; font-size: 16px; overflow-y: auto; white-space: pre-wrap;
       transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
     }
-    .infinite-text-pad:focus {
-      border-color: #06b6d4;
-      background: rgba(255, 255, 255, 0.12);
-    }
+    .infinite-text-pad:focus { border-color: #06b6d4; background: rgba(255, 255, 255, 0.12); }
 
     #notes-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr); 
-      gap: 15px;
-      height: calc(100% - 170px); 
-      overflow-y: auto; 
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 100px; 
-      box-sizing: border-box;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
+      height: calc(100% - 170px); overflow-y: auto; 
+      -webkit-overflow-scrolling: touch; padding-bottom: 100px; box-sizing: border-box;
     }
     
     .note-card {
       background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(79, 70, 229, 0.15));
-      border: 1px solid rgba(6, 182, 212, 0.3);
-      border-radius: 12px;
-      height: 130px;
-      padding: 12px;
-      box-sizing: border-box;
-      color: #fff;
-      cursor: pointer;
-      overflow: hidden;
-      position: relative;
+      border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; height: 130px;
+      padding: 12px; box-sizing: border-box; color: #fff; cursor: pointer;
+      overflow: hidden; position: relative;
       transition: transform 0.4s cubic-bezier(0.25, 1.5, 0.5, 1), background 0.4s ease, border 0.4s ease, color 0.4s ease;
     }
     .note-card:active { transform: scale(0.94); }
-    
-    .note-card-title {
-      font-weight: bold;
-      font-size: 14px;
-      margin-bottom: 6px;
-      color: #06b6d4;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
-      transition: color 0.4s ease;
-    }
-    .note-card-body {
-      font-size: 13px;
-      opacity: 0.8;
-      display: -webkit-box;
-      -webkit-line-clamp: 4;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      transition: color 0.4s ease;
-    }
+    .note-card-title { font-weight: bold; font-size: 14px; margin-bottom: 6px; color: #06b6d4; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; transition: color 0.4s ease; }
+    .note-card-body { font-size: 13px; opacity: 0.8; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.4s ease; }
 
-    /* Fullscreen Editor */
     .fullscreen-note-container {
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      z-index: 6000; 
-      background: #090915;
-      box-sizing: border-box;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      transition: background 0.4s ease;
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 6000; background: #090915; box-sizing: border-box; padding: 20px;
+      display: flex; flex-direction: column; gap: 15px; transition: background 0.4s ease;
     }
-    .fullscreen-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      height: 40px;
-    }
+    .fullscreen-header { display: flex; justify-content: space-between; align-items: center; width: 100%; height: 40px; }
     .fullscreen-title { color: #06b6d4; font-weight: bold; font-size: 16px; }
     .close-edit-btn {
-      background: #ef4444; color: white; padding: 6px 16px;
-      border-radius: 20px; font-weight: bold; font-size: 13px;
-      cursor: pointer; transition: transform 0.3s;
+      background: #ef4444; color: white; padding: 6px 16px; border-radius: 20px;
+      font-weight: bold; font-size: 13px; cursor: pointer; transition: transform 0.3s;
     }
     .close-edit-btn:active { transform: scale(0.88); }
     .fullscreen-editor {
-      width: 100%; flex: 1; 
-      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px; padding: 15px; box-sizing: border-box;
-      outline: none; color: #fff; font-size: 16px; resize: none;
-      transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+      width: 100%; flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 15px; box-sizing: border-box; outline: none; color: #fff;
+      font-size: 16px; resize: none; transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
     }
 
-    /* Bottom Controls */
-    .bottom-controls-bar {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      z-index: 1005;
-    }
+    .bottom-controls-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1005; }
     #add-note-btn {
       width: 55px; height: 55px; border-radius: 50%;
-      background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white;
-      font-size: 30px; cursor: pointer; display: flex; align-items: center;
-      justify-content: center; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+      background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white; font-size: 30px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
     }
     #add-note-btn:active { transform: scale(0.85); }
 
-    /* Type Popup */
     #type-popup-mask {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6); z-index: 4500; display: flex;
-      align-items: center; justify-content: center; opacity: 0; pointer-events: none;
-      transition: opacity 0.4s ease;
+      background: rgba(0,0,0,0.6); z-index: 4500; display: flex; align-items: center;
+      justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
     }
     #type-popup-mask.open { opacity: 1; pointer-events: auto; }
     .type-popup-box {
-      background: #151525; border: 2px solid #06b6d4; border-radius: 16px;
-      padding: 25px; width: 85%; max-width: 320px; text-align: center;
-      transform: scale(0.6); transition: transform 0.5s, background 0.4s ease, border-color 0.4s ease;
+      background: #151525; border: 2px solid #06b6d4; border-radius: 16px; padding: 25px;
+      width: 85%; max-width: 320px; text-align: center; transform: scale(0.6); transition: transform 0.5s, background 0.4s ease, border-color 0.4s ease;
     }
     #type-popup-mask.open .type-popup-box { transform: scale(1); }
     .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; transition: color 0.4s ease; }
     .type-option-btn {
-      width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
-      color: #fff; font-weight: bold; cursor: pointer; text-align: left;
+      width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05); color: #fff; font-weight: bold; cursor: pointer; text-align: left;
       transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 
-    /* Avatar & Menu */
     #user-avatar-container { position: fixed; top: 15px; right: 20px; z-index: 5000; }
     .avatar-circle-btn {
       width: 40px; height: 40px; border-radius: 50%;
-      background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white;
-      font-weight: bold; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; border: 2px solid rgba(255,255,255,0.2);
+      background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white; font-weight: bold;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid rgba(255,255,255,0.2);
     }
     .info-drawer-panel {
-      position: absolute; top: 50px; right: 0; background: #111122;
-      border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px;
-      padding: 15px; min-width: 160px; box-sizing: border-box;
-      opacity: 0; pointer-events: none; transform: translateY(-15px) scale(0.9);
-      transition: all 0.3s ease, background 0.4s ease, border-color 0.4s ease;
+      position: absolute; top: 50px; right: 0; background: #111122; border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 12px; padding: 15px; min-width: 160px; box-sizing: border-box; opacity: 0;
+      pointer-events: none; transform: translateY(-15px) scale(0.9); transition: all 0.3s ease, background 0.4s ease, border-color 0.4s ease;
     }
     .info-drawer-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
     .drawer-greeting { font-weight: bold; color: #06b6d4; margin-bottom: 12px; }
-    
     .drawer-btn {
-      width: 100%; padding: 10px 0; border-radius: 18px; font-weight: bold;
-      font-size: 13px; text-align: center; cursor: pointer; margin-top: 8px;
-      color: white; transition: transform 0.25s;
+      width: 100%; padding: 10px 0; border-radius: 18px; font-weight: bold; font-size: 13px; text-align: center;
+      cursor: pointer; margin-top: 8px; color: white; transition: transform 0.25s;
     }
     .drawer-btn:active { transform: scale(0.92); }
     .drawer-bot-btn { background: #4f46e5; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25); }
     .drawer-logout-btn { background: #ef4444; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25); }
 
     /* =========================================
-       2. TÍNH NĂNG MINI BOT GÓC MÀN HÌNH
+       2. TÍNH NĂNG MINI BOT GÓC MÀN HÌNH (ĐỒNG BỘ INDEX 9)
        ========================================= */
     #mini-bot-wrapper {
-      position: fixed;
-      top: 80px; left: 20px;
-      width: clamp(200px, 25vw, 300px);
-      height: 180px;
-      z-index: 5500;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
+      position: fixed; top: 80px; left: 20px; width: clamp(200px, 25vw, 300px); height: 180px;
+      z-index: 5500; display: none; flex-direction: column; align-items: center; justify-content: flex-end;
     }
-
-    .bot-controls {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-      width: 100%;
-      justify-content: center;
-    }
+    .bot-controls { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; justify-content: center; }
     .bot-tool-btn {
-      background: rgba(12, 14, 23, 0.85);
-      border: 1px solid #00f2fe;
-      color: #00f2fe;
-      padding: 6px 12px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
-      backdrop-filter: blur(5px);
-      transition: background 0.2s, transform 0.1s;
+      background: rgba(12, 14, 23, 0.85); border: 1px solid #00f2fe; color: #00f2fe; padding: 6px 12px;
+      border-radius: 12px; font-size: 11px; font-weight: bold; cursor: pointer; backdrop-filter: blur(5px); transition: background 0.2s, transform 0.1s;
     }
     .bot-tool-btn:active { transform: scale(0.9); }
     .bot-tool-btn.active-drag { background: #00f2fe; color: #000; }
 
     .chat-bubble {
-      position: absolute;
-      top: -45px;
-      background: white;
-      color: black;
-      padding: 8px 14px;
-      border-radius: 16px;
-      font-size: 13px;
-      font-weight: 500;
-      max-width: 200px;
-      width: max-content;
-      text-align: center;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s, transform 0.3s;
-      transform: translateY(10px) scale(0.9);
-      z-index: 10;
+      position: absolute; top: -55px; background: white; color: black; padding: 8px 14px;
+      border-radius: 16px; font-size: 13px; font-weight: 500; max-width: 200px; width: max-content;
+      text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); opacity: 0; pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s; transform: translateY(10px) scale(0.9); z-index: 10;
     }
-    .chat-bubble.show {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+    .chat-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
     .chat-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-width: 6px 6px 0;
-      border-style: solid;
-      border-color: white transparent transparent transparent;
+      content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+      border-width: 6px 6px 0; border-style: solid; border-color: white transparent transparent transparent;
     }
 
-    /* Đã dịch chuyển lệch sang phải (right: -55px) để không bị vướng khung bot */
     .emotions-menu {
-      position: absolute;
-      top: -40px;
-      right: -55px;
-      background: #111122;
-      border: 1px solid #00f2fe;
-      border-radius: 12px;
-      padding: 10px;
-      display: none;
-      flex-direction: column;
-      gap: 8px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.6);
-      z-index: 6000;
-      transition: background 0.4s ease, border-color 0.4s ease;
+      position: absolute; top: -75px; right: -55px; background: #111122; border: 1px solid #00f2fe;
+      border-radius: 12px; padding: 10px; display: none; grid-template-columns: repeat(2, 1fr);
+      gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.6); z-index: 6000; transition: background 0.4s ease, border-color 0.4s ease;
     }
-    .emo-item {
-      font-size: 20px;
-      cursor: pointer;
-      transition: transform 0.2s;
-      text-align: center;
-    }
+    .emo-item { font-size: 22px; cursor: pointer; transition: transform 0.2s; text-align: center; }
     .emo-item:active { transform: scale(1.3); }
 
+    /* CORE AVATAR STYLES (FROM INDEX 9) */
     .bot-avatar-card {
-      position: relative;
-      width: 100%;
-      height: 120px;
-      border-radius: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      background: #060709;
-      --led-color1: #00f2fe;
-      --led-color2: #4facfe;
-      box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
-      cursor: pointer;
+      position: relative; width: 100%; height: 85px; border-radius: 14px; display: flex;
+      justify-content: center; align-items: center; overflow: hidden; background: #060709;
+      --led-color1: #00f2fe; --led-color2: #4facfe; box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+      cursor: pointer; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .bot-avatar-card::before {
-      content: ''; position: absolute; width: 150%; height: 300%;
-      background: linear-gradient(0deg, transparent, var(--led-color1), var(--led-color2));
-      animation: rotateBorder 3.5s linear infinite;
+      content: ''; position: absolute; width: 180px; height: 350px;
+      background: linear-gradient(0deg, transparent, var(--led-color1), var(--led-color2)); animation: rotateBorder 3.2s linear infinite;
     }
     .bot-face-inner {
-      position: absolute; inset: 4px; background: #0c0e17;
-      border-radius: 16px; display: flex; flex-direction: column;
-      justify-content: center; align-items: center; gap: 15px;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+      position: absolute; inset: 3px; background: #131622; border-radius: 11px;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      gap: 6px; z-index: 1; box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
     }
-    .eyes-container { display: flex; gap: 30px; align-items: center; height: 25px; }
+    .eyes-container { display: flex; gap: 24px; align-items: center; height: 18px; position: relative; }
     .eye {
-      width: 25px; height: 25px; background-color: #ffffff;
-      border-radius: 50%; box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-      transition: height 0.2s, width 0.2s, border-radius 0.2s, background-color 0.3s;
+      width: 16px; height: 16px; background-color: #ffffff; border-radius: 50%;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.95); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative;
     }
     .mouth {
-      width: 25px; height: 8px; background-color: var(--led-color1);
-      border-radius: 0 0 20px 20px; transition: transform 0.05s, height 0.2s, border-radius 0.3s;
-      box-shadow: 0 0 10px var(--led-color1);
+      width: 18px; height: 7px; background-color: var(--led-color1); border-radius: 0 0 18px 18px;
+      transition: transform 0.08s ease, background-color 0.3s ease, height 0.2s ease, border-radius 0.3s ease; box-shadow: 0 0 6px var(--led-color1);
     }
     @keyframes rotateBorder { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* 6 cảm xúc cho Bot */
+    /* EMOTIONS MAP */
+    .bot-avatar-card[data-emotion="normal"] { --led-color1: #00f2fe; --led-color2: #4facfe; }
+    
     .bot-avatar-card[data-emotion="happy"] { --led-color1: #00ff88; --led-color2: #00b894; }
-    .bot-avatar-card[data-emotion="happy"] .eye { height: 10px; border-radius: 10px 10px 0 0; }
-    .bot-avatar-card[data-emotion="happy"] .mouth { border-radius: 0 0 20px 20px; height: 12px; width: 30px; }
-    
+    .bot-avatar-card[data-emotion="happy"] .eye { height: 8px; border-radius: 8px 8px 0 0; }
+    .bot-avatar-card[data-emotion="happy"] .mouth { border-radius: 0 0 18px 18px; height: 9px; width: 22px; }
+
     .bot-avatar-card[data-emotion="sleepy"] { --led-color1: #a29bfe; --led-color2: #6c5ce7; }
-    .bot-avatar-card[data-emotion="sleepy"] .eye { width: 22px; height: 4px; border-radius: 2px; opacity: 0.6; }
-    .bot-avatar-card[data-emotion="sleepy"] .mouth { width: 10px; height: 10px; border-radius: 50%; opacity: 0.8; }
-    
+    .bot-avatar-card[data-emotion="sleepy"] .eye { width: 16px; height: 3px; border-radius: 2px; opacity: 0.6; transform: translateY(4px); }
+    .bot-avatar-card[data-emotion="sleepy"] .mouth { width: 8px; height: 8px; border-radius: 50%; opacity: 0.8; }
+
     .bot-avatar-card[data-emotion="angry"] { --led-color1: #ff3838; --led-color2: #ff4d4d; }
-    .bot-avatar-card[data-emotion="angry"] .eye { height: 15px; border-radius: 50% 50% 5px 5px; }
-    .bot-avatar-card[data-emotion="angry"] .eye::before {
-      content: ''; position: absolute; top: -6px; left: -5px; right: -5px; height: 12px;
-      background: #0c0e17; transform: rotate(25deg);
-    }
+    .bot-avatar-card[data-emotion="angry"] .eye { height: 12px; border-radius: 50% 50% 4px 4px; transform: translateY(-2px); }
+    .bot-avatar-card[data-emotion="angry"] .eye::before { content: ''; position: absolute; top: -6px; left: -4px; right: -4px; height: 10px; background: #131622; transform: rotate(25deg); }
     .bot-avatar-card[data-emotion="angry"] .eye:last-child::before { transform: rotate(-25deg); }
-    .bot-avatar-card[data-emotion="angry"] .mouth { border-radius: 10px 10px 5px 5px; height: 6px; width: 20px; }
+    .bot-avatar-card[data-emotion="angry"] .mouth { border-radius: 12px 12px 4px 4px; height: 6px; width: 16px; }
 
-    .bot-avatar-card[data-emotion="surprised"] { --led-color1: #f1c40f; --led-color2: #f39c12; }
+    .bot-avatar-card[data-emotion="sad"] { --led-color1: #4a69bd; --led-color2: #1e3799; }
+    .bot-avatar-card[data-emotion="sad"] .eye { height: 12px; border-radius: 50% 50% 4px 4px; transform: translateY(2px); }
+    .bot-avatar-card[data-emotion="sad"] .eye::before { content: ''; position: absolute; top: -6px; left: -4px; right: -4px; height: 10px; background: #131622; transform: rotate(-25deg); }
+    .bot-avatar-card[data-emotion="sad"] .eye:last-child::before { transform: rotate(25deg); }
+    .bot-avatar-card[data-emotion="sad"] .mouth { border-radius: 18px 18px 0 0; height: 6px; width: 16px; transform: translateY(2px); }
+
+    .bot-avatar-card[data-emotion="surprised"] { --led-color1: #fdcb6e; --led-color2: #e17055; }
     .bot-avatar-card[data-emotion="surprised"] .eye { width: 18px; height: 18px; }
-    .bot-avatar-card[data-emotion="surprised"] .mouth { width: 14px; height: 14px; border-radius: 50%; }
+    .bot-avatar-card[data-emotion="surprised"] .mouth { border-radius: 50%; height: 14px; width: 12px; }
 
-    .bot-avatar-card[data-emotion="thinking"] { --led-color1: #3498db; --led-color2: #2980b9; }
-    .bot-avatar-card[data-emotion="thinking"] .eye { width: 20px; height: 12px; border-radius: 6px; }
-    .bot-avatar-card[data-emotion="thinking"] .mouth { width: 18px; height: 4px; border-radius: 2px; }
+    /* MỚI: TÌNH YÊU (LOVE) 😍 */
+    .bot-avatar-card[data-emotion="love"] { --led-color1: #ff0844; --led-color2: #ffb199; }
+    .bot-avatar-card[data-emotion="love"] .eye { width: 16px; height: 16px; background-color: transparent; box-shadow: none; position: relative; }
+    .bot-avatar-card[data-emotion="love"] .eye::before, .bot-avatar-card[data-emotion="love"] .eye::after {
+      content: ''; position: absolute; left: 8px; top: 0; width: 8px; height: 13px; background: #fff;
+      border-radius: 8px 8px 0 0; transform: rotate(-45deg); transform-origin: 0 100%; box-shadow: 0 0 10px rgba(255,255,255,0.8);
+    }
+    .bot-avatar-card[data-emotion="love"] .eye::after { left: 0; transform: rotate(45deg); transform-origin: 100% 100%; }
+    .bot-avatar-card[data-emotion="love"] .mouth { height: 8px; width: 20px; border-radius: 0 0 18px 18px; }
+
+    /* MỚI: KHINH (DISDAIN) 😒 */
+    .bot-avatar-card[data-emotion="disdain"] { --led-color1: #95a5a6; --led-color2: #7f8c8d; }
+    .bot-avatar-card[data-emotion="disdain"] .eye { height: 6px; width: 16px; border-radius: 2px; transform: translateY(4px); }
+    .bot-avatar-card[data-emotion="disdain"] .eye::after { content: ''; position: absolute; right: 2px; top: 1px; width: 4px; height: 4px; background: #131622; border-radius: 50%; }
+    .bot-avatar-card[data-emotion="disdain"] .mouth { width: 16px; height: 4px; border-radius: 2px; transform: rotate(-8deg) translateX(4px); }
+
+    /* TRẠNG THÁI SMIRK CHO DISDAIN 😏 */
+    .bot-avatar-card[data-emotion="smirk"] { --led-color1: #95a5a6; --led-color2: #7f8c8d; }
+    .bot-avatar-card[data-emotion="smirk"] .eye:first-child { height: 6px; width: 16px; border-radius: 2px; transform: translateY(4px); }
+    .bot-avatar-card[data-emotion="smirk"] .eye:last-child { height: 14px; width: 16px; border-radius: 50% 50% 2px 2px; transform: translateY(-2px); }
+    .bot-avatar-card[data-emotion="smirk"] .mouth { width: 20px; height: 6px; border-radius: 0 0 12px 0; transform: rotate(-15deg) translateX(2px); }
+
+    /* MỚI: DỄ THƯƠNG (CUTE) 😽 */
+    .bot-avatar-card[data-emotion="cute"] { --led-color1: #ff758c; --led-color2: #ff7eb3; }
+    .bot-avatar-card[data-emotion="cute"] .eye { height: 16px; width: 16px; border-radius: 50%; }
+    .bot-avatar-card[data-emotion="cute"] .mouth { height: 6px; width: 14px; border-radius: 10px 10px 20px 20px; }
+    .bot-avatar-card .blush { position: absolute; width: 14px; height: 7px; background: #ff4757; border-radius: 50%; opacity: 0; filter: blur(3px); transition: opacity 0.3s; top: 18px; z-index: 2; pointer-events: none; }
+    .blush-left { left: 10px; } .blush-right { right: 10px; }
+    .bot-avatar-card[data-emotion="cute"] .blush { opacity: 0.85; }
+    .cat-ear { position: absolute; top: 0px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 22px solid var(--led-color1); opacity: 0; transition: all 0.3s; z-index: -1; transform-origin: bottom center; }
+    .ear-left { left: 15px; transform: rotate(-15deg); } .ear-right { right: 15px; transform: rotate(15deg); }
+    .bot-avatar-card[data-emotion="cute"] .cat-ear { opacity: 1; top: -12px; }
+    
+    /* Hiệu ứng chạm CUTE */
+    .bot-avatar-card.cute-touch-anim { animation: cuteBounce 0.4s ease; }
+    .bot-avatar-card.cute-touch-anim .ear-left { animation: earTwitchLeft 0.5s ease; }
+    .bot-avatar-card.cute-touch-anim .ear-right { animation: earTwitchRight 0.5s ease; }
+    @keyframes cuteBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.95) translateY(4px); } }
+    @keyframes earTwitchLeft { 0%, 100% { transform: rotate(-15deg); } 50% { transform: rotate(-45deg); } }
+    @keyframes earTwitchRight { 0%, 100% { transform: rotate(15deg); } 50% { transform: rotate(45deg); } }
 
     .bot-avatar-card.talking .mouth { transform: scaleY(var(--mouth-scale, 1)); }
     .bot-avatar-card.blinking .eye { transform: scaleY(0.1) !important; }
 
     /* =========================================
-       3. HỖ TRỢ CHẾ ĐỘ SÁNG (LIGHT MODE STYLES)
+       3. HỖ TRỢ CHẾ ĐỘ SÁNG (LIGHT MODE)
        ========================================= */
-    body.light-mode .infinite-text-pad {
-      background: rgba(0, 0, 0, 0.04);
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      color: #101026;
-    }
-    body.light-mode .infinite-text-pad:focus {
-      border-color: #06b6d4;
-      background: rgba(0, 0, 0, 0.07);
-    }
-    body.light-mode .note-card {
-      background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(79, 70, 229, 0.1));
-      border: 1px solid rgba(6, 182, 212, 0.25);
-      color: #101026;
-    }
-    body.light-mode .note-card-title { color: #0284c7; }
-    body.light-mode .note-card-body { color: #333; }
-    body.light-mode .type-popup-box,
-    body.light-mode .info-drawer-panel,
-    body.light-mode .emotions-menu {
-      background: #ffffff;
-      border-color: #06b6d4;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    }
-    body.light-mode .popup-title,
-    body.light-mode .type-option-btn { color: #101026; }
-    body.light-mode .type-option-btn {
-      background: rgba(0,0,0,0.03);
-      border: 1px solid rgba(0,0,0,0.1);
-    }
-    body.light-mode .fullscreen-note-container {
-      background: #ffffff;
-    }
-    body.light-mode .fullscreen-editor {
-      background: rgba(0,0,0,0.02);
-      border: 1px solid rgba(0,0,0,0.1);
-      color: #101026;
-    }
+    body.light-mode .infinite-text-pad { background: rgba(0, 0, 0, 0.04); border: 1px solid rgba(0, 0, 0, 0.15); color: #101026; }
+    body.light-mode .infinite-text-pad:focus { border-color: #06b6d4; background: rgba(0, 0, 0, 0.07); }
+    body.light-mode .note-card { background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(79, 70, 229, 0.1)); border: 1px solid rgba(6, 182, 212, 0.25); color: #101026; }
+    body.light-mode .note-card-title { color: #0284c7; } body.light-mode .note-card-body { color: #333; }
+    body.light-mode .type-popup-box, body.light-mode .info-drawer-panel, body.light-mode .emotions-menu { background: #ffffff; border-color: #06b6d4; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+    body.light-mode .popup-title, body.light-mode .type-option-btn { color: #101026; }
+    body.light-mode .type-option-btn { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); }
+    body.light-mode .fullscreen-note-container { background: #ffffff; }
+    body.light-mode .fullscreen-editor { background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1); color: #101026; }
   </style>
 </head>
 <body>
 
-  <!-- Menu góc trên bên phải -->
   <div id="user-avatar-container">
     <div class="avatar-circle-btn" onclick="toggleUserDrawer(event)" id="avtLetter">U</div>
     <div class="info-drawer-panel" id="userDrawerPanel">
@@ -412,7 +273,6 @@
     </div>
   </div>
 
-  <!-- Bảng điều khiển công việc -->
   <div id="user-dashboard">
     <div class="infinite-text-pad" contenteditable="true" placeholder="Gõ ghi chú nhanh tại đây..." id="infinitePad"></div>
     <div id="notes-grid"></div>
@@ -422,7 +282,6 @@
     <div id="add-note-btn" onclick="openTypePopup()">+</div>
   </div>
 
-  <!-- Popup tạo ghi chú -->
   <div id="type-popup-mask" onclick="closeTypePopup()">
     <div class="type-popup-box" onclick="event.stopPropagation()">
       <div class="popup-title">Tạo một ghi chú mới</div>
@@ -430,20 +289,21 @@
     </div>
   </div>
 
-  <!-- =========================================
-       MODULE: MINI BOT FLOAT CONTAINER
-       ========================================= -->
+  <!-- MODULE: MINI BOT -->
   <div id="mini-bot-wrapper">
     <div class="chat-bubble" id="botChatBubble">Xin chào!</div>
     
-    <!-- 6 cảm xúc cho Bot -->
+    <!-- MENU 9 CẢM XÚC -->
     <div class="emotions-menu" id="emoMenu">
-      <div class="emo-item" onclick="setBotEmotion('normal', 'Bình thường thôi')">😐</div>
-      <div class="emo-item" onclick="setBotEmotion('happy', 'Tuyệt quá!')">😀</div>
-      <div class="emo-item" onclick="setBotEmotion('sleepy', 'Buồn ngủ quá...')">😴</div>
-      <div class="emo-item" onclick="setBotEmotion('angry', 'Đang bực mình!')">😡</div>
-      <div class="emo-item" onclick="setBotEmotion('surprised', 'Ồ, bất ngờ ghê!')">😲</div>
-      <div class="emo-item" onclick="setBotEmotion('thinking', 'Đang suy nghĩ...')">🤔</div>
+      <div class="emo-item" onclick="selectBotEmotion('normal', 'Bình thường thôi')">😐</div>
+      <div class="emo-item" onclick="selectBotEmotion('happy', 'Tuyệt quá!')">😀</div>
+      <div class="emo-item" onclick="selectBotEmotion('sleepy', 'Buồn ngủ quá...')">😴</div>
+      <div class="emo-item" onclick="selectBotEmotion('angry', 'Đang bực mình!')">😡</div>
+      <div class="emo-item" onclick="selectBotEmotion('sad', 'Buồn ghê...')">😢</div>
+      <div class="emo-item" onclick="selectBotEmotion('surprised', 'Ồ, bất ngờ ghê!')">😲</div>
+      <div class="emo-item" onclick="selectBotEmotion('cute', 'Đáng iu hong?')">😽</div>
+      <div class="emo-item" onclick="selectBotEmotion('love', 'Mê quá đi!')">😍</div>
+      <div class="emo-item" onclick="selectBotEmotion('disdain', 'Bình thường thôi.')">😒</div>
     </div>
     
     <div class="bot-controls">
@@ -451,9 +311,17 @@
       <div class="bot-tool-btn" onclick="toggleEmotionsMenu(event)">😀 Cảm xúc</div>
     </div>
 
-    <!-- Khuôn mặt Bot -->
+    <!-- KHUÔN MẶT BOT ĐỒNG BỘ INDEX(9).html -->
     <div class="bot-avatar-card" id="miniBotCard" data-emotion="normal">
+      <!-- Tai mèo cho Cute Mode -->
+      <div class="cat-ear ear-left"></div>
+      <div class="cat-ear ear-right"></div>
+      
       <div class="bot-face-inner">
+        <!-- Má hồng -->
+        <div class="blush blush-left"></div>
+        <div class="blush blush-right"></div>
+        
         <div class="eyes-container">
           <div class="eye"></div>
           <div class="eye"></div>
@@ -479,123 +347,60 @@
       currentUser = getUsernameFromCookie();
       const cachedNotes = localStorage.getItem(`keepii_notes_${currentUser}`);
       const cachedInf = localStorage.getItem(`keepii_inf_text_${currentUser}`);
-      
       if (cachedNotes) userNotes = JSON.parse(cachedNotes);
-      if (cachedInf) {
-        savedInfiniteText = cachedInf;
-        const pad = document.getElementById('infinitePad');
-        if(pad) pad.innerText = savedInfiniteText;
-      }
+      if (cachedInf) { savedInfiniteText = cachedInf; document.getElementById('infinitePad').innerText = savedInfiniteText; }
       renderNotes();
-      
-      const avtLetter = document.getElementById('avtLetter');
-      const welcomeTxt = document.getElementById('drawerWelcomeTxt');
-      if(avtLetter && currentUser) avtLetter.textContent = currentUser.charAt(0).toUpperCase();
-      if(welcomeTxt) welcomeTxt.textContent = `Xin chào, ${currentUser}!`;
+      if(document.getElementById('avtLetter') && currentUser) document.getElementById('avtLetter').textContent = currentUser.charAt(0).toUpperCase();
+      if(document.getElementById('drawerWelcomeTxt')) document.getElementById('drawerWelcomeTxt').textContent = `Xin chào, ${currentUser}!`;
     }
 
     async function saveUserDataToCloud() {
       if (!currentUser || currentUser === 'guest') return;
       try {
-        await fetch(`${CLOUD_URL}/save_user_data`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nickname: currentUser,
-            notes: userNotes,
-            inf_text: savedInfiniteText
-          })
-        });
-      } catch (error) {
-        console.error("❌ Đồng bộ đám mây thất bại:", error);
-      }
+        await fetch(`${CLOUD_URL}/save_user_data`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nickname: currentUser, notes: userNotes, inf_text: savedInfiniteText }) });
+      } catch (error) { console.error("Đồng bộ đám mây thất bại:", error); }
     }
 
     function triggerAutoSave() {
       if (currentUser === 'guest') return;
       localStorage.setItem(`keepii_notes_${currentUser}`, JSON.stringify(userNotes));
       localStorage.setItem(`keepii_inf_text_${currentUser}`, savedInfiniteText);
-
       clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(() => {
-        saveUserDataToCloud();
-      }, 3000);
+      saveTimeout = setTimeout(saveUserDataToCloud, 3000);
     }
 
     const infPad = document.getElementById('infinitePad');
-    if(infPad) {
-      infPad.addEventListener('input', () => {
-        savedInfiniteText = infPad.innerText;
-        triggerAutoSave(); 
-      });
-    }
+    if(infPad) infPad.addEventListener('input', () => { savedInfiniteText = infPad.innerText; triggerAutoSave(); });
 
-    window.toggleUserDrawer = function(e) {
-      e.stopPropagation();
-      document.getElementById('userDrawerPanel').classList.toggle('open');
-    };
-    document.addEventListener('click', () => {
-      const panel = document.getElementById('userDrawerPanel');
-      if(panel) panel.classList.remove('open');
-    });
+    window.toggleUserDrawer = function(e) { e.stopPropagation(); document.getElementById('userDrawerPanel').classList.toggle('open'); };
+    document.addEventListener('click', () => { const panel = document.getElementById('userDrawerPanel'); if(panel) panel.classList.remove('open'); });
 
     function renderNotes() {
       const grid = document.getElementById('notes-grid');
-      if(!grid) return;
-      grid.innerHTML = '';
+      if(!grid) return; grid.innerHTML = '';
       userNotes.forEach((note, index) => {
-        const card = document.createElement('div');
-        card.className = 'note-card';
-        card.onclick = () => openFullscreenNote(index);
-        card.innerHTML = `
-          <div class="note-card-title">Ghi chú #${index + 1}</div>
-          <div class="note-card-body">${note ? note.replace(/\n/g, '<br>') : 'Trống...'}</div>
-        `;
+        const card = document.createElement('div'); card.className = 'note-card'; card.onclick = () => openFullscreenNote(index);
+        card.innerHTML = `<div class="note-card-title">Ghi chú #${index + 1}</div><div class="note-card-body">${note ? note.replace(/\n/g, '<br>') : 'Trống...'}</div>`;
         grid.appendChild(card);
       });
     }
 
     window.openTypePopup = function() { document.getElementById('type-popup-mask').classList.add('open'); }
     window.closeTypePopup = function() { document.getElementById('type-popup-mask').classList.remove('open'); }
-    window.createNewTextNote = function() {
-      userNotes.push(""); 
-      closeTypePopup(); renderNotes(); triggerAutoSave();
-      openFullscreenNote(userNotes.length - 1);
-    }
+    window.createNewTextNote = function() { userNotes.push(""); closeTypePopup(); renderNotes(); triggerAutoSave(); openFullscreenNote(userNotes.length - 1); }
 
     window.openFullscreenNote = function(index) {
       const isLight = document.body.classList.contains('light-mode');
-      const fsContainer = document.createElement('div');
-      fsContainer.id = 'active-fullscreen-editor';
-      fsContainer.className = 'fullscreen-note-container';
+      const fsContainer = document.createElement('div'); fsContainer.id = 'active-fullscreen-editor'; fsContainer.className = 'fullscreen-note-container';
       if(isLight) fsContainer.style.background = "#ffffff";
-      fsContainer.innerHTML = `
-        <div class="fullscreen-header">
-          <div class="fullscreen-title">CHỈNH SỬA GHI CHÚ #${index + 1}</div>
-          <div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Thoát ✕</div>
-        </div>
-        <textarea class="fullscreen-editor" id="editor-${index}">${userNotes[index]}</textarea>
-      `;
+      fsContainer.innerHTML = `<div class="fullscreen-header"><div class="fullscreen-title">CHỈNH SỬA GHI CHÚ #${index + 1}</div><div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Thoát ✕</div></div><textarea class="fullscreen-editor" id="editor-${index}">${userNotes[index]}</textarea>`;
       document.body.appendChild(fsContainer);
-      const textarea = document.getElementById(`editor-${index}`);
-      textarea.focus();
-      textarea.addEventListener('input', (e) => {
-        userNotes[index] = e.target.value;
-        triggerAutoSave();
-      });
+      const textarea = document.getElementById(`editor-${index}`); textarea.focus();
+      textarea.addEventListener('input', (e) => { userNotes[index] = e.target.value; triggerAutoSave(); });
     }
 
-    window.closeFullscreenNote = function(index) {
-      saveUserDataToCloud();
-      const el = document.getElementById('active-fullscreen-editor');
-      if(el) el.remove();
-      renderNotes();
-    };
-
-    window.userLogout = function() {
-      document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      location.reload();
-    };
+    window.closeFullscreenNote = function(index) { saveUserDataToCloud(); const el = document.getElementById('active-fullscreen-editor'); if(el) el.remove(); renderNotes(); };
+    window.userLogout = function() { document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; location.reload(); };
 
     /* =========================================
        PHẦN 2: LOGIC MINI BOT (SSPRO MODULE)
@@ -606,59 +411,56 @@
     const emoMenu = document.getElementById('emoMenu');
     const dragToggleBtn = document.getElementById('dragToggleBtn');
     
-    let isBotActive = false;
-    let isDragMode = false;
-    let isDragging = false;
-    let dragOffsetX, dragOffsetY;
-    let chatTimer;
+    let isBotActive = false, isDragMode = false, isDragging = false;
+    let dragOffsetX, dragOffsetY, chatTimer;
+    let currentStickyEmotion = "normal"; // Lưu trữ cảm xúc cố định
+    let emotionSwitchTimer = null;
+    let revertPetTimer = null;
 
     window.toggleMiniBot = function() {
       isBotActive = !isBotActive;
       if(botWrapper) botWrapper.style.display = isBotActive ? 'flex' : 'none';
-      if(isBotActive) botSpeak("Xin chào! Mình là Bot hỗ trợ đây.", "happy");
+      if(isBotActive) { botCard.setAttribute('data-emotion', 'normal'); currentStickyEmotion = 'normal'; botSpeak("Xin chào! Mình là Bot hỗ trợ đây.", "happy"); }
     };
 
-    window.toggleEmotionsMenu = function(e) {
-      e.stopPropagation();
-      emoMenu.style.display = emoMenu.style.display === 'flex' ? 'none' : 'flex';
-    };
+    window.toggleEmotionsMenu = function(e) { e.stopPropagation(); emoMenu.style.display = emoMenu.style.display === 'grid' ? 'none' : 'grid'; };
     
-    window.setBotEmotion = function(emo, text) {
-      botCard.setAttribute('data-emotion', emo);
-      botSpeak(text, emo);
+    // CƠ CHẾ DELAY VÀ KHÓA CẢM XÚC
+    window.selectBotEmotion = function(emo, text) {
       emoMenu.style.display = 'none';
+      botSpeak(text); // Nói trước
+      
+      clearTimeout(emotionSwitchTimer);
+      clearTimeout(revertPetTimer);
+      
+      // Delay 2.5s trước khi áp dụng biểu cảm trên khuôn mặt
+      emotionSwitchTimer = setTimeout(() => {
+        currentStickyEmotion = emo;
+        botCard.setAttribute('data-emotion', emo);
+      }, 2500);
     };
 
-    function botSpeak(text, emotion = "normal") {
-      botCard.setAttribute('data-emotion', emotion);
-      chatBubble.innerText = text;
-      chatBubble.classList.add('show');
-      
+    function botSpeak(text, forceEmotion = null) {
+      if(forceEmotion) botCard.setAttribute('data-emotion', forceEmotion);
+      chatBubble.innerText = text; chatBubble.classList.add('show');
       botCard.classList.add('talking');
-      let talkInterval = setInterval(() => {
-        botCard.style.setProperty('--mouth-scale', 0.6 + Math.random() * 1.3);
-      }, 80);
-
+      let talkInterval = setInterval(() => { botCard.style.setProperty('--mouth-scale', 0.6 + Math.random() * 1.3); }, 80);
       clearTimeout(chatTimer);
       chatTimer = setTimeout(() => {
-        chatBubble.classList.remove('show');
-        clearInterval(talkInterval);
-        botCard.classList.remove('talking');
-        botCard.style.setProperty('--mouth-scale', 1);
-        botCard.setAttribute('data-emotion', 'normal');
+        chatBubble.classList.remove('show'); clearInterval(talkInterval);
+        botCard.classList.remove('talking'); botCard.style.setProperty('--mouth-scale', 1);
+        if(forceEmotion && !revertPetTimer) botCard.setAttribute('data-emotion', currentStickyEmotion); // Trả về sticky nếu chỉ đổi tạm để nói
       }, 3500);
     }
 
     setInterval(() => {
-      if (botCard && !botCard.classList.contains('talking')) {
-        botCard.classList.add('blinking');
-        setTimeout(() => botCard.classList.remove('blinking'), 150);
+      if (botCard && !botCard.classList.contains('talking') && botCard.getAttribute('data-emotion') !== 'sleepy' && botCard.getAttribute('data-emotion') !== 'disdain') {
+        botCard.classList.add('blinking'); setTimeout(() => botCard.classList.remove('blinking'), 150);
       }
     }, Math.random() * 4000 + 2000);
 
     window.toggleDragMode = function(e) {
-      e.stopPropagation();
-      isDragMode = !isDragMode;
+      e.stopPropagation(); isDragMode = !isDragMode;
       dragToggleBtn.classList.toggle('active-drag', isDragMode);
       if(isDragMode) botSpeak("Bế mình đi đâu thế?", "surprised");
     };
@@ -666,28 +468,19 @@
     if(botWrapper) {
       botWrapper.addEventListener('pointerdown', (e) => {
         if (!isDragMode) return;
-        isDragging = true;
-        const rect = botWrapper.getBoundingClientRect();
-        dragOffsetX = e.clientX - rect.left;
-        dragOffsetY = e.clientY - rect.top;
+        isDragging = true; const rect = botWrapper.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left; dragOffsetY = e.clientY - rect.top;
         botWrapper.setPointerCapture(e.pointerId);
       });
-
       botWrapper.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
-        botWrapper.style.top = `${e.clientY - dragOffsetY}px`;
-        botWrapper.style.left = `${e.clientX - dragOffsetX}px`;
-        botWrapper.style.right = 'auto';
-        botWrapper.style.bottom = 'auto';
+        botWrapper.style.top = `${e.clientY - dragOffsetY}px`; botWrapper.style.left = `${e.clientX - dragOffsetX}px`;
+        botWrapper.style.right = 'auto'; botWrapper.style.bottom = 'auto';
       });
-
-      botWrapper.addEventListener('pointerup', (e) => {
-        if(!isDragging) return;
-        isDragging = false;
-        botWrapper.releasePointerCapture(e.pointerId);
-      });
+      botWrapper.addEventListener('pointerup', (e) => { if(!isDragging) return; isDragging = false; botWrapper.releasePointerCapture(e.pointerId); });
     }
 
+    // CƠ CHẾ VUỐT VE (PETTING LOGIC)
     let touchTimer = null;
     let isLongPress = false;
 
@@ -697,23 +490,51 @@
         isLongPress = false;
         touchTimer = setTimeout(() => {
           isLongPress = true;
-          botSpeak("Thích quá, xoa đầu nữa đi!", "happy");
-        }, 700);
+          handlePetting();
+        }, 500); // Nhấn giữ nửa giây tính là vuốt ve
       });
 
       botCard.addEventListener('pointerup', (e) => {
         if (isDragMode || e.target.closest('.bot-controls')) return;
         clearTimeout(touchTimer);
+        
+        // Nếu chạm nhanh (Click) chứ không phải vuốt
         if (!isLongPress) {
           const reactions = [
             { text: "Ui! Đừng chọc mình!", emo: "surprised" },
-            { text: "Mình đang xem bạn ghi chú nè.", emo: "normal" },
-            { text: "Đang phân tích dữ liệu...", emo: "thinking" }
+            { text: "Có lỗi gì cần báo không?", emo: "normal" }
           ];
           const res = reactions[Math.floor(Math.random() * reactions.length)];
           botSpeak(res.text, res.emo);
         }
       });
+    }
+
+    function handlePetting() {
+      clearTimeout(revertPetTimer);
+      clearTimeout(emotionSwitchTimer);
+
+      if (currentStickyEmotion === "cute") {
+        botSpeak("Meow~ Thích quá đi 😽");
+        botCard.classList.add('cute-touch-anim');
+        setTimeout(() => botCard.classList.remove('cute-touch-anim'), 500);
+        
+        revertPetTimer = setTimeout(() => { botCard.setAttribute('data-emotion', currentStickyEmotion); }, 5000);
+
+      } else if (currentStickyEmotion === "disdain") {
+        // Khinh -> Sang mồm -> Nhếch mép (smirk) 3s
+        botSpeak("Bỏ cái tay ra! Đồ dân thường! 😒");
+        botCard.setAttribute('data-emotion', 'smirk');
+        
+        revertPetTimer = setTimeout(() => { botCard.setAttribute('data-emotion', currentStickyEmotion); }, 3000);
+
+      } else {
+        // Mặc định: Sang Happy trong 5s[span_3](start_span)[span_3](end_span)
+        botSpeak("Thích quá, xoa đầu nữa đi! 🥰");
+        botCard.setAttribute('data-emotion', 'happy');
+        
+        revertPetTimer = setTimeout(() => { botCard.setAttribute('data-emotion', currentStickyEmotion); }, 5000);
+      }
     }
 
     syncUserData();
