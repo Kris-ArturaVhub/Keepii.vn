@@ -1,633 +1,673 @@
-<style>
-  /* ── 1. KHÔNG GIAN APPS CHÍNH CỦA USER ── */
-  #user-dashboard {
-    position: absolute;
-    top: 60px; 
-    left: 0;
-    width: 100%;
-    /* ✅ ĐÃ SỬA: Khóa cứng chiều cao vùng dashboard để tránh box bị lún xuống dưới */
-    height: calc(100vh - 60px);
-    box-sizing: border-box;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    font-family: sans-serif;
-    overflow: hidden;
-  }
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Keepii - Workspace & Mini Bot</title>
+  <style>
+    /* =========================================
+       1. KHÔNG GIAN APPS CHÍNH CỦA USER 
+       ========================================= */
+    body {
+      margin: 0;
+      background-color: #090915;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      touch-action: none;
+    }
 
-  /* Khu vực gõ văn bản vô hạn */
-  .infinite-text-pad {
-    width: 100%;
-    min-height: 80px;
-    max-height: 150px;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 12px;
-    color: #fff;
-    padding: 12px;
-    box-sizing: border-box;
-    outline: none;
-    font-size: 16px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    transition: background 0.3s, border-color 0.3s;
-  }
-  body.light-mode .infinite-text-pad {
-    background: rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    color: #101026;
-  }
-  .infinite-text-pad:focus {
-    border-color: #06b6d4;
-    background: rgba(255, 255, 255, 0.12);
-  }
+    #user-dashboard {
+      position: absolute;
+      top: 60px; 
+      left: 0;
+      width: 100%;
+      height: calc(100vh - 60px);
+      box-sizing: border-box;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow: hidden;
+    }
 
-    /* ── 2. GRID XẾP GHÉP Ô (1/4 MÀN HÌNH) ── */
-  #notes-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); 
-    gap: 15px;
+    .infinite-text-pad {
+      width: 100%;
+      min-height: 80px;
+      max-height: 150px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: #fff;
+      padding: 12px;
+      box-sizing: border-box;
+      outline: none;
+      font-size: 16px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .infinite-text-pad:focus {
+      border-color: #06b6d4;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    #notes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); 
+      gap: 15px;
+      height: calc(100% - 170px); 
+      overflow-y: scroll; 
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 100px; 
+      box-sizing: border-box;
+    }
     
-    /* Khóa cứng chiều cao vùng grid, không cho phép lún xuống thanh điều hướng */
-    height: calc(100% - 170px); 
-    /* Tự động kích hoạt thanh cuộn nội bộ mượt mà khi nhiều box */
-    overflow-y: scroll; 
-    -webkit-overflow-scrolling: touch;
+    .note-card {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(79, 70, 229, 0.15));
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 12px;
+      height: 130px;
+      padding: 12px;
+      box-sizing: border-box;
+      color: #fff;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.4s cubic-bezier(0.25, 1.5, 0.5, 1);
+    }
+    .note-card:active { transform: scale(0.94); }
     
-    /* Tạo khoảng đệm an toàn cách biệt hoàn toàn với nút bấm đáy */
-    padding-bottom: 100px; 
-    box-sizing: border-box;
-  }
-  
-  .note-card {
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(79, 70, 229, 0.15));
-    border: 1px solid rgba(6, 182, 212, 0.3);
-    border-radius: 12px;
-    height: 130px;
-    padding: 12px;
-    box-sizing: border-box;
-    color: #fff;
-    cursor: pointer;
-    overflow: hidden;
-    position: relative;
-    transition: transform 0.4s cubic-bezier(0.25, 1.5, 0.5, 1);
-  }
-  body.light-mode .note-card {
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(79, 70, 229, 0.1));
-    border: 1px solid rgba(6, 182, 212, 0.4);
-    color: #101026;
-  }
-  .note-card:active { transform: scale(0.94); }
-  
-  .note-card-title {
-    font-weight: bold;
-    font-size: 14px;
-    margin-bottom: 6px;
-    color: #06b6d4;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-  .note-card-body {
-    font-size: 13px;
-    opacity: 0.8;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+    .note-card-title {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #06b6d4;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .note-card-body {
+      font-size: 13px;
+      opacity: 0.8;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-  /* ── 3. KHU VỰC TRÌNH CHỈNH SỬA TOÀN MÀN HÌNH CHUẨN ── */
-  .fullscreen-note-container {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: 6000; 
-    background: #090915;
-    box-sizing: border-box;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  body.light-mode .fullscreen-note-container { background: #ffffff; }
+    /* Fullscreen Editor */
+    .fullscreen-note-container {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 6000; 
+      background: #090915;
+      box-sizing: border-box;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .fullscreen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      height: 40px;
+    }
+    .fullscreen-title { color: #06b6d4; font-weight: bold; font-size: 16px; }
+    .close-edit-btn {
+      background: #ef4444; color: white; padding: 6px 16px;
+      border-radius: 20px; font-weight: bold; font-size: 13px;
+      cursor: pointer; transition: transform 0.3s;
+    }
+    .close-edit-btn:active { transform: scale(0.88); }
+    .fullscreen-editor {
+      width: 100%; flex: 1; 
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 15px; box-sizing: border-box;
+      outline: none; color: #fff; font-size: 16px; resize: none;
+    }
 
-  /* Header chứa tiêu đề chỉnh sửa bên trái và nút thoát bên phải */
-  .fullscreen-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    height: 40px;
-  }
+    /* Bottom Controls */
+    .bottom-controls-bar {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      z-index: 1005;
+    }
+    #add-note-btn {
+      width: 55px; height: 55px; border-radius: 50%;
+      background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white;
+      font-size: 30px; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+    }
+    #add-note-btn:active { transform: scale(0.85); }
 
-  .fullscreen-title {
-    color: #06b6d4;
-    font-weight: bold;
-    font-family: sans-serif;
-    font-size: 16px;
-  }
+    /* Type Popup */
+    #type-popup-mask {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); z-index: 4500; display: flex;
+      align-items: center; justify-content: center; opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    #type-popup-mask.open { opacity: 1; pointer-events: auto; }
+    .type-popup-box {
+      background: #151525; border: 2px solid #06b6d4; border-radius: 16px;
+      padding: 25px; width: 85%; max-width: 320px; text-align: center;
+      transform: scale(0.6); transition: transform 0.5s;
+    }
+    #type-popup-mask.open .type-popup-box { transform: scale(1); }
+    .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; }
+    .type-option-btn {
+      width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
+      color: #fff; font-weight: bold; cursor: pointer; text-align: left;
+    }
 
-  /* NÚT THOÁT GÓC TRÊN BÊN PHẢI (DIV + CUBIC BEZIER) */
-  .close-edit-btn {
-    background: #ef4444;
-    color: white;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 13px;
-    cursor: pointer;
-    user-select: none;
-    box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  .close-edit-btn:active { transform: scale(0.88) !important; }
+    /* Avatar & Menu */
+    #user-avatar-container { position: fixed; top: 15px; right: 20px; z-index: 5000; }
+    .avatar-circle-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white;
+      font-weight: bold; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border: 2px solid rgba(255,255,255,0.2);
+    }
+    .info-drawer-panel {
+      position: absolute; top: 50px; right: 0; background: #111122;
+      border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px;
+      padding: 15px; min-width: 160px; box-sizing: border-box;
+      opacity: 0; pointer-events: none; transform: translateY(-15px) scale(0.9);
+      transition: all 0.3s ease;
+    }
+    .info-drawer-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+    .drawer-greeting { font-weight: bold; color: #06b6d4; margin-bottom: 12px; }
+    
+    .drawer-btn {
+      width: 100%; padding: 10px 0; border-radius: 18px; font-weight: bold;
+      font-size: 13px; text-align: center; cursor: pointer; margin-top: 8px;
+      color: white; transition: transform 0.25s;
+    }
+    .drawer-btn:active { transform: scale(0.92); }
+    .drawer-bot-btn { background: #4f46e5; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25); }
+    .drawer-logout-btn { background: #ef4444; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25); }
 
-  .fullscreen-editor {
-    width: 100%;
-    flex: 1; 
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 15px;
-    box-sizing: border-box;
-    outline: none;
-    color: #fff;
-    font-size: 16px;
-    resize: none;
-    font-family: sans-serif;
-  }
-  body.light-mode .fullscreen-editor {
-    background: rgba(0,0,0,0.02);
-    border: 1px solid rgba(0,0,0,0.1);
-    color: #101026;
-  }
+    /* =========================================
+       2. TÍNH NĂNG MINI BOT GÓC MÀN HÌNH
+       ========================================= */
+    #mini-bot-wrapper {
+      position: fixed;
+      top: 80px; left: 20px;
+      width: clamp(200px, 25vw, 300px); /* Kích thước tối đa ~ 20% - 25% màn hình */
+      height: 180px;
+      z-index: 5500;
+      display: none; /* Ẩn mặc định */
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+    }
 
-  /* ── 4. THIẾT KẾ CÁC NÚT ĐIỀU HƯỚNG ĐÁY MÀN HÌNH ── */
-  .bottom-controls-bar {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1005;
-  }
+    /* Các nút điều khiển con của Bot */
+    .bot-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      width: 100%;
+      justify-content: center;
+    }
+    .bot-tool-btn {
+      background: rgba(12, 14, 23, 0.85);
+      border: 1px solid #00f2fe;
+      color: #00f2fe;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      transition: background 0.2s, transform 0.1s;
+    }
+    .bot-tool-btn:active { transform: scale(0.9); }
+    .bot-tool-btn.active-drag { background: #00f2fe; color: #000; }
 
-  #add-note-btn {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #06b6d4, #4f46e5);
-    color: white;
-    font-size: 30px;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  #add-note-btn:active { transform: scale(0.85); }
+    /* Bong bóng chat tự động căn chỉnh */
+    .chat-bubble {
+      position: absolute;
+      top: -45px;
+      background: white;
+      color: black;
+      padding: 8px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 500;
+      max-width: 200px;
+      width: max-content;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      transform: translateY(10px) scale(0.9);
+      z-index: 10;
+    }
+    .chat-bubble.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    /* Đuôi bong bóng chat */
+    .chat-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px 6px 0;
+      border-style: solid;
+      border-color: white transparent transparent transparent;
+    }
 
-  /* Nút Tùy Chọn Trong Popup */
-  .type-option-btn {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.05);
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: left;
-    box-sizing: border-box;
-    user-select: none;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
-  }
-  body.light-mode .type-option-btn { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); color: #101026; }
-  .type-option-btn:active { transform: scale(0.96); background: rgba(6, 182, 212, 0.2); }
+    /* Bảng chọn cảm xúc (Emotions Menu) */
+    .emotions-menu {
+      position: absolute;
+      top: -30px;
+      right: -10px;
+      background: #111122;
+      border: 1px solid #00f2fe;
+      border-radius: 12px;
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+    .emo-item {
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .emo-item:active { transform: scale(1.3); }
 
-  /* ── 5. POPUP LỰA CHỌN PHÂN LOẠI ── */
-  #type-popup-mask {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
-    z-index: 4500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-  }
-  #type-popup-mask.open { opacity: 1; pointer-events: auto; }
-  
-  .type-popup-box {
-    background: #151525;
-    border: 2px solid #06b6d4;
-    border-radius: 16px;
-    padding: 25px;
-    width: 85%;
-    max-width: 320px;
-    text-align: center;
-    transform: scale(0.6);
-    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  body.light-mode .type-popup-box { background: #ffffff; }
-  #type-popup-mask.open .type-popup-box { transform: scale(1); }
-  
-  .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; font-size: 16px; }
-  body.light-mode .popup-title { color: #101026; }
+    /* Giao diện Bot chuyển đổi (Thu nhỏ) */
+    .bot-avatar-card {
+      position: relative;
+      width: 100%;
+      height: 120px;
+      border-radius: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background: #060709;
+      --led-color1: #00f2fe;
+      --led-color2: #4facfe;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+      cursor: pointer;
+    }
+    .bot-avatar-card::before {
+      content: ''; position: absolute; width: 150%; height: 300%;
+      background: linear-gradient(0deg, transparent, var(--led-color1), var(--led-color2));
+      animation: rotateBorder 3.5s linear infinite;
+    }
+    .bot-face-inner {
+      position: absolute; inset: 4px; background: #0c0e17;
+      border-radius: 16px; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; gap: 15px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+    }
+    .eyes-container { display: flex; gap: 30px; align-items: center; height: 25px; }
+    .eye {
+      width: 25px; height: 25px; background-color: #ffffff;
+      border-radius: 50%; box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      transition: height 0.2s, width 0.2s, border-radius 0.2s, background-color 0.3s;
+    }
+    .mouth {
+      width: 25px; height: 8px; background-color: var(--led-color1);
+      border-radius: 0 0 20px 20px; transition: transform 0.05s, height 0.2s, border-radius 0.3s;
+      box-shadow: 0 0 10px var(--led-color1);
+    }
+    @keyframes rotateBorder { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-  /* ── 6. CƠ CHẾ AVATAR + BOX NGĂN KÉO TRƯỢT (ANM SLIDE) ── */
-  #user-avatar-container {
-    position: fixed;
-    top: 15px;
-    right: 20px; /* Tránh đè lên công tắc theme-switch */
-    z-index: 5000;
-  }
+    /* Cảm xúc cho Bot */
+    .bot-avatar-card[data-emotion="happy"] { --led-color1: #00ff88; --led-color2: #00b894; }
+    .bot-avatar-card[data-emotion="happy"] .eye { height: 10px; border-radius: 10px 10px 0 0; }
+    .bot-avatar-card[data-emotion="happy"] .mouth { border-radius: 0 0 20px 20px; height: 12px; width: 30px; }
+    
+    .bot-avatar-card[data-emotion="sleepy"] { --led-color1: #a29bfe; --led-color2: #6c5ce7; }
+    .bot-avatar-card[data-emotion="sleepy"] .eye { width: 22px; height: 4px; border-radius: 2px; opacity: 0.6; }
+    .bot-avatar-card[data-emotion="sleepy"] .mouth { width: 10px; height: 10px; border-radius: 50%; opacity: 0.8; }
+    
+    .bot-avatar-card[data-emotion="angry"] { --led-color1: #ff3838; --led-color2: #ff4d4d; }
+    .bot-avatar-card[data-emotion="angry"] .eye { height: 15px; border-radius: 50% 50% 5px 5px; }
+    .bot-avatar-card[data-emotion="angry"] .eye::before {
+      content: ''; position: absolute; top: -6px; left: -5px; right: -5px; height: 12px;
+      background: #0c0e17; transform: rotate(25deg);
+    }
+    .bot-avatar-card[data-emotion="angry"] .eye:last-child::before { transform: rotate(-25deg); }
+    .bot-avatar-card[data-emotion="angry"] .mouth { border-radius: 10px 10px 5px 5px; height: 6px; width: 20px; }
 
-  .avatar-circle-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #06b6d4, #4f46e5);
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    user-select: none;
-    border: 2px solid rgba(255,255,255,0.2);
-    box-shadow: 0 0 10px rgba(6,182,212,0.4);
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  .avatar-circle-btn:active { transform: scale(0.9); }
+    .bot-avatar-card.talking .mouth { transform: scaleY(var(--mouth-scale, 1)); }
+    .bot-avatar-card.blinking .eye { transform: scaleY(0.1) !important; }
 
-  /* Box thông tin dạng ngăn kéo trượt (Slide Panel) */
-  .info-drawer-panel {
-    position: absolute;
-    top: 38px;
-    right: 0;
-    background: #111122;
-    border: 1px solid rgba(6, 182, 212, 0.3);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-    border-radius: 12px;
-    padding: 15px;
-    min-width: 160px;
-    box-sizing: border-box;
-    /* Hiệu ứng trượt và ẩn mượt mà */
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-15px) scale(0.9);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-  }
-  .info-drawer-panel.open {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0) scale(1);
-  }
-  body.light-mode .info-drawer-panel {
-    background: #ffffff;
-    border: 1px solid rgba(0,0,0,0.12);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  }
+  </style>
+</head>
+<body>
 
-  .drawer-greeting {
-    font-size: 14px;
-    font-weight: bold;
-    color: #06b6d4;
-    margin-bottom: 12px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* Nút Đăng xuất được chuyển vào trong Ngăn kéo thông tin */
-  .drawer-logout-btn {
-    background: #ef4444;
-    color: white;
-    width: 100%;
-    padding: 8px 0;
-    border-radius: 18px;
-    font-weight: bold;
-    font-size: 12px;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
-    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  .drawer-logout-btn:active { transform: scale(0.92); }
-</style>
-
-<div id="user-avatar-container">
-  <div class="avatar-circle-btn" onclick="toggleUserDrawer(event)" id="avtLetter">U</div>
-  <div class="info-drawer-panel" id="userDrawerPanel">
-    <div class="drawer-greeting" id="drawerWelcomeTxt">Xin chào!</div>
-    <div class="drawer-logout-btn" onclick="userLogout()">Đăng xuất</div>
-  </div>
-</div>
-
-<div id="user-dashboard">
-  <div class="infinite-text-pad" contenteditable="true" placeholder="Gõ văn bản tại đây..." id="infinitePad"></div>
-
-  <div id="notes-grid"></div>
-</div>
-
-<div class="bottom-controls-bar">
-  <div id="add-note-btn" onclick="openTypePopup()">+</div>
-</div>
-
-<div id="type-popup-mask" onclick="closeTypePopup()">
-  <div class="type-popup-box" onclick="event.stopPropagation()">
-    <div class="popup-title">Tạo một ghi chú mới</div>
-    <div class="type-option-btn type-text-class" onclick="createNewTextNote()">
-      <span class="note-icon">📝</span> Tạo ghi chú văn bản mới
+  <!-- Menu góc trên bên phải -->
+  <div id="user-avatar-container">
+    <div class="avatar-circle-btn" onclick="toggleUserDrawer(event)" id="avtLetter">U</div>
+    <div class="info-drawer-panel" id="userDrawerPanel">
+      <div class="drawer-greeting" id="drawerWelcomeTxt">Xin chào!</div>
+      <div class="drawer-btn drawer-bot-btn" onclick="toggleMiniBot()">🤖 Triệu hồi Bot</div>
+      <div class="drawer-btn drawer-logout-btn" onclick="userLogout()">Đăng xuất</div>
     </div>
-    <div class="type-option-btn type-future-class" style="opacity: 0.3; cursor: not-allowed;">
-      <span class="note-icon">🔒</span> Loại ghi chú khác (Sắp ra mắt)
+  </div>
+
+  <!-- Bảng điều khiển công việc -->
+  <div id="user-dashboard">
+    <div class="infinite-text-pad" contenteditable="true" placeholder="Gõ ghi chú nhanh tại đây..." id="infinitePad"></div>
+    <div id="notes-grid"></div>
+  </div>
+
+  <div class="bottom-controls-bar">
+    <div id="add-note-btn" onclick="openTypePopup()">+</div>
+  </div>
+
+  <!-- Popup tạo ghi chú -->
+  <div id="type-popup-mask" onclick="closeTypePopup()">
+    <div class="type-popup-box" onclick="event.stopPropagation()">
+      <div class="popup-title">Tạo một ghi chú mới</div>
+      <div class="type-option-btn" onclick="createNewTextNote()">📝 Ghi chú văn bản</div>
     </div>
   </div>
-</div>
-<script>
-  var currentUser, userNotes, savedInfiniteText;
-  const CLOUD_URL = "https://Keepii-vn.onrender.com/api";
-  let saveTimeout = null; // Bộ đếm thời gian hoãn 3 giây
 
-  // Chặn sự kiện lan truyền để bảo vệ các vùng nhập liệu
-  ['user-dashboard', 'type-popup-mask', 'user-avatar-container'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.addEventListener('click', (e) => e.stopPropagation());
-  });
-
-  document.addEventListener('pointerdown', (e) => {
-    if(e.target.closest('#infinitePad') || e.target.closest('.fullscreen-note-container') || e.target.closest('.bottom-controls-bar') || e.target.closest('.type-popup-box') || e.target.closest('#user-avatar-container')) {
-      e.stopPropagation();
-    }
-  });
-
-  function getUsernameFromCookie() {
-    const match = document.cookie.match(new RegExp('(^| )user_session=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : 'guest';
-  }
-
-  // ☁️ 1. HÀM ĐỒNG BỘ DỮ LIỆU TỪ CLOUD HOẶC LOCAL STORAGE KHI MỞ APP
-  window.syncUserData = async function() {
-    currentUser = getUsernameFromCookie();
-    if (currentUser === 'guest') return;
-
-    const welcomeEl = document.getElementById('drawerWelcomeTxt');
-    const letterEl = document.getElementById('avtLetter');
-    if(welcomeEl) welcomeEl.textContent = `Xin chào ${currentUser}`;
-    if(letterEl) letterEl.textContent = currentUser.charAt(0).toUpperCase();
-
-    // KIỂM TRA TRƯỚC: Nếu máy cục bộ có dữ liệu tạm chưa kịp lên mây do tắt web, nạp ra trước
-    const localNotes = localStorage.getItem(`keepii_notes_${currentUser}`);
-    const localInfText = localStorage.getItem(`keepii_inf_text_${currentUser}`);
+  <!-- =========================================
+       MODULE: MINI BOT FLOAT CONTAINER
+       ========================================= -->
+  <div id="mini-bot-wrapper">
+    <div class="chat-bubble" id="botChatBubble">Xin chào!</div>
+    <div class="emotions-menu" id="emoMenu">
+      <div class="emo-item" onclick="setBotEmotion('normal', 'Bình thường thôi')">😐</div>
+      <div class="emo-item" onclick="setBotEmotion('happy', 'Tuyệt quá!')">😀</div>
+      <div class="emo-item" onclick="setBotEmotion('sleepy', 'Buồn ngủ quá...')">😴</div>
+      <div class="emo-item" onclick="setBotEmotion('angry', 'Đang bực mình!')">😡</div>
+    </div>
     
-    if (localNotes) userNotes = JSON.parse(localNotes);
-    if (localInfText !== null) savedInfiniteText = localInfText;
+    <div class="bot-controls">
+      <div class="bot-tool-btn" id="dragToggleBtn" onclick="toggleDragMode(event)">📍 Di chuyển</div>
+      <div class="bot-tool-btn" onclick="toggleEmotionsMenu(event)">😀 Cảm xúc</div>
+    </div>
 
-    const infPad = document.getElementById('infinitePad');
-    if(infPad && savedInfiniteText !== undefined) {
-      infPad.innerText = savedInfiniteText;
-    }
-    renderNotes();
-
-    // ĐỒNG THỜI: Gọi API lấy bản chuẩn nhất từ MongoDB Atlas về cập nhật tiếp
-    try {
-      const response = await fetch(`${CLOUD_URL}/get_user_data`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname: currentUser })
-      });
-      const data = await response.json();
-      
-      if(data.success) {
-        // Nếu trên Cloud có dữ liệu thì cập nhật bản mới nhất
-        userNotes = data.notes || [];
-        savedInfiniteText = data.inf_text || "";
-        
-        // Cập nhật lại bộ nhớ máy
-        localStorage.setItem(`keepii_notes_${currentUser}`, JSON.stringify(userNotes));
-        localStorage.setItem(`keepii_inf_text_${currentUser}`, savedInfiniteText);
-        
-        if(infPad) infPad.innerText = savedInfiniteText;
-        renderNotes();
-      }
-    } catch (error) {
-      console.error("Lỗi tải dữ liệu Cloud, đang dùng dữ liệu Local:", error);
-    }
-  };
-
-  // ☁️ 2. HÀM KÍCH HOẠT TIẾN TRÌNH AUTO SAVE THÔNG THƯỜNG (LocalStorage ngay lập tức + Debounce 3s)
-  function triggerAutoSave() {
-    if (currentUser === 'guest') return;
-
-    // A. Lưu lập tức vào máy người dùng (0.001 giây)
-    localStorage.setItem(`keepii_notes_${currentUser}`, JSON.stringify(userNotes));
-    localStorage.setItem(`keepii_inf_text_${currentUser}`, savedInfiniteText);
-
-    // B. Xóa bộ đếm cũ nếu tay vẫn đang gõ liên tục
-    clearTimeout(saveTimeout);
-
-    // C. Đặt hẹn giờ đúng 3 giây (3000ms) không đổi thì gửi request lên đám mây toàn cầu
-    saveTimeout = setTimeout(() => {
-      saveUserDataToCloud();
-    }, 3000);
-  }
-
-  // Hàm thực hiện bắn request lưu lên MongoDB Atlas
-  async function saveUserDataToCloud() {
-    if (currentUser === 'guest') return;
-    try {
-      await fetch(`${CLOUD_URL}/save_user_data`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nickname: currentUser,
-          notes: userNotes,
-          inf_text: savedInfiniteText
-        })
-      });
-      console.log("Đã đồng bộ thành công lên đám mây MongoDB Atlas! ✅");
-    } catch (error) {
-      console.error("Lỗi đồng bộ đám mây ngầm:", error);
-    }
-  }
-
-  // 🚨 3. HÀM ÉP LƯU KHẨN CẤP (Gọi lập tức khi tắt trang, reload hoặc Đăng xuất trước 3s chờ)
-  function triggerEmergencySave() {
-    if (!currentUser || currentUser === 'guest') return;
-
-    // Xóa bộ hẹn giờ lơ lửng để tránh kích hoạt trùng request
-    clearTimeout(saveTimeout);
-
-    const payload = JSON.stringify({
-      nickname: currentUser,
-      notes: userNotes,
-      inf_text: savedInfiniteText
-    });
-
-    // Sử dụng công nghệ ép gói dữ liệu Beacon chuyên dụng, chạy ngầm xuyên màn hình khi web đóng
-    if (navigator.sendBeacon) {
-      const blob = new Blob([payload], { type: 'application/json' });
-      navigator.sendBeacon(`${CLOUD_URL}/save_user_data`, blob);
-    } else {
-      // Phương án dự phòng cho trình duyệt cũ (keepalive giữ kết nối kể cả khi đóng tab)
-      fetch(`${CLOUD_URL}/save_user_data`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: payload,
-        keepalive: true
-      });
-    }
-  }
-
-  // Gắn máy lắng nghe sự kiện khi người dùng Reload trang hoặc đóng tab trình duyệt ngắt quãng
-  window.addEventListener('beforeunload', triggerEmergencySave);
-  window.addEventListener('pagehide', triggerEmergencySave);
-
-  // Lắng nghe sự kiện gõ chữ trên vùng text pad vô hạn
-  const infPad = document.getElementById('infinitePad');
-  if(infPad) {
-    infPad.addEventListener('input', () => {
-      savedInfiniteText = infPad.innerText;
-      triggerAutoSave(); // Chạy tiến trình auto save 3s
-    });
-  }
-
-  window.toggleUserDrawer = function(e) {
-    e.stopPropagation();
-    const panel = document.getElementById('userDrawerPanel');
-    if(panel) panel.classList.toggle('open');
-  };
-
-  document.addEventListener('click', () => {
-    const panel = document.getElementById('userDrawerPanel');
-    if(panel) panel.classList.remove('open');
-  });
-
-  function renderNotes() {
-    const grid = document.getElementById('notes-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    userNotes.forEach((note, index) => {
-      const card = document.createElement('div');
-      card.className = 'note-card';
-      card.onclick = () => openFullscreenNote(index);
-      card.innerHTML = `
-        <div class="note-card-title">Ghi chú văn bản mới #${index + 1}</div>
-        <div class="note-card-body">${note ? note.replace(/\n/g, '<br>') : 'Trống...'}</div>
-      `;
-      grid.appendChild(card);
-    });
-  }
-
-  function openTypePopup() { document.getElementById('type-popup-mask').classList.add('open'); }
-  function closeTypePopup() { document.getElementById('type-popup-mask').classList.remove('open'); }
-
-  function createNewTextNote() {
-    userNotes.push(""); 
-    closeTypePopup();
-    renderNotes();
-    triggerAutoSave(); // Kích hoạt lưu trạng thái mảng ghi chú mới tăng lên
-    openFullscreenNote(userNotes.length - 1);
-  }
-
-  function openFullscreenNote(index) {
-    const fsContainer = document.createElement('div');
-    fsContainer.id = 'active-fullscreen-editor';
-    fsContainer.className = 'fullscreen-note-container';
-    
-    fsContainer.addEventListener('pointerdown', (e) => e.stopPropagation());
-    fsContainer.addEventListener('click', (e) => e.stopPropagation());
-
-    fsContainer.innerHTML = `
-      <div class="fullscreen-header">
-        <div class="fullscreen-title">ĐANG CHỈNH SỬA GHI CHÚ #${index + 1}</div>
-        <div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Thoát ✕</div>
+    <!-- Khuôn mặt Bot (Tích hợp Touch & Animation) -->
+    <div class="bot-avatar-card" id="miniBotCard" data-emotion="normal">
+      <div class="bot-face-inner">
+        <div class="eyes-container">
+          <div class="eye"></div>
+          <div class="eye"></div>
+        </div>
+        <div class="mouth"></div>
       </div>
-      <textarea class="fullscreen-editor" id="editor-${index}" placeholder="Nhập nội dung...">${userNotes[index]}</textarea>
-    `;
-    
-    document.body.appendChild(fsContainer);
-    
-    const textarea = document.getElementById(`editor-${index}`);
-    if(textarea) textarea.focus();
+    </div>
+  </div>
 
-    if(textarea) {
+  <script>
+    /* =========================================
+       PHẦN 1: QUẢN LÝ APP & ĐỒNG BỘ MONGODB ATLAS
+       ========================================= */
+    let currentUser = "user_demo"; // Giả lập user để test
+    let userNotes = [];
+    let savedInfiniteText = "";
+    const CLOUD_URL = "https://Keepii-vn.onrender.com/api";
+    let saveTimeout = null;
+
+    // Ngăn nổi bọt sự kiện click[span_4](start_span)[span_4](end_span)
+    ['user-dashboard', 'type-popup-mask'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.addEventListener('click', (e) => e.stopPropagation());
+    });
+
+    // Bắt lỗi chi tiết trong hàm Đồng bộ[span_5](start_span)[span_5](end_span)
+    async function saveUserDataToCloud() {
+      if (!currentUser || currentUser === 'guest') return;
+      try {
+        console.log("⏳ Bắt đầu tiến trình đồng bộ dữ liệu lên MongoDB Atlas...");
+        const response = await fetch(`${CLOUD_URL}/save_user_data`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nickname: currentUser,
+            notes: userNotes,
+            inf_text: savedInfiniteText
+          })
+        });
+
+        // Xử lý báo lỗi HTTP rõ ràng để dễ debug
+        if (!response.ok) {
+          throw new Error(`[LỖI MẠNG] Server phản hồi trạng thái: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          console.log("✅ Đồng bộ thành công lên đám mây MongoDB Atlas!");
+        } else {
+          console.error("⚠️ [LỖI LOGIC DB] Không thể lưu:", data.message);
+        }
+      } catch (error) {
+        // Bắt lỗi cụ thể để dev biết nguyên nhân rớt mạng hay API sập
+        console.error("❌ [LỖI NGHIÊM TRỌNG] Giao tiếp MongoDB Atlas thất bại:", error);
+      }
+    }
+
+    function triggerAutoSave() {
+      if (currentUser === 'guest') return;
+      localStorage.setItem(`keepii_notes_${currentUser}`, JSON.stringify(userNotes));
+      localStorage.setItem(`keepii_inf_text_${currentUser}`, savedInfiniteText);
+
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        saveUserDataToCloud();
+      }, 3000);
+    }
+
+    // Trình soạn thảo vô cực
+    const infPad = document.getElementById('infinitePad');
+    if(infPad) {
+      infPad.addEventListener('input', () => {
+        savedInfiniteText = infPad.innerText;
+        triggerAutoSave(); 
+      });
+    }
+
+    // Logic Drawer Avatar[span_6](start_span)[span_6](end_span)
+    window.toggleUserDrawer = function(e) {
+      e.stopPropagation();
+      document.getElementById('userDrawerPanel').classList.toggle('open');
+    };
+    document.addEventListener('click', () => {
+      document.getElementById('userDrawerPanel').classList.remove('open');
+    });
+
+    // Render Ghi chú lưới[span_7](start_span)[span_7](end_span)
+    function renderNotes() {
+      const grid = document.getElementById('notes-grid');
+      grid.innerHTML = '';
+      userNotes.forEach((note, index) => {
+        const card = document.createElement('div');
+        card.className = 'note-card';
+        card.onclick = () => openFullscreenNote(index);
+        card.innerHTML = `
+          <div class="note-card-title">Ghi chú #${index + 1}</div>
+          <div class="note-card-body">${note ? note.replace(/\n/g, '<br>') : 'Trống...'}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function openTypePopup() { document.getElementById('type-popup-mask').classList.add('open'); }
+    function closeTypePopup() { document.getElementById('type-popup-mask').classList.remove('open'); }
+    function createNewTextNote() {
+      userNotes.push(""); 
+      closeTypePopup(); renderNotes(); triggerAutoSave();
+      openFullscreenNote(userNotes.length - 1);
+    }
+
+    function openFullscreenNote(index) {
+      const fsContainer = document.createElement('div');
+      fsContainer.id = 'active-fullscreen-editor';
+      fsContainer.className = 'fullscreen-note-container';
+      fsContainer.innerHTML = `
+        <div class="fullscreen-header">
+          <div class="fullscreen-title">CHỈNH SỬA GHI CHÚ #${index + 1}</div>
+          <div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Thoát ✕</div>
+        </div>
+        <textarea class="fullscreen-editor" id="editor-${index}">${userNotes[index]}</textarea>
+      `;
+      document.body.appendChild(fsContainer);
+      const textarea = document.getElementById(`editor-${index}`);
+      textarea.focus();
       textarea.addEventListener('input', (e) => {
         userNotes[index] = e.target.value;
-        triggerAutoSave(); // Liên tục cập nhật máy cục bộ và đếm ngược 3 giây đẩy Cloud
+        triggerAutoSave();
       });
     }
-  }
 
-  window.closeFullscreenNote = function(index) {
-    const textarea = document.getElementById(`editor-${index}`);
-    if (textarea) {
-      userNotes[index] = textarea.value;
-    }
-    // Khi chủ động đóng trình sửa, ép lưu lên đám mây ngay lập tức không cần đợi 3s
-    saveUserDataToCloud();
+    window.closeFullscreenNote = function(index) {
+      saveUserDataToCloud(); // Ép lưu ngay
+      document.getElementById('active-fullscreen-editor').remove();
+      renderNotes();
+    };
+
+    window.userLogout = function() {
+      alert("Đã đăng xuất & sao lưu dữ liệu.");
+    };
+
+
+    /* =========================================
+       PHẦN 2: LOGIC MINI BOT (SSPRO MODULE)
+       ========================================= */
+    const botWrapper = document.getElementById('mini-bot-wrapper');
+    const botCard = document.getElementById('miniBotCard');
+    const chatBubble = document.getElementById('botChatBubble');
+    const emoMenu = document.getElementById('emoMenu');
+    const dragToggleBtn = document.getElementById('dragToggleBtn');
     
-    const fsContainer = document.getElementById('active-fullscreen-editor');
-    if(fsContainer) fsContainer.remove();
+    let isBotActive = false;
+    let isDragMode = false;
+    let isDragging = false;
+    let dragOffsetX, dragOffsetY;
+    let chatTimer;
+
+    // 1. Triệu hồi Bot[span_8](start_span)[span_8](end_span)
+    window.toggleMiniBot = function() {
+      isBotActive = !isBotActive;
+      botWrapper.style.display = isBotActive ? 'flex' : 'none';
+      if(isBotActive) botSpeak("Xin chào! Mình là Bot hỗ trợ đây.", "happy");
+    };
+
+    // 2. Nút cảm xúc & Đổi cảm xúc[span_9](start_span)[span_9](end_span)
+    window.toggleEmotionsMenu = function(e) {
+      e.stopPropagation();
+      emoMenu.style.display = emoMenu.style.display === 'flex' ? 'none' : 'flex';
+    };
     
-    renderNotes();
-  };
+    window.setBotEmotion = function(emo, text) {
+      botCard.setAttribute('data-emotion', emo);
+      botSpeak(text, emo);
+      emoMenu.style.display = 'none';
+    };
 
-  window.userLogout = function() {
-    // 1. Ép đồng bộ vét cạn toàn bộ chữ mới nhất lên mây trước khi bay màu session
-    triggerEmergencySave();
-
-    const transStar = document.getElementById('transition-star');
-    if(transStar) {
-      transStar.style.opacity = '1';
-      transStar.style.transform = 'translate(-50%, -50%) scale(1) rotate(360deg)';
-    }
-
-    setTimeout(() => {
-      document.body.classList.add('gates-closed');
-    }, 400);
-
-    setTimeout(() => {
-      // Xóa bộ nhớ đệm cục bộ và cookie phiên đăng nhập
-      localStorage.removeItem(`keepii_notes_${currentUser}`);
-      localStorage.removeItem(`keepii_inf_text_${currentUser}`);
-      document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    // 3. Xử lý Bong bóng Chat tự kích cỡ[span_10](start_span)[span_10](end_span)
+    function botSpeak(text, emotion = "normal") {
+      botCard.setAttribute('data-emotion', emotion);
       
-      const avtContainer = document.getElementById('user-avatar-container');
-      if(avtContainer) avtContainer.remove();
-
-      const viewport = document.getElementById('user-app-viewport');
-      if(viewport) viewport.remove();
-
-      const loginUI = document.getElementById('main-content-ui');
-      if(loginUI) loginUI.style.display = 'block';
-
-      if(transStar) transStar.style.transform = 'translate(-50%, -50%) scale(0) rotate(720deg)';
-      setTimeout(() => {
-        document.body.classList.remove('gates-closed');
-        if(transStar) transStar.style.opacity = '0';
-      }, 600);
-
-    }, 1400);
-  };
-
-  // Kích hoạt nạp dữ liệu ngay khi giao diện hiển thị
-  window.syncUserData();
-    </script>
-
-    
-
-  
+      // Auto size dựa trên content (đã cấu hình qua CSS max-width/width: max-content)
+      chatBubble.innerText = text;
+      chatBubble.classList.add('show');
       
+      botCard.classList.add('talking');
+      let talkInterval = setInterval(() => {
+        botCard.style.setProperty('--mouth-scale', 0.6 + Math.random() * 1.3);
+      }, 80);
+
+      clearTimeout(chatTimer);
+      chatTimer = setTimeout(() => {
+        chatBubble.classList.remove('show');
+        clearInterval(talkInterval);
+        botCard.classList.remove('talking');
+        botCard.style.setProperty('--mouth-scale', 1);
+        botCard.setAttribute('data-emotion', 'normal');
+      }, 3500);
+    }
+
+    // Chớp mắt ngẫu nhiên[span_11](start_span)[span_11](end_span)
+    setInterval(() => {
+      if (!botCard.classList.contains('talking')) {
+        botCard.classList.add('blinking');
+        setTimeout(() => botCard.classList.remove('blinking'), 150);
+      }
+    }, Math.random() * 4000 + 2000);
+
+    // 4. Mode Di Chuyển (Drag Mode)
+    window.toggleDragMode = function(e) {
+      e.stopPropagation();
+      isDragMode = !isDragMode;
+      dragToggleBtn.classList.toggle('active-drag', isDragMode);
+      if(isDragMode) botSpeak("Bế mình đi đâu thế?", "surprised");
+    };
+
+    // Xử lý logic Drag thả
+    botWrapper.addEventListener('pointerdown', (e) => {
+      if (!isDragMode) return;
+      isDragging = true;
+      const rect = botWrapper.getBoundingClientRect();
+      dragOffsetX = e.clientX - rect.left;
+      dragOffsetY = e.clientY - rect.top;
+      botWrapper.setPointerCapture(e.pointerId);
+    });
+
+    botWrapper.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      // Vô hiệu hóa vị trí top/left gốc, cập nhật vị trí mới theo trỏ chuột
+      botWrapper.style.top = `${e.clientY - dragOffsetY}px`;
+      botWrapper.style.left = `${e.clientX - dragOffsetX}px`;
+      botWrapper.style.right = 'auto'; // Xóa ràng buộc CSS cũ
+      botWrapper.style.bottom = 'auto';
+    });
+
+    botWrapper.addEventListener('pointerup', (e) => {
+      if(!isDragging) return;
+      isDragging = false;
+      botWrapper.releasePointerCapture(e.pointerId);
+    });
+
+    // 5. Tương tác Chạm/Vuốt (Chỉ kích hoạt khi không ở chế độ Drag)[span_12](start_span)[span_12](end_span)
+    let touchTimer = null;
+    let isLongPress = false;
+
+    const handleStart = (e) => {
+      if (isDragMode || e.target.closest('.bot-controls') || e.target.closest('.emotions-menu')) return;
+      isLongPress = false;
+      
+      touchTimer = setTimeout(() => {
+        isLongPress = true;
+        botSpeak("Thích quá, xoa đầu nữa đi!", "happy"); // Xoa đầu
+      }, 700);
+    };
+
+    const handleEnd = (e) => {
+      if (isDragMode || e.target.closest('.bot-controls')) return;
+      clearTimeout(touchTimer);
+      if (!isLongPress) {
+        // Chạm nhẹ (Tap)
+        const reactions = [
+          { text: "Ui! Đừng chọc mình!", emo: "surprised" },
+          { text: "Mình đang xem bạn ghi chú nè.", emo: "normal" },
+          { text: "Có lỗi (bug) gì cần báo không?", emo: "sleepy" }
+        ];
+        const res = reactions[Math.floor(Math.random() * reactions.length)];
+        botSpeak(res.text, res.emo);
+      }
+    };
+
+    botCard.addEventListener('pointerdown', handleStart);
+    botCard.addEventListener('pointerup', handleEnd);
+
+  </script>
+</body>
+</html>
