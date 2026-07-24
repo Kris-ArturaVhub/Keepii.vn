@@ -10,10 +10,11 @@
        ========================================= */
     body {
       margin: 0;
-      background-color: transparent; /* Để lộ nền từ index.html */
+      background-color: transparent;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       overflow: hidden;
-      touch-action: pan-y; /* Cho phép cuộn dọc tự nhiên */
+      touch-action: pan-y;
+      transition: background-color 0.5s ease, color 0.5s ease;
     }
 
     #user-dashboard {
@@ -44,7 +45,7 @@
       font-size: 16px;
       overflow-y: auto;
       white-space: pre-wrap;
-      transition: background 0.3s, border-color 0.3s, color 0.3s;
+      transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
     }
     .infinite-text-pad:focus {
       border-color: #06b6d4;
@@ -73,7 +74,7 @@
       cursor: pointer;
       overflow: hidden;
       position: relative;
-      transition: transform 0.4s cubic-bezier(0.25, 1.5, 0.5, 1);
+      transition: transform 0.4s cubic-bezier(0.25, 1.5, 0.5, 1), background 0.4s ease, border 0.4s ease, color 0.4s ease;
     }
     .note-card:active { transform: scale(0.94); }
     
@@ -85,6 +86,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
+      transition: color 0.4s ease;
     }
     .note-card-body {
       font-size: 13px;
@@ -93,6 +95,7 @@
       -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      transition: color 0.4s ease;
     }
 
     /* Fullscreen Editor */
@@ -106,6 +109,7 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
+      transition: background 0.4s ease;
     }
     .fullscreen-header {
       display: flex;
@@ -126,6 +130,7 @@
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 12px; padding: 15px; box-sizing: border-box;
       outline: none; color: #fff; font-size: 16px; resize: none;
+      transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
     }
 
     /* Bottom Controls */
@@ -152,14 +157,15 @@
     .type-popup-box {
       background: #151525; border: 2px solid #06b6d4; border-radius: 16px;
       padding: 25px; width: 85%; max-width: 320px; text-align: center;
-      transform: scale(0.6); transition: transform 0.5s;
+      transform: scale(0.6); transition: transform 0.5s, background 0.4s ease, border-color 0.4s ease;
     }
     #type-popup-mask.open .type-popup-box { transform: scale(1); }
-    .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; }
+    .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; transition: color 0.4s ease; }
     .type-option-btn {
       width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
       color: #fff; font-weight: bold; cursor: pointer; text-align: left;
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 
     /* Avatar & Menu */
@@ -175,7 +181,7 @@
       border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px;
       padding: 15px; min-width: 160px; box-sizing: border-box;
       opacity: 0; pointer-events: none; transform: translateY(-15px) scale(0.9);
-      transition: all 0.3s ease;
+      transition: all 0.3s ease, background 0.4s ease, border-color 0.4s ease;
     }
     .info-drawer-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
     .drawer-greeting { font-weight: bold; color: #06b6d4; margin-bottom: 12px; }
@@ -260,23 +266,27 @@
       border-color: white transparent transparent transparent;
     }
 
+    /* Đã dịch chuyển lệch sang phải (right: -55px) để không bị vướng khung bot */
     .emotions-menu {
       position: absolute;
-      top: -30px;
-      right: -10px;
+      top: -40px;
+      right: -55px;
       background: #111122;
       border: 1px solid #00f2fe;
       border-radius: 12px;
-      padding: 8px;
+      padding: 10px;
       display: none;
       flex-direction: column;
       gap: 8px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+      z-index: 6000;
+      transition: background 0.4s ease, border-color 0.4s ease;
     }
     .emo-item {
-      font-size: 18px;
+      font-size: 20px;
       cursor: pointer;
       transition: transform 0.2s;
+      text-align: center;
     }
     .emo-item:active { transform: scale(1.3); }
 
@@ -319,6 +329,7 @@
     }
     @keyframes rotateBorder { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+    /* 6 cảm xúc cho Bot */
     .bot-avatar-card[data-emotion="happy"] { --led-color1: #00ff88; --led-color2: #00b894; }
     .bot-avatar-card[data-emotion="happy"] .eye { height: 10px; border-radius: 10px 10px 0 0; }
     .bot-avatar-card[data-emotion="happy"] .mouth { border-radius: 0 0 20px 20px; height: 12px; width: 30px; }
@@ -335,6 +346,14 @@
     }
     .bot-avatar-card[data-emotion="angry"] .eye:last-child::before { transform: rotate(-25deg); }
     .bot-avatar-card[data-emotion="angry"] .mouth { border-radius: 10px 10px 5px 5px; height: 6px; width: 20px; }
+
+    .bot-avatar-card[data-emotion="surprised"] { --led-color1: #f1c40f; --led-color2: #f39c12; }
+    .bot-avatar-card[data-emotion="surprised"] .eye { width: 18px; height: 18px; }
+    .bot-avatar-card[data-emotion="surprised"] .mouth { width: 14px; height: 14px; border-radius: 50%; }
+
+    .bot-avatar-card[data-emotion="thinking"] { --led-color1: #3498db; --led-color2: #2980b9; }
+    .bot-avatar-card[data-emotion="thinking"] .eye { width: 20px; height: 12px; border-radius: 6px; }
+    .bot-avatar-card[data-emotion="thinking"] .mouth { width: 18px; height: 4px; border-radius: 2px; }
 
     .bot-avatar-card.talking .mouth { transform: scaleY(var(--mouth-scale, 1)); }
     .bot-avatar-card.blinking .eye { transform: scaleY(0.1) !important; }
@@ -356,6 +375,7 @@
       border: 1px solid rgba(6, 182, 212, 0.25);
       color: #101026;
     }
+    body.light-mode .note-card-title { color: #0284c7; }
     body.light-mode .note-card-body { color: #333; }
     body.light-mode .type-popup-box,
     body.light-mode .info-drawer-panel,
@@ -415,11 +435,15 @@
        ========================================= -->
   <div id="mini-bot-wrapper">
     <div class="chat-bubble" id="botChatBubble">Xin chào!</div>
+    
+    <!-- 6 cảm xúc cho Bot -->
     <div class="emotions-menu" id="emoMenu">
       <div class="emo-item" onclick="setBotEmotion('normal', 'Bình thường thôi')">😐</div>
       <div class="emo-item" onclick="setBotEmotion('happy', 'Tuyệt quá!')">😀</div>
       <div class="emo-item" onclick="setBotEmotion('sleepy', 'Buồn ngủ quá...')">😴</div>
       <div class="emo-item" onclick="setBotEmotion('angry', 'Đang bực mình!')">😡</div>
+      <div class="emo-item" onclick="setBotEmotion('surprised', 'Ồ, bất ngờ ghê!')">😲</div>
+      <div class="emo-item" onclick="setBotEmotion('thinking', 'Đang suy nghĩ...')">🤔</div>
     </div>
     
     <div class="bot-controls">
@@ -427,7 +451,7 @@
       <div class="bot-tool-btn" onclick="toggleEmotionsMenu(event)">😀 Cảm xúc</div>
     </div>
 
-    <!-- Khuôn mặt Bot (Tích hợp Touch & Animation) -->
+    <!-- Khuôn mặt Bot -->
     <div class="bot-avatar-card" id="miniBotCard" data-emotion="normal">
       <div class="bot-face-inner">
         <div class="eyes-container">
@@ -473,7 +497,7 @@
     async function saveUserDataToCloud() {
       if (!currentUser || currentUser === 'guest') return;
       try {
-        const response = await fetch(`${CLOUD_URL}/save_user_data`, {
+        await fetch(`${CLOUD_URL}/save_user_data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -482,7 +506,6 @@
             inf_text: savedInfiniteText
           })
         });
-        if (!response.ok) throw new Error(`[LỖI MẠNG] Server phản hồi trạng thái: ${response.status}`);
       } catch (error) {
         console.error("❌ Đồng bộ đám mây thất bại:", error);
       }
@@ -685,7 +708,7 @@
           const reactions = [
             { text: "Ui! Đừng chọc mình!", emo: "surprised" },
             { text: "Mình đang xem bạn ghi chú nè.", emo: "normal" },
-            { text: "Có lỗi gì cần báo không?", emo: "sleepy" }
+            { text: "Đang phân tích dữ liệu...", emo: "thinking" }
           ];
           const res = reactions[Math.floor(Math.random() * reactions.length)];
           botSpeak(res.text, res.emo);
