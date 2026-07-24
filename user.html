@@ -10,10 +10,10 @@
        ========================================= */
     body {
       margin: 0;
-      background-color: #090915;
+      background-color: transparent; /* Để lộ nền từ index.html */
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       overflow: hidden;
-      touch-action: none;
+      touch-action: pan-y; /* Cho phép cuộn dọc tự nhiên */
     }
 
     #user-dashboard {
@@ -44,7 +44,7 @@
       font-size: 16px;
       overflow-y: auto;
       white-space: pre-wrap;
-      transition: background 0.3s, border-color 0.3s;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
     }
     .infinite-text-pad:focus {
       border-color: #06b6d4;
@@ -56,7 +56,7 @@
       grid-template-columns: repeat(2, 1fr); 
       gap: 15px;
       height: calc(100% - 170px); 
-      overflow-y: scroll; 
+      overflow-y: auto; 
       -webkit-overflow-scrolling: touch;
       padding-bottom: 100px; 
       box-sizing: border-box;
@@ -195,16 +195,15 @@
     #mini-bot-wrapper {
       position: fixed;
       top: 80px; left: 20px;
-      width: clamp(200px, 25vw, 300px); /* Kích thước tối đa ~ 20% - 25% màn hình */
+      width: clamp(200px, 25vw, 300px);
       height: 180px;
       z-index: 5500;
-      display: none; /* Ẩn mặc định */
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
     }
 
-    /* Các nút điều khiển con của Bot */
     .bot-controls {
       display: flex;
       gap: 10px;
@@ -227,7 +226,6 @@
     .bot-tool-btn:active { transform: scale(0.9); }
     .bot-tool-btn.active-drag { background: #00f2fe; color: #000; }
 
-    /* Bong bóng chat tự động căn chỉnh */
     .chat-bubble {
       position: absolute;
       top: -45px;
@@ -251,7 +249,6 @@
       opacity: 1;
       transform: translateY(0) scale(1);
     }
-    /* Đuôi bong bóng chat */
     .chat-bubble::after {
       content: '';
       position: absolute;
@@ -263,7 +260,6 @@
       border-color: white transparent transparent transparent;
     }
 
-    /* Bảng chọn cảm xúc (Emotions Menu) */
     .emotions-menu {
       position: absolute;
       top: -30px;
@@ -284,7 +280,6 @@
     }
     .emo-item:active { transform: scale(1.3); }
 
-    /* Giao diện Bot chuyển đổi (Thu nhỏ) */
     .bot-avatar-card {
       position: relative;
       width: 100%;
@@ -324,7 +319,6 @@
     }
     @keyframes rotateBorder { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* Cảm xúc cho Bot */
     .bot-avatar-card[data-emotion="happy"] { --led-color1: #00ff88; --led-color2: #00b894; }
     .bot-avatar-card[data-emotion="happy"] .eye { height: 10px; border-radius: 10px 10px 0 0; }
     .bot-avatar-card[data-emotion="happy"] .mouth { border-radius: 0 0 20px 20px; height: 12px; width: 30px; }
@@ -345,6 +339,45 @@
     .bot-avatar-card.talking .mouth { transform: scaleY(var(--mouth-scale, 1)); }
     .bot-avatar-card.blinking .eye { transform: scaleY(0.1) !important; }
 
+    /* =========================================
+       3. HỖ TRỢ CHẾ ĐỘ SÁNG (LIGHT MODE STYLES)
+       ========================================= */
+    body.light-mode .infinite-text-pad {
+      background: rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      color: #101026;
+    }
+    body.light-mode .infinite-text-pad:focus {
+      border-color: #06b6d4;
+      background: rgba(0, 0, 0, 0.07);
+    }
+    body.light-mode .note-card {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(79, 70, 229, 0.1));
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      color: #101026;
+    }
+    body.light-mode .note-card-body { color: #333; }
+    body.light-mode .type-popup-box,
+    body.light-mode .info-drawer-panel,
+    body.light-mode .emotions-menu {
+      background: #ffffff;
+      border-color: #06b6d4;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    body.light-mode .popup-title,
+    body.light-mode .type-option-btn { color: #101026; }
+    body.light-mode .type-option-btn {
+      background: rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    body.light-mode .fullscreen-note-container {
+      background: #ffffff;
+    }
+    body.light-mode .fullscreen-editor {
+      background: rgba(0,0,0,0.02);
+      border: 1px solid rgba(0,0,0,0.1);
+      color: #101026;
+    }
   </style>
 </head>
 <body>
@@ -407,27 +440,39 @@
   </div>
 
   <script>
-    /* =========================================
-       PHẦN 1: QUẢN LÝ APP & ĐỒNG BỘ MONGODB ATLAS
-       ========================================= */
-    let currentUser = getUsernameFromCookie(); // Lấy tên User từ cookie đăng nhập
-    // Giả lập user để test
+    function getUsernameFromCookie() {
+      const match = document.cookie.match(new RegExp('(^| )user_session=([^;]+)'));
+      return match ? decodeURIComponent(match[2]) : 'guest';
+    }
+
+    let currentUser = getUsernameFromCookie(); 
     let userNotes = [];
     let savedInfiniteText = "";
-    const CLOUD_URL = "https://Keepii-vn.onrender.com/api";
+    const CLOUD_URL = "https://keepii-vn.onrender.com/api";
     let saveTimeout = null;
 
-    // Ngăn nổi bọt sự kiện click[span_4](start_span)[span_4](end_span)
-    ['user-dashboard', 'type-popup-mask'].forEach(id => {
-      const el = document.getElementById(id);
-      if(el) el.addEventListener('click', (e) => e.stopPropagation());
-    });
+    function syncUserData() {
+      currentUser = getUsernameFromCookie();
+      const cachedNotes = localStorage.getItem(`keepii_notes_${currentUser}`);
+      const cachedInf = localStorage.getItem(`keepii_inf_text_${currentUser}`);
+      
+      if (cachedNotes) userNotes = JSON.parse(cachedNotes);
+      if (cachedInf) {
+        savedInfiniteText = cachedInf;
+        const pad = document.getElementById('infinitePad');
+        if(pad) pad.innerText = savedInfiniteText;
+      }
+      renderNotes();
+      
+      const avtLetter = document.getElementById('avtLetter');
+      const welcomeTxt = document.getElementById('drawerWelcomeTxt');
+      if(avtLetter && currentUser) avtLetter.textContent = currentUser.charAt(0).toUpperCase();
+      if(welcomeTxt) welcomeTxt.textContent = `Xin chào, ${currentUser}!`;
+    }
 
-    // Bắt lỗi chi tiết trong hàm Đồng bộ[span_5](start_span)[span_5](end_span)
     async function saveUserDataToCloud() {
       if (!currentUser || currentUser === 'guest') return;
       try {
-        console.log("⏳ Bắt đầu tiến trình đồng bộ dữ liệu lên MongoDB Atlas...");
         const response = await fetch(`${CLOUD_URL}/save_user_data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -437,21 +482,9 @@
             inf_text: savedInfiniteText
           })
         });
-
-        // Xử lý báo lỗi HTTP rõ ràng để dễ debug
-        if (!response.ok) {
-          throw new Error(`[LỖI MẠNG] Server phản hồi trạng thái: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (data.success) {
-          console.log("✅ Đồng bộ thành công lên đám mây MongoDB Atlas!");
-        } else {
-          console.error("⚠️ [LỖI LOGIC DB] Không thể lưu:", data.message);
-        }
+        if (!response.ok) throw new Error(`[LỖI MẠNG] Server phản hồi trạng thái: ${response.status}`);
       } catch (error) {
-        // Bắt lỗi cụ thể để dev biết nguyên nhân rớt mạng hay API sập
-        console.error("❌ [LỖI NGHIÊM TRỌNG] Giao tiếp MongoDB Atlas thất bại:", error);
+        console.error("❌ Đồng bộ đám mây thất bại:", error);
       }
     }
 
@@ -466,7 +499,6 @@
       }, 3000);
     }
 
-    // Trình soạn thảo vô cực
     const infPad = document.getElementById('infinitePad');
     if(infPad) {
       infPad.addEventListener('input', () => {
@@ -475,18 +507,18 @@
       });
     }
 
-    // Logic Drawer Avatar[span_6](start_span)[span_6](end_span)
     window.toggleUserDrawer = function(e) {
       e.stopPropagation();
       document.getElementById('userDrawerPanel').classList.toggle('open');
     };
     document.addEventListener('click', () => {
-      document.getElementById('userDrawerPanel').classList.remove('open');
+      const panel = document.getElementById('userDrawerPanel');
+      if(panel) panel.classList.remove('open');
     });
 
-    // Render Ghi chú lưới[span_7](start_span)[span_7](end_span)
     function renderNotes() {
       const grid = document.getElementById('notes-grid');
+      if(!grid) return;
       grid.innerHTML = '';
       userNotes.forEach((note, index) => {
         const card = document.createElement('div');
@@ -500,18 +532,20 @@
       });
     }
 
-    function openTypePopup() { document.getElementById('type-popup-mask').classList.add('open'); }
-    function closeTypePopup() { document.getElementById('type-popup-mask').classList.remove('open'); }
-    function createNewTextNote() {
+    window.openTypePopup = function() { document.getElementById('type-popup-mask').classList.add('open'); }
+    window.closeTypePopup = function() { document.getElementById('type-popup-mask').classList.remove('open'); }
+    window.createNewTextNote = function() {
       userNotes.push(""); 
       closeTypePopup(); renderNotes(); triggerAutoSave();
       openFullscreenNote(userNotes.length - 1);
     }
 
-    function openFullscreenNote(index) {
+    window.openFullscreenNote = function(index) {
+      const isLight = document.body.classList.contains('light-mode');
       const fsContainer = document.createElement('div');
       fsContainer.id = 'active-fullscreen-editor';
       fsContainer.className = 'fullscreen-note-container';
+      if(isLight) fsContainer.style.background = "#ffffff";
       fsContainer.innerHTML = `
         <div class="fullscreen-header">
           <div class="fullscreen-title">CHỈNH SỬA GHI CHÚ #${index + 1}</div>
@@ -529,15 +563,16 @@
     }
 
     window.closeFullscreenNote = function(index) {
-      saveUserDataToCloud(); // Ép lưu ngay
-      document.getElementById('active-fullscreen-editor').remove();
+      saveUserDataToCloud();
+      const el = document.getElementById('active-fullscreen-editor');
+      if(el) el.remove();
       renderNotes();
     };
 
     window.userLogout = function() {
-      alert("Đã đăng xuất & sao lưu dữ liệu.");
+      document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      location.reload();
     };
-
 
     /* =========================================
        PHẦN 2: LOGIC MINI BOT (SSPRO MODULE)
@@ -554,14 +589,12 @@
     let dragOffsetX, dragOffsetY;
     let chatTimer;
 
-    // 1. Triệu hồi Bot[span_8](start_span)[span_8](end_span)
     window.toggleMiniBot = function() {
       isBotActive = !isBotActive;
-      botWrapper.style.display = isBotActive ? 'flex' : 'none';
+      if(botWrapper) botWrapper.style.display = isBotActive ? 'flex' : 'none';
       if(isBotActive) botSpeak("Xin chào! Mình là Bot hỗ trợ đây.", "happy");
     };
 
-    // 2. Nút cảm xúc & Đổi cảm xúc[span_9](start_span)[span_9](end_span)
     window.toggleEmotionsMenu = function(e) {
       e.stopPropagation();
       emoMenu.style.display = emoMenu.style.display === 'flex' ? 'none' : 'flex';
@@ -573,11 +606,8 @@
       emoMenu.style.display = 'none';
     };
 
-    // 3. Xử lý Bong bóng Chat tự kích cỡ[span_10](start_span)[span_10](end_span)
     function botSpeak(text, emotion = "normal") {
       botCard.setAttribute('data-emotion', emotion);
-      
-      // Auto size dựa trên content (đã cấu hình qua CSS max-width/width: max-content)
       chatBubble.innerText = text;
       chatBubble.classList.add('show');
       
@@ -596,15 +626,13 @@
       }, 3500);
     }
 
-    // Chớp mắt ngẫu nhiên[span_11](start_span)[span_11](end_span)
     setInterval(() => {
-      if (!botCard.classList.contains('talking')) {
+      if (botCard && !botCard.classList.contains('talking')) {
         botCard.classList.add('blinking');
         setTimeout(() => botCard.classList.remove('blinking'), 150);
       }
     }, Math.random() * 4000 + 2000);
 
-    // 4. Mode Di Chuyển (Drag Mode)
     window.toggleDragMode = function(e) {
       e.stopPropagation();
       isDragMode = !isDragMode;
@@ -612,63 +640,60 @@
       if(isDragMode) botSpeak("Bế mình đi đâu thế?", "surprised");
     };
 
-    // Xử lý logic Drag thả
-    botWrapper.addEventListener('pointerdown', (e) => {
-      if (!isDragMode) return;
-      isDragging = true;
-      const rect = botWrapper.getBoundingClientRect();
-      dragOffsetX = e.clientX - rect.left;
-      dragOffsetY = e.clientY - rect.top;
-      botWrapper.setPointerCapture(e.pointerId);
-    });
+    if(botWrapper) {
+      botWrapper.addEventListener('pointerdown', (e) => {
+        if (!isDragMode) return;
+        isDragging = true;
+        const rect = botWrapper.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        botWrapper.setPointerCapture(e.pointerId);
+      });
 
-    botWrapper.addEventListener('pointermove', (e) => {
-      if (!isDragging) return;
-      // Vô hiệu hóa vị trí top/left gốc, cập nhật vị trí mới theo trỏ chuột
-      botWrapper.style.top = `${e.clientY - dragOffsetY}px`;
-      botWrapper.style.left = `${e.clientX - dragOffsetX}px`;
-      botWrapper.style.right = 'auto'; // Xóa ràng buộc CSS cũ
-      botWrapper.style.bottom = 'auto';
-    });
+      botWrapper.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        botWrapper.style.top = `${e.clientY - dragOffsetY}px`;
+        botWrapper.style.left = `${e.clientX - dragOffsetX}px`;
+        botWrapper.style.right = 'auto';
+        botWrapper.style.bottom = 'auto';
+      });
 
-    botWrapper.addEventListener('pointerup', (e) => {
-      if(!isDragging) return;
-      isDragging = false;
-      botWrapper.releasePointerCapture(e.pointerId);
-    });
+      botWrapper.addEventListener('pointerup', (e) => {
+        if(!isDragging) return;
+        isDragging = false;
+        botWrapper.releasePointerCapture(e.pointerId);
+      });
+    }
 
-    // 5. Tương tác Chạm/Vuốt (Chỉ kích hoạt khi không ở chế độ Drag)[span_12](start_span)[span_12](end_span)
     let touchTimer = null;
     let isLongPress = false;
 
-    const handleStart = (e) => {
-      if (isDragMode || e.target.closest('.bot-controls') || e.target.closest('.emotions-menu')) return;
-      isLongPress = false;
-      
-      touchTimer = setTimeout(() => {
-        isLongPress = true;
-        botSpeak("Thích quá, xoa đầu nữa đi!", "happy"); // Xoa đầu
-      }, 700);
-    };
+    if(botCard) {
+      botCard.addEventListener('pointerdown', (e) => {
+        if (isDragMode || e.target.closest('.bot-controls') || e.target.closest('.emotions-menu')) return;
+        isLongPress = false;
+        touchTimer = setTimeout(() => {
+          isLongPress = true;
+          botSpeak("Thích quá, xoa đầu nữa đi!", "happy");
+        }, 700);
+      });
 
-    const handleEnd = (e) => {
-      if (isDragMode || e.target.closest('.bot-controls')) return;
-      clearTimeout(touchTimer);
-      if (!isLongPress) {
-        // Chạm nhẹ (Tap)
-        const reactions = [
-          { text: "Ui! Đừng chọc mình!", emo: "surprised" },
-          { text: "Mình đang xem bạn ghi chú nè.", emo: "normal" },
-          { text: "Có lỗi (bug) gì cần báo không?", emo: "sleepy" }
-        ];
-        const res = reactions[Math.floor(Math.random() * reactions.length)];
-        botSpeak(res.text, res.emo);
-      }
-    };
+      botCard.addEventListener('pointerup', (e) => {
+        if (isDragMode || e.target.closest('.bot-controls')) return;
+        clearTimeout(touchTimer);
+        if (!isLongPress) {
+          const reactions = [
+            { text: "Ui! Đừng chọc mình!", emo: "surprised" },
+            { text: "Mình đang xem bạn ghi chú nè.", emo: "normal" },
+            { text: "Có lỗi gì cần báo không?", emo: "sleepy" }
+          ];
+          const res = reactions[Math.floor(Math.random() * reactions.length)];
+          botSpeak(res.text, res.emo);
+        }
+      });
+    }
 
-    botCard.addEventListener('pointerdown', handleStart);
-    botCard.addEventListener('pointerup', handleEnd);
-
+    syncUserData();
   </script>
 </body>
 </html>
