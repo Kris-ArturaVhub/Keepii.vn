@@ -11,13 +11,16 @@
     body {
       margin: 0;
       background-color: #090915;
-      color: #ffffff; /* Màu chữ mặc định ăn theo nền */
+      color: #ffffff;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       overflow: hidden;
       touch-action: pan-y;
       transition: background-color 0.5s ease, color 0.5s ease;
     }
 
+    /* FIX 1: Tự động đổi màu chữ thành đen khi body có nền trắng/sáng */
+    body.light-theme { background-color: #ffffff; color: #000000; }
+    
     #user-dashboard {
       position: absolute;
       top: 60px; left: 0; width: 100%; height: calc(100vh - 60px);
@@ -25,22 +28,23 @@
       display: flex; flex-direction: column; gap: 15px; overflow: hidden;
     }
 
-    /* FIX 1: Chữ tự động ăn theo màu nền body khi đổi theme */
     .infinite-text-pad {
       width: 100%; min-height: 80px; max-height: 120px;
       background: rgba(125, 125, 125, 0.1); border: 1px solid rgba(125, 125, 125, 0.25);
-      border-radius: 12px; color: inherit; padding: 12px; box-sizing: border-box;
+      border-radius: 12px; color: inherit; /* Chữ ăn theo nền body */
+      padding: 12px; box-sizing: border-box;
       outline: none; font-size: 16px; overflow-y: auto; white-space: pre-wrap;
       transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
     }
     .infinite-text-pad:focus { border-color: #06b6d4; background: rgba(125, 125, 125, 0.18); }
 
-    /* FIX 2: Sửa khoảng cách dọc bị xa trên PC bằng align-items: start */
+    /* FIX 2: Khắc phục lỗi ô ghi chú cách xa nhau ở hàng dọc trên PC */
     #notes-grid {
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
       gap: 12px;
       align-items: start;
+      align-content: start;
       height: calc(100% - 140px); overflow-y: auto; 
       -webkit-overflow-scrolling: touch; padding-bottom: 100px; box-sizing: border-box;
     }
@@ -54,11 +58,9 @@
     }
     .note-card:hover { border-color: #06b6d4; transform: translateY(-2px); }
     .note-card:active { transform: scale(0.96); }
-    /* Màu tiêu đề tối ưu trên cả nền tối lẫn sáng */
     .note-card-title { font-weight: bold; font-size: 14px; margin-bottom: 6px; color: #0284c7; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
     .note-card-body { font-size: 13px; opacity: 0.85; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-    /* FULLSCREEN EDITOR VỚI ANIMATION PHÓNG TO TRONG 0.6s */
     .fullscreen-note-container {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       z-index: 6000; background: inherit; color: inherit; box-sizing: border-box; padding: 20px;
@@ -66,14 +68,8 @@
       transform-origin: center center;
       transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, border-radius 0.6s ease;
     }
-    .fullscreen-note-container.animating {
-      border-radius: 16px;
-      overflow: hidden;
-    }
-    
+    .fullscreen-note-container.animating { border-radius: 16px; overflow: hidden; }
     .fullscreen-header { display: flex; justify-content: space-between; align-items: center; width: 100%; height: 40px; gap: 15px; }
-    
-    /* Input cho phép chỉnh sửa tiêu đề Ghi chú */
     .fullscreen-title-input { 
       color: #0284c7; font-weight: bold; font-size: 18px; 
       background: transparent; border: none; border-bottom: 2px solid rgba(6, 182, 212, 0.4);
@@ -142,7 +138,7 @@
     .drawer-logout-btn { background: #ef4444; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25); }
 
     /* =========================================
-       2. MODAL SỬA AVATAR (CÓ ĐỤC LỖ TRÒN & CAMERA)
+       2. MODAL SỬA AVATAR 
        ========================================= */
     #avatar-modal-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -154,18 +150,16 @@
     .crop-viewport {
       position: relative; width: 260px; height: 260px;
       border-radius: 50%; border: 3px solid #06b6d4;
-      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85);
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85); /* Tạo lớp mờ xung quanh vùng cắt */
       overflow: hidden; display: flex; align-items: center; justify-content: center;
-      background: #111; margin-bottom: 25px;
+      background: #111; margin-bottom: 25px; z-index: 10000; 
     }
-    #preview-cam-video, #preview-img-element {
-      width: 100%; height: 100%; object-fit: cover;
-    }
+    #preview-cam-video, #preview-img-element { width: 100%; height: 100%; object-fit: cover; }
     
-    /* FIX 3: Nút bấm hiển thị rõ hoàn toàn trên nền tối, z-index cao hơn bóng đen */
+    /* FIX 3: Nút điều khiển được đặt z-index cực cao để nổi hoàn toàn lên trên lớp bóng mờ */
     .avt-modal-controls { 
       display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; max-width: 320px; 
-      position: relative; z-index: 10000;
+      position: relative; z-index: 10005; /* Đảm bảo nổi hơn crop-viewport */
     }
     .avt-btn {
       padding: 10px 18px; border-radius: 20px; border: none; font-weight: bold;
@@ -177,9 +171,9 @@
     .btn-confirm { background: #10b981; width: 100%; margin-top: 5px; }
     .btn-cancel { background: #ef4444; width: 100%; margin-top: -5px; }
 
-    /* FIX 4: HIỆU ỨNG CỬA SẬP KHI ĐĂNG XUẤT */
+    /* FIX 4: CSS CỬA SẬP CHUYỂN CẢNH KHI ĐĂNG XUẤT */
     .shutter-panel {
-      position: fixed; top: 0; width: 50vw; height: 100vh; background: #05050a; z-index: 99999;
+      position: fixed; top: 0; width: 50vw; height: 100vh; background: #05050a; z-index: 999999;
       transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1); pointer-events: none;
     }
     #shutter-left { left: 0; transform: translateX(-100%); border-right: 2px solid #06b6d4; }
@@ -237,17 +231,11 @@
       gap: 6px; z-index: 1; box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
     }
     .eyes-container { display: flex; gap: 24px; align-items: center; height: 18px; position: relative; }
-    .eye {
-      width: 16px; height: 16px; background-color: #ffffff; border-radius: 50%;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.95); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative;
-    }
-    .mouth {
-      width: 18px; height: 7px; background-color: var(--led-color1); border-radius: 0 0 18px 18px;
-      transition: transform 0.08s ease, background-color 0.3s ease, height 0.2s ease, border-radius 0.3s ease; box-shadow: 0 0 6px var(--led-color1);
-    }
+    .eye { width: 16px; height: 16px; background-color: #ffffff; border-radius: 50%; box-shadow: 0 0 10px rgba(255, 255, 255, 0.95); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; }
+    .mouth { width: 18px; height: 7px; background-color: var(--led-color1); border-radius: 0 0 18px 18px; transition: transform 0.08s ease, background-color 0.3s ease, height 0.2s ease, border-radius 0.3s ease; box-shadow: 0 0 6px var(--led-color1); }
     @keyframes rotateBorder { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* EMOTIONS MAP */
+    /* EMOTIONS MAP MINIFIED */
     .bot-avatar-card[data-emotion="normal"] { --led-color1: #00f2fe; --led-color2: #4facfe; }
     .bot-avatar-card[data-emotion="normal"] .eye { width: 14px; height: 15px; border-radius: 50%; }
     .bot-avatar-card[data-emotion="normal"] .mouth { width: 16px; height: 8px; border-radius: 0 0 16px 16px; }
@@ -302,7 +290,6 @@
     .ear-left { left: 15px; transform: rotate(-15deg); } .ear-right { right: 15px; transform: rotate(15deg); }
     .bot-avatar-card[data-emotion="cute"] .cat-ear { opacity: 1; top: -12px; }
 
-    /* CUTE - Mắt "><" khi được xoa đầu */
     .bot-avatar-card[data-emotion="cute"].is-petted .eye { background: transparent; box-shadow: none; width: 16px; height: 16px; }
     .bot-avatar-card[data-emotion="cute"].is-petted .eye::before, .bot-avatar-card[data-emotion="cute"].is-petted .eye::after { content: ''; position: absolute; width: 12px; height: 3px; background: #fff; top: 6px; border-radius: 2px; }
     .bot-avatar-card[data-emotion="cute"].is-petted .eye:first-child::before { transform: rotate(45deg); left: 2px; top: 3px; }
@@ -329,7 +316,7 @@
 </head>
 <body>
 
-  <!-- FIX 4: HAI CÁNH CỬA SẬP CHUYỂN CẢNH KHI ĐĂNG XUẤT -->
+  <!-- FIX 4: Cửa sập -->
   <div class="shutter-panel" id="shutter-left"></div>
   <div class="shutter-panel" id="shutter-right"></div>
 
@@ -361,7 +348,7 @@
     </div>
   </div>
 
-  <!-- MODAL SỬA AVATAR VỚI CAMERA VÀ THƯ VIỆN -->
+  <!-- MODAL SỬA AVATAR -->
   <div id="avatar-modal-overlay">
     <div class="crop-viewport">
       <video id="preview-cam-video" autoplay playsinline style="display: none;"></video>
@@ -400,11 +387,9 @@
     <div class="bot-avatar-card" id="miniBotCard" data-emotion="normal">
       <div class="cat-ear ear-left"></div>
       <div class="cat-ear ear-right"></div>
-      
       <div class="bot-face-inner">
         <div class="blush blush-left"></div>
         <div class="blush blush-right"></div>
-        
         <div class="eyes-container">
           <div class="eye"></div>
           <div class="eye"></div>
@@ -413,7 +398,7 @@
       </div>
     </div>
   </div>
-  <script>
+   <script>
     /* =========================================
        1. ĐỒNG BỘ DỮ LIỆU USER & WORKSPACE
        ========================================= */
@@ -423,35 +408,66 @@
     }
 
     let currentUser = getUsernameFromCookie(); 
-    let userNotes = []; // Cấu trúc: [{ title: "", content: "" }, ...]
+    let userNotes = []; 
     let savedInfiniteText = "";
     const CLOUD_URL = "https://keepii-vn.onrender.com/api";
     let saveTimeout = null;
 
-    function syncUserData() {
+    /* FIX 5: FETCH DỮ LIỆU TỪ SERVER TRƯỚC TIÊN KHI LOAD ĐỂ ĐỒNG BỘ CHÉO TRÌNH DUYỆT */
+    async function syncUserData() {
       currentUser = getUsernameFromCookie();
-      const cachedNotes = localStorage.getItem(`keepii_notes_${currentUser}`);
-      const cachedInf = localStorage.getItem(`keepii_inf_text_${currentUser}`);
-      const cachedAvt = localStorage.getItem(`keepii_avatar_${currentUser}`);
 
-      if (cachedNotes) {
+      if (currentUser && currentUser !== 'guest') {
         try {
-          const parsed = JSON.parse(cachedNotes);
-          userNotes = parsed.map((item, idx) => {
-            if (typeof item === 'string') return { title: `Ghi chú #${idx + 1}`, content: item };
-            return item;
-          });
-        } catch(e) { userNotes = []; }
+          const res = await fetch(`${CLOUD_URL}/get_user_data?nickname=${currentUser}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.notes) {
+              userNotes = data.notes.map((item, idx) => {
+                if (typeof item === 'string') return { title: `Ghi chú #${idx + 1}`, content: item };
+                return item;
+              });
+            }
+            if (data.inf_text) savedInfiniteText = data.inf_text;
+            if (data.avatar_base64) applyAvatarImage(data.avatar_base64);
+            
+            // Backup lưu tạm vào localStorage
+            localStorage.setItem(`keepii_notes_${currentUser}`, JSON.stringify(userNotes));
+            localStorage.setItem(`keepii_inf_text_${currentUser}`, savedInfiniteText);
+            if (data.avatar_base64) localStorage.setItem(`keepii_avatar_${currentUser}`, data.avatar_base64);
+          }
+        } catch (e) { console.warn("Fetch lỗi, fallback dùng dữ liệu Local", e); }
       }
-      
-      if (cachedInf) { savedInfiniteText = cachedInf; document.getElementById('infinitePad').innerText = savedInfiniteText; }
-      if (cachedAvt) applyAvatarImage(cachedAvt);
 
-      renderNotes();
+      // Fallback nếu không có dữ liệu cloud hoặc là guest
+      if (userNotes.length === 0) {
+        const cachedNotes = localStorage.getItem(`keepii_notes_${currentUser}`);
+        if (cachedNotes) {
+          try {
+            const parsed = JSON.parse(cachedNotes);
+            userNotes = parsed.map((item, idx) => {
+              if (typeof item === 'string') return { title: `Ghi chú #${idx + 1}`, content: item };
+              return item;
+            });
+          } catch(e) { userNotes = []; }
+        }
+      }
+
+      if (!savedInfiniteText) {
+        const cachedInf = localStorage.getItem(`keepii_inf_text_${currentUser}`);
+        if (cachedInf) savedInfiniteText = cachedInf;
+      }
+      document.getElementById('infinitePad').innerText = savedInfiniteText;
+      
+      const cachedAvt = localStorage.getItem(`keepii_avatar_${currentUser}`);
+      if (cachedAvt && !document.getElementById('avtLetter').style.backgroundImage) applyAvatarImage(cachedAvt);
+
       if(document.getElementById('avtLetter') && currentUser) {
         if(!cachedAvt) document.getElementById('avtLetter').textContent = currentUser.charAt(0).toUpperCase();
       }
       if(document.getElementById('drawerWelcomeTxt')) document.getElementById('drawerWelcomeTxt').textContent = `Xin chào, ${currentUser}!`;
+
+      renderNotes();
     }
 
     async function saveUserDataToCloud() {
@@ -470,7 +486,7 @@
       localStorage.setItem(`keepii_notes_${currentUser}`, JSON.stringify(userNotes));
       localStorage.setItem(`keepii_inf_text_${currentUser}`, savedInfiniteText);
       clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(saveUserDataToCloud, 3000);
+      saveTimeout = setTimeout(saveUserDataToCloud, 1000);
     }
 
     const infPad = document.getElementById('infinitePad');
@@ -504,27 +520,16 @@
       closeTypePopup(); 
       renderNotes(); 
       triggerAutoSave(); 
-      
-      setTimeout(() => {
-        const cardEl = document.getElementById(`note-card-${newIdx}`);
-        openFullscreenNote(newIdx, cardEl);
-      }, 50);
+      setTimeout(() => { const cardEl = document.getElementById(`note-card-${newIdx}`); openFullscreenNote(newIdx, cardEl); }, 50);
     }
 
-    /* =========================================
-       ANIMATION PHÓNG TO & ĐỔI TÊN TIÊU ĐỀ NOTE
-       ========================================= */
     let currentActiveNoteIndex = null;
-
     window.openFullscreenNote = function(index, cardElement) {
       currentActiveNoteIndex = index;
       const note = userNotes[index];
-
-      // Tạo Container Editor Fullscreen
       const fsContainer = document.createElement('div'); 
       fsContainer.id = 'active-fullscreen-editor'; 
       fsContainer.className = 'fullscreen-note-container animating';
-      
       fsContainer.innerHTML = `
         <div class="fullscreen-header">
           <input type="text" class="fullscreen-title-input" id="note-title-input" value="${note.title || 'Ghi chú #' + (index + 1)}" placeholder="Tiêu đề ghi chú...">
@@ -533,7 +538,6 @@
         <textarea class="fullscreen-editor" id="editor-${index}">${note.content || ''}</textarea>
       `;
 
-      // Tính toán vị trí nguyên bản của thẻ Note để làm animation FLIP
       const rect = cardElement ? cardElement.getBoundingClientRect() : { top: window.innerHeight/2, left: window.innerWidth/2, width: 0, height: 0 };
       const startX = rect.left + rect.width / 2 - window.innerWidth / 2;
       const startY = rect.top + rect.height / 2 - window.innerHeight / 2;
@@ -542,45 +546,28 @@
 
       fsContainer.style.transform = `translate(${startX}px, ${startY}px) scale(${scaleX}, ${scaleY})`;
       fsContainer.style.opacity = '0.2';
-
       document.body.appendChild(fsContainer);
-
-      // Force Reflow để kích hoạt CSS Transition
       fsContainer.getBoundingClientRect();
 
-      // Phóng to ra giữa màn hình trong 0.6s
       requestAnimationFrame(() => {
         fsContainer.style.transform = 'translate(0, 0) scale(1, 1)';
         fsContainer.style.opacity = '1';
         fsContainer.style.borderRadius = '0px';
       });
-
       setTimeout(() => { fsContainer.classList.remove('animating'); }, 600);
 
-      // Lắng nghe sự kiện gõ phím để lưu thay đổi
       const titleInput = document.getElementById('note-title-input');
       const textarea = document.getElementById(`editor-${index}`);
-      
-      titleInput.addEventListener('input', (e) => {
-        userNotes[index].title = e.target.value;
-        triggerAutoSave();
-      });
-
-      textarea.addEventListener('input', (e) => {
-        userNotes[index].content = e.target.value;
-        triggerAutoSave();
-      });
+      titleInput.addEventListener('input', (e) => { userNotes[index].title = e.target.value; triggerAutoSave(); });
+      textarea.addEventListener('input', (e) => { userNotes[index].content = e.target.value; triggerAutoSave(); });
     };
 
     window.closeFullscreenNote = function(index) {
       saveUserDataToCloud();
       const fsContainer = document.getElementById('active-fullscreen-editor');
       const cardElement = document.getElementById(`note-card-${index}`);
-
       if (fsContainer) {
         fsContainer.classList.add('animating');
-        
-        // Thu nhỏ trở về tọa độ thẻ Note ban đầu
         const rect = cardElement ? cardElement.getBoundingClientRect() : { top: window.innerHeight/2, left: window.innerWidth/2, width: 0, height: 0 };
         const startX = rect.left + rect.width / 2 - window.innerWidth / 2;
         const startY = rect.top + rect.height / 2 - window.innerHeight / 2;
@@ -590,35 +577,26 @@
         fsContainer.style.transform = `translate(${startX}px, ${startY}px) scale(${scaleX}, ${scaleY})`;
         fsContainer.style.opacity = '0';
         fsContainer.style.borderRadius = '16px';
-
-        setTimeout(() => {
-          fsContainer.remove();
-          renderNotes();
-        }, 600);
-      } else {
-        renderNotes();
-      }
+        setTimeout(() => { fsContainer.remove(); renderNotes(); }, 600);
+      } else { renderNotes(); }
     };
-    /* FIX 4: CHUYỂN CẢNH BẰNG CỬA SẬP KHI ĐĂNG XUẤT */
+     /* FIX 4: ĐĂNG XUẤT CHẠY CỬA SẬP HOÀN CHỈNH */
     window.userLogout = function() { 
       document.body.classList.add('shutter-active');
       setTimeout(() => {
         document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; 
         location.reload(); 
-      }, 650);
+      }, 700);
     };
 
     /* =========================================
-       2. SỬA AVATAR (CAMERA, CẮT KHUNG TRÒN & MONGO)
+       2. SỬA AVATAR (CAMERA, CẮT KHUNG TRÒN)
        ========================================= */
-    let mediaStream = null;
-    let selectedImageBase64 = null;
-
+    let mediaStream = null, selectedImageBase64 = null;
     window.openAvatarModal = function() {
       document.getElementById('userDrawerPanel').classList.remove('open');
       document.getElementById('avatar-modal-overlay').classList.add('open');
     };
-
     window.closeAvatarModal = function() {
       stopCamera();
       document.getElementById('avatar-modal-overlay').classList.remove('open');
@@ -626,39 +604,22 @@
       document.getElementById('preview-img-element').style.display = 'none';
       selectedImageBase64 = null;
     };
-
-    function stopCamera() {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(track => track.stop());
-        mediaStream = null;
-      }
-    }
-
+    function stopCamera() { if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; } }
     async function startCamera() {
       stopCamera();
       const videoEl = document.getElementById('preview-cam-video');
       const imgEl = document.getElementById('preview-img-element');
       imgEl.style.display = 'none';
-      
       try {
         mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
         videoEl.srcObject = mediaStream;
         videoEl.style.display = 'block';
-      } catch (err) {
-        alert("Không thể kết nối camera thiết bị của bạn!");
-      }
+      } catch (err) { alert("Không thể kết nối camera thiết bị của bạn!"); }
     }
-
-    window.triggerFileSelect = function() {
-      stopCamera();
-      document.getElementById('preview-cam-video').style.display = 'none';
-      document.getElementById('hidden-file-input').click();
-    };
-
+    window.triggerFileSelect = function() { stopCamera(); document.getElementById('preview-cam-video').style.display = 'none'; document.getElementById('hidden-file-input').click(); };
     window.handleFileSelected = function(e) {
       const file = e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(evt) {
         const imgEl = document.getElementById('preview-img-element');
@@ -668,17 +629,14 @@
       };
       reader.readAsDataURL(file);
     };
-
     window.confirmAndUploadAvatar = async function() {
       const videoEl = document.getElementById('preview-cam-video');
       const imgEl = document.getElementById('preview-img-element');
-      
       const canvas = document.createElement('canvas');
       canvas.width = 300; canvas.height = 300;
       const ctx = canvas.getContext('2d');
 
       if (videoEl.style.display === 'block' && mediaStream) {
-        // Cắt hình vuông chính giữa từ camera
         const minDim = Math.min(videoEl.videoWidth, videoEl.videoHeight);
         const sx = (videoEl.videoWidth - minDim) / 2;
         const sy = (videoEl.videoHeight - minDim) / 2;
@@ -694,13 +652,8 @@
         ctx.drawImage(image, sx, sy, minDim, minDim, 0, 0, 300, 300);
         selectedImageBase64 = canvas.toDataURL('image/png');
       }
+      if (!selectedImageBase64) { alert("Vui lòng chụp ảnh hoặc chọn ảnh từ thư viện trước!"); return; }
 
-      if (!selectedImageBase64) {
-        alert("Vui lòng chụp ảnh hoặc chọn ảnh từ thư viện trước!");
-        return;
-      }
-
-      // Lưu Local & Gửi ảnh Base64 lên MongoDB
       applyAvatarImage(selectedImageBase64);
       localStorage.setItem(`keepii_avatar_${currentUser}`, selectedImageBase64);
       closeAvatarModal();
@@ -712,129 +665,57 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nickname: currentUser, avatar_base64: selectedImageBase64 })
           });
-        } catch(e) { console.error("Lỗi gửi Avatar lên Mongo:", e); }
+        } catch(e) { console.error("Lỗi gửi Avatar", e); }
       }
     };
-
     function applyAvatarImage(base64Data) {
       const btn = document.getElementById('avtLetter');
-      if (btn) {
-        btn.style.backgroundImage = `url(${base64Data})`;
-        btn.textContent = '';
-      }
+      if (btn) { btn.style.backgroundImage = `url(${base64Data})`; btn.textContent = ''; }
     }
+
     /* =========================================
-       3. LOGIC MINI BOT (ENGINE & EMOTIONS)
+       3. LOGIC MINI BOT (GIỮ NGUYÊN)
        ========================================= */
     const botWrapper = document.getElementById('mini-bot-wrapper');
     const botCard = document.getElementById('miniBotCard');
     const chatBubble = document.getElementById('botChatBubble');
     const emoMenu = document.getElementById('emoMenu');
     const dragToggleBtn = document.getElementById('dragToggleBtn');
-    
     let isBotActive = false, isDragMode = false, isDragging = false;
-    let dragOffsetX, dragOffsetY, chatTimer;
-    let currentStickyEmotion = "normal"; 
-    let revertPetTimer = null;
+    let dragOffsetX, dragOffsetY, chatTimer, currentStickyEmotion = "normal", revertPetTimer = null;
 
     window.toggleMiniBot = function() {
       isBotActive = !isBotActive;
       if(botWrapper) botWrapper.style.display = isBotActive ? 'flex' : 'none';
-      if(isBotActive) { 
-        currentStickyEmotion = 'normal'; 
-        botCard.setAttribute('data-emotion', 'normal'); 
-        botSpeak("Xin chào! Mình là Bot hỗ trợ đây."); 
-      }
+      if(isBotActive) { currentStickyEmotion = 'normal'; botCard.setAttribute('data-emotion', 'normal'); botSpeak("Xin chào! Mình là Bot hỗ trợ đây."); }
     };
-
     window.toggleEmotionsMenu = function(e) { e.stopPropagation(); emoMenu.style.display = emoMenu.style.display === 'grid' ? 'none' : 'grid'; };
-    
-    window.selectBotEmotion = function(emo, text) {
-      emoMenu.style.display = 'none';
-      clearTimeout(revertPetTimer);
-      currentStickyEmotion = emo;
-      botCard.setAttribute('data-emotion', emo);
-      botCard.classList.remove('is-petted');
-      botSpeak(text);
-    };
-
+    window.selectBotEmotion = function(emo, text) { emoMenu.style.display = 'none'; clearTimeout(revertPetTimer); currentStickyEmotion = emo; botCard.setAttribute('data-emotion', emo); botCard.classList.remove('is-petted'); botSpeak(text); };
     function botSpeak(text, forceEmotion = null) {
       if(forceEmotion) botCard.setAttribute('data-emotion', forceEmotion);
-      chatBubble.innerText = text; 
-      chatBubble.classList.add('show');
-      botCard.classList.add('talking');
-
-      let talkInterval = setInterval(() => { 
-        botCard.style.setProperty('--mouth-scale', 0.6 + Math.random() * 1.3); 
-      }, 80);
-
+      chatBubble.innerText = text; chatBubble.classList.add('show'); botCard.classList.add('talking');
+      let talkInterval = setInterval(() => { botCard.style.setProperty('--mouth-scale', 0.6 + Math.random() * 1.3); }, 80);
       clearTimeout(chatTimer);
-      chatTimer = setTimeout(() => {
-        chatBubble.classList.remove('show'); 
-        clearInterval(talkInterval);
-        botCard.classList.remove('talking'); 
-        botCard.style.setProperty('--mouth-scale', 1);
-        if(forceEmotion && !revertPetTimer) botCard.setAttribute('data-emotion', currentStickyEmotion);
-      }, 3500);
+      chatTimer = setTimeout(() => { chatBubble.classList.remove('show'); clearInterval(talkInterval); botCard.classList.remove('talking'); botCard.style.setProperty('--mouth-scale', 1); if(forceEmotion && !revertPetTimer) botCard.setAttribute('data-emotion', currentStickyEmotion); }, 3500);
     }
 
-    setInterval(() => {
-      if (botCard && !botCard.classList.contains('talking') && botCard.getAttribute('data-emotion') !== 'sleepy' && botCard.getAttribute('data-emotion') !== 'disdain') {
-        botCard.classList.add('blinking'); 
-        setTimeout(() => botCard.classList.remove('blinking'), 150);
-      }
-    }, Math.random() * 4000 + 2000);
-
-    window.toggleDragMode = function(e) {
-      e.stopPropagation(); 
-      isDragMode = !isDragMode;
-      dragToggleBtn.classList.toggle('active-drag', isDragMode);
-      if(isDragMode) botSpeak("Bế mình đi đâu thế?");
-    };
-
+    setInterval(() => { if (botCard && !botCard.classList.contains('talking') && !['sleepy','disdain'].includes(botCard.getAttribute('data-emotion'))) { botCard.classList.add('blinking'); setTimeout(() => botCard.classList.remove('blinking'), 150); } }, Math.random() * 4000 + 2000);
+    window.toggleDragMode = function(e) { e.stopPropagation(); isDragMode = !isDragMode; dragToggleBtn.classList.toggle('active-drag', isDragMode); if(isDragMode) botSpeak("Bế mình đi đâu thế?"); };
+    
     if(botWrapper) {
-      botWrapper.addEventListener('pointerdown', (e) => {
-        if (!isDragMode) return;
-        isDragging = true; 
-        const rect = botWrapper.getBoundingClientRect();
-        dragOffsetX = e.clientX - rect.left; dragOffsetY = e.clientY - rect.top;
-        botWrapper.setPointerCapture(e.pointerId);
-      });
-      botWrapper.addEventListener('pointermove', (e) => {
-        if (!isDragging) return;
-        botWrapper.style.top = `${e.clientY - dragOffsetY}px`; 
-        botWrapper.style.left = `${e.clientX - dragOffsetX}px`;
-        botWrapper.style.right = 'auto'; botWrapper.style.bottom = 'auto';
-      });
+      botWrapper.addEventListener('pointerdown', (e) => { if (!isDragMode) return; isDragging = true; const rect = botWrapper.getBoundingClientRect(); dragOffsetX = e.clientX - rect.left; dragOffsetY = e.clientY - rect.top; botWrapper.setPointerCapture(e.pointerId); });
+      botWrapper.addEventListener('pointermove', (e) => { if (!isDragging) return; botWrapper.style.top = `${e.clientY - dragOffsetY}px`; botWrapper.style.left = `${e.clientX - dragOffsetX}px`; botWrapper.style.right = 'auto'; botWrapper.style.bottom = 'auto'; });
       botWrapper.addEventListener('pointerup', (e) => { if(!isDragging) return; isDragging = false; botWrapper.releasePointerCapture(e.pointerId); });
     }
 
-    /* LOGIC CHẠM VÀ VUỐT VE */
     let touchTimer = null, isLongPress = false;
-
     if(botCard) {
-      botCard.addEventListener('pointerdown', (e) => {
-        if (isDragMode || e.target.closest('.bot-controls') || e.target.closest('.emotions-menu')) return;
-        isLongPress = false;
-        touchTimer = setTimeout(() => { isLongPress = true; handlePetting(); }, 500); 
-      });
-
-      botCard.addEventListener('pointerup', (e) => {
-        if (isDragMode || e.target.closest('.bot-controls')) return;
-        clearTimeout(touchTimer);
-        if (!isLongPress) {
-          botCard.classList.add('touch-bounce');
-          setTimeout(() => botCard.classList.remove('touch-bounce'), 300);
-          const reactions = ["Ơi!", "Gì đó?", "Chạm nhẹ thôi~", "Hihi!"];
-          botSpeak(reactions[Math.floor(Math.random() * reactions.length)]);
-        }
-      });
+      botCard.addEventListener('pointerdown', (e) => { if (isDragMode || e.target.closest('.bot-controls') || e.target.closest('.emotions-menu')) return; isLongPress = false; touchTimer = setTimeout(() => { isLongPress = true; handlePetting(); }, 500); });
+      botCard.addEventListener('pointerup', (e) => { if (isDragMode || e.target.closest('.bot-controls')) return; clearTimeout(touchTimer); if (!isLongPress) { botCard.classList.add('touch-bounce'); setTimeout(() => botCard.classList.remove('touch-bounce'), 300); const reactions = ["Ơi!", "Gì đó?", "Chạm nhẹ thôi~", "Hihi!"]; botSpeak(reactions[Math.floor(Math.random() * reactions.length)]); } });
     }
 
     function handlePetting() {
-      clearTimeout(revertPetTimer);
-      botCard.classList.add('is-petted');
-      
+      clearTimeout(revertPetTimer); botCard.classList.add('is-petted');
       let text = "";
       switch (currentStickyEmotion) {
         case "normal": text = "Vuốt ve dễ chịu quá~"; break;
@@ -845,18 +726,10 @@
         case "surprised": text = "Ui chà! Ấm quá!"; break;
         case "love": text = "Yêu bạn nhất trên đời! 🥰"; break;
         case "cute": text = "Meow~ Nữa đi, nữa đi 😽"; break;
-        case "disdain": 
-            text = "Bỏ cái tay ra! Đồ dân thường! 😒"; 
-            botCard.setAttribute('data-emotion', 'smirk'); 
-            break;
+        case "disdain": text = "Bỏ cái tay ra! Đồ dân thường! 😒"; botCard.setAttribute('data-emotion', 'smirk'); break;
       }
-      
       botSpeak(text);
-      
-      revertPetTimer = setTimeout(() => { 
-        botCard.classList.remove('is-petted');
-        if(currentStickyEmotion === "disdain") botCard.setAttribute('data-emotion', currentStickyEmotion);
-      }, 3000);
+      revertPetTimer = setTimeout(() => { botCard.classList.remove('is-petted'); if(currentStickyEmotion === "disdain") botCard.setAttribute('data-emotion', currentStickyEmotion); }, 3000);
     }
 
     syncUserData();
