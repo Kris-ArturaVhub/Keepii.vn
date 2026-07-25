@@ -368,8 +368,10 @@
       </div>
     </div>
   </div>
-
   <script>
+    /* =========================================
+       1. ĐỒNG BỘ DỮ LIỆU USER & WORKSPACE
+       ========================================= */
     function getUsernameFromCookie() {
       const match = document.cookie.match(new RegExp('(^| )user_session=([^;]+)'));
       return match ? decodeURIComponent(match[2]) : 'guest';
@@ -441,7 +443,7 @@
     window.userLogout = function() { document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; location.reload(); };
 
     /* =========================================
-       PHẦN 2: LOGIC MINI BOT (SSPRO MODULE)
+       2. LOGIC MINI BOT (SSPRO ENGINE & EMOTIONS)
        ========================================= */
     const botWrapper = document.getElementById('mini-bot-wrapper');
     const botCard = document.getElementById('miniBotCard');
@@ -451,74 +453,98 @@
     
     let isBotActive = false, isDragMode = false, isDragging = false;
     let dragOffsetX, dragOffsetY, chatTimer;
-    let currentStickyEmotion = "normal"; // Lưu trữ cảm xúc cố định
-    let emotionSwitchTimer = null;
+    let currentStickyEmotion = "normal"; // Biểu cảm được giữ cố định
     let revertPetTimer = null;
 
     window.toggleMiniBot = function() {
       isBotActive = !isBotActive;
       if(botWrapper) botWrapper.style.display = isBotActive ? 'flex' : 'none';
-      if(isBotActive) { botCard.setAttribute('data-emotion', 'normal'); currentStickyEmotion = 'normal'; botSpeak("Xin chào! Mình là Bot hỗ trợ đây.", "happy"); }
+      if(isBotActive) { 
+        currentStickyEmotion = 'normal'; 
+        botCard.setAttribute('data-emotion', 'normal'); 
+        botSpeak("Xin chào! Mình là Bot hỗ trợ đây."); 
+      }
     };
 
     window.toggleEmotionsMenu = function(e) { e.stopPropagation(); emoMenu.style.display = emoMenu.style.display === 'grid' ? 'none' : 'grid'; };
     
-    // CƠ CHẾ DELAY VÀ KHÓA CẢM XÚC
+    // CHỌN CẢM XÚC: Đổi ngay lập tức & Khóa trạng thái
     window.selectBotEmotion = function(emo, text) {
       emoMenu.style.display = 'none';
-      botSpeak(text); // Nói trước
-      
-      clearTimeout(emotionSwitchTimer);
       clearTimeout(revertPetTimer);
       
-      // Delay 2.5s trước khi áp dụng biểu cảm trên khuôn mặt
-      emotionSwitchTimer = setTimeout(() => {
-        currentStickyEmotion = emo;
-        botCard.setAttribute('data-emotion', emo);
-      }, 2500);
+      currentStickyEmotion = emo;
+      botCard.setAttribute('data-emotion', emo);
+      botCard.classList.remove('is-petted'); // Reset hiệu ứng vuốt ve cũ nếu có
+      botSpeak(text);
     };
 
     function botSpeak(text, forceEmotion = null) {
       if(forceEmotion) botCard.setAttribute('data-emotion', forceEmotion);
-      chatBubble.innerText = text; chatBubble.classList.add('show');
+      chatBubble.innerText = text; 
+      chatBubble.classList.add('show');
       botCard.classList.add('talking');
-      let talkInterval = setInterval(() => { botCard.style.setProperty('--mouth-scale', 0.6 + Math.random() * 1.3); }, 80);
+
+      let talkInterval = setInterval(() => { 
+        botCard.style.setProperty('--mouth-scale', 0.6 + Math.random() * 1.3); 
+      }, 80);
+
       clearTimeout(chatTimer);
       chatTimer = setTimeout(() => {
-        chatBubble.classList.remove('show'); clearInterval(talkInterval);
-        botCard.classList.remove('talking'); botCard.style.setProperty('--mouth-scale', 1);
-        if(forceEmotion && !revertPetTimer) botCard.setAttribute('data-emotion', currentStickyEmotion); // Trả về sticky nếu chỉ đổi tạm để nói
+        chatBubble.classList.remove('show'); 
+        clearInterval(talkInterval);
+        botCard.classList.remove('talking'); 
+        botCard.style.setProperty('--mouth-scale', 1);
+        
+        // Trả về cảm xúc sticky nếu trước đó dùng tạm emotion khác
+        if(forceEmotion && !revertPetTimer) {
+          botCard.setAttribute('data-emotion', currentStickyEmotion);
+        }
       }, 3500);
     }
 
+    // Hiệu ứng chớp mắt tự động
     setInterval(() => {
       if (botCard && !botCard.classList.contains('talking') && botCard.getAttribute('data-emotion') !== 'sleepy' && botCard.getAttribute('data-emotion') !== 'disdain') {
-        botCard.classList.add('blinking'); setTimeout(() => botCard.classList.remove('blinking'), 150);
+        botCard.classList.add('blinking'); 
+        setTimeout(() => botCard.classList.remove('blinking'), 150);
       }
     }, Math.random() * 4000 + 2000);
 
+    // Kéo thả di chuyển Bot
     window.toggleDragMode = function(e) {
-      e.stopPropagation(); isDragMode = !isDragMode;
+      e.stopPropagation(); 
+      isDragMode = !isDragMode;
       dragToggleBtn.classList.toggle('active-drag', isDragMode);
-      if(isDragMode) botSpeak("Bế mình đi đâu thế?", "surprised");
+      if(isDragMode) botSpeak("Bế mình đi đâu thế?");
     };
 
     if(botWrapper) {
       botWrapper.addEventListener('pointerdown', (e) => {
         if (!isDragMode) return;
-        isDragging = true; const rect = botWrapper.getBoundingClientRect();
-        dragOffsetX = e.clientX - rect.left; dragOffsetY = e.clientY - rect.top;
+        isDragging = true; 
+        const rect = botWrapper.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left; 
+        dragOffsetY = e.clientY - rect.top;
         botWrapper.setPointerCapture(e.pointerId);
       });
       botWrapper.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
-        botWrapper.style.top = `${e.clientY - dragOffsetY}px`; botWrapper.style.left = `${e.clientX - dragOffsetX}px`;
-        botWrapper.style.right = 'auto'; botWrapper.style.bottom = 'auto';
+        botWrapper.style.top = `${e.clientY - dragOffsetY}px`; 
+        botWrapper.style.left = `${e.clientX - dragOffsetX}px`;
+        botWrapper.style.right = 'auto'; 
+        botWrapper.style.bottom = 'auto';
       });
-      botWrapper.addEventListener('pointerup', (e) => { if(!isDragging) return; isDragging = false; botWrapper.releasePointerCapture(e.pointerId); });
+      botWrapper.addEventListener('pointerup', (e) => { 
+        if(!isDragging) return; 
+        isDragging = false; 
+        botWrapper.releasePointerCapture(e.pointerId); 
+      });
     }
 
-    // CƠ CHẾ VUỐT VE (PETTING LOGIC)
+    /* =========================================
+       3. LOGIC CHẠM & VUỐT VE (PETTING & TOUCH)
+       ========================================= */
     let touchTimer = null;
     let isLongPress = false;
 
@@ -526,56 +552,65 @@
       botCard.addEventListener('pointerdown', (e) => {
         if (isDragMode || e.target.closest('.bot-controls') || e.target.closest('.emotions-menu')) return;
         isLongPress = false;
+        
+        // Nhấn giữ 0.5s kích hoạt vuốt ve
         touchTimer = setTimeout(() => {
           isLongPress = true;
           handlePetting();
-        }, 500); // Nhấn giữ nửa giây tính là vuốt ve
+        }, 500); 
       });
 
       botCard.addEventListener('pointerup', (e) => {
         if (isDragMode || e.target.closest('.bot-controls')) return;
         clearTimeout(touchTimer);
         
-        // Nếu chạm nhanh (Click) chứ không phải vuốt
+        // CHẠM NHẸ (CLICK): Nhún nhẹ & GIỮ NGUYÊN biểu cảm hiện tại
         if (!isLongPress) {
-          const reactions = [
-            { text: "Ui! Đừng chọc mình!", emo: "surprised" },
-            { text: "Có lỗi gì cần báo không?", emo: "normal" }
-          ];
-          const res = reactions[Math.floor(Math.random() * reactions.length)];
-          botSpeak(res.text, res.emo);
+          botCard.classList.add('touch-bounce');
+          setTimeout(() => botCard.classList.remove('touch-bounce'), 300);
+          
+          const reactions = ["Ơi!", "Gì đó?", "Chạm nhẹ thôi~", "Hihi!"];
+          botSpeak(reactions[Math.floor(Math.random() * reactions.length)]);
         }
       });
     }
 
+    // VUỐT VE (PETTING): Xử lý riêng biệt cho từng Emotion
     function handlePetting() {
       clearTimeout(revertPetTimer);
-      clearTimeout(emotionSwitchTimer);
-
-      if (currentStickyEmotion === "cute") {
-        botSpeak("Meow~ Thích quá đi 😽");
-        botCard.classList.add('cute-touch-anim');
-        setTimeout(() => botCard.classList.remove('cute-touch-anim'), 500);
-        
-        revertPetTimer = setTimeout(() => { botCard.setAttribute('data-emotion', currentStickyEmotion); }, 5000);
-
-      } else if (currentStickyEmotion === "disdain") {
-        // Khinh -> Sang mồm -> Nhếch mép (smirk) 3s
-        botSpeak("Bỏ cái tay ra! Đồ dân thường! 😒");
-        botCard.setAttribute('data-emotion', 'smirk');
-        
-        revertPetTimer = setTimeout(() => { botCard.setAttribute('data-emotion', currentStickyEmotion); }, 3000);
-
-      } else {
-        // Mặc định: Sang Happy trong 5s[span_3](start_span)[span_3](end_span)
-        botSpeak("Thích quá, xoa đầu nữa đi! 🥰");
-        botCard.setAttribute('data-emotion', 'happy');
-        
-        revertPetTimer = setTimeout(() => { botCard.setAttribute('data-emotion', currentStickyEmotion); }, 5000);
+      botCard.classList.add('is-petted'); // Kích hoạt animation chuyên biệt
+      
+      let text = "";
+      switch (currentStickyEmotion) {
+        case "normal": text = "Vuốt ve dễ chịu quá~"; break;
+        case "happy": text = "Hehe! Chơi với mình vui không?"; break;
+        case "sleepy": text = "Ưm... để yên cho mình ngủ... Zzz"; break;
+        case "angry": text = "Grr! Đã bực rồi còn sờ!"; break;
+        case "sad": text = "Cảm ơn bạn đã an ủi mình 😢"; break;
+        case "surprised": text = "Ui chà! Ấm quá!"; break;
+        case "love": text = "Yêu bạn nhất trên đời! 🥰"; break;
+        case "cute": text = "Meow~ Nữa đi, nữa đi 😽"; break; // Kích hoạt mắt >< & xoay tai
+        case "disdain": 
+            text = "Bỏ cái tay ra! Đồ dân thường! 😒"; 
+            botCard.setAttribute('data-emotion', 'smirk'); // Nhếch mép
+            break;
       }
+      
+      botSpeak(text);
+      
+      // Giữ hiệu ứng vuốt ve trong 3s rồi trở lại bình thường
+      revertPetTimer = setTimeout(() => { 
+        botCard.classList.remove('is-petted');
+        if(currentStickyEmotion === "disdain") {
+            botCard.setAttribute('data-emotion', currentStickyEmotion);
+        }
+      }, 3000);
     }
 
+    // Khởi chạy đồng bộ dữ liệu ban đầu
     syncUserData();
   </script>
+  
+      
 </body>
 </html>
