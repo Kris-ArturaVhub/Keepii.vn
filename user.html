@@ -177,76 +177,114 @@
     }
     @keyframes rotateBorder { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* EMOTIONS MAP */
-    .bot-avatar-card[data-emotion="normal"] { --led-color1: #00f2fe; --led-color2: #4facfe; }
-    
-    .bot-avatar-card[data-emotion="happy"] { --led-color1: #00ff88; --led-color2: #00b894; }
-    .bot-avatar-card[data-emotion="happy"] .eye { height: 8px; border-radius: 8px 8px 0 0; }
-    .bot-avatar-card[data-emotion="happy"] .mouth { border-radius: 0 0 18px 18px; height: 9px; width: 22px; }
+    /* EMOTIONS MAP & ĐỒ HỌA MỚI */
+.bot-avatar-card[data-emotion="normal"] { --led-color1: #00f2fe; --led-color2: #4facfe; }
+.bot-avatar-card[data-emotion="normal"] .eye { width: 14px; height: 15px; border-radius: 50%; }
+.bot-avatar-card[data-emotion="normal"] .mouth { width: 16px; height: 8px; border-radius: 0 0 16px 16px; }
 
-    .bot-avatar-card[data-emotion="sleepy"] { --led-color1: #a29bfe; --led-color2: #6c5ce7; }
-    .bot-avatar-card[data-emotion="sleepy"] .eye { width: 16px; height: 3px; border-radius: 2px; opacity: 0.6; transform: translateY(4px); }
-    .bot-avatar-card[data-emotion="sleepy"] .mouth { width: 8px; height: 8px; border-radius: 50%; opacity: 0.8; }
+/* HAPPY (Mắt ^^) */
+.bot-avatar-card[data-emotion="happy"] { --led-color1: #00ff88; --led-color2: #00b894; }
+.bot-avatar-card[data-emotion="happy"] .eye { 
+    width: 16px; height: 16px; background: transparent; box-shadow: none;
+    border-top: 4px solid #fff; border-radius: 50%; transform: translateY(4px);
+}
+.bot-avatar-card[data-emotion="happy"] .mouth { border-radius: 0 0 20px 20px; height: 12px; width: 22px; }
 
-    .bot-avatar-card[data-emotion="angry"] { --led-color1: #ff3838; --led-color2: #ff4d4d; }
-    .bot-avatar-card[data-emotion="angry"] .eye { height: 12px; border-radius: 50% 50% 4px 4px; transform: translateY(-2px); }
-    .bot-avatar-card[data-emotion="angry"] .eye::before { content: ''; position: absolute; top: -6px; left: -4px; right: -4px; height: 10px; background: #131622; transform: rotate(25deg); }
-    .bot-avatar-card[data-emotion="angry"] .eye:last-child::before { transform: rotate(-25deg); }
-    .bot-avatar-card[data-emotion="angry"] .mouth { border-radius: 12px 12px 4px 4px; height: 6px; width: 16px; }
+/* SLEEPY (Mắt híp buồn ngủ) */
+.bot-avatar-card[data-emotion="sleepy"] { --led-color1: #a29bfe; --led-color2: #6c5ce7; }
+.bot-avatar-card[data-emotion="sleepy"] .eye { 
+    width: 16px; height: 12px; background: transparent; box-shadow: none;
+    border-bottom: 3px solid rgba(255,255,255,0.7); border-radius: 50%; transform: translateY(-2px);
+}
+.bot-avatar-card[data-emotion="sleepy"] .mouth { width: 8px; height: 8px; border-radius: 50%; opacity: 0.8; }
 
-    .bot-avatar-card[data-emotion="sad"] { --led-color1: #4a69bd; --led-color2: #1e3799; }
-    .bot-avatar-card[data-emotion="sad"] .eye { height: 12px; border-radius: 50% 50% 4px 4px; transform: translateY(2px); }
-    .bot-avatar-card[data-emotion="sad"] .eye::before { content: ''; position: absolute; top: -6px; left: -4px; right: -4px; height: 10px; background: #131622; transform: rotate(-25deg); }
-    .bot-avatar-card[data-emotion="sad"] .eye:last-child::before { transform: rotate(25deg); }
-    .bot-avatar-card[data-emotion="sad"] .mouth { border-radius: 18px 18px 0 0; height: 6px; width: 16px; transform: translateY(2px); }
+/* SURPRISED (Mắt to, mồm O) */
+.bot-avatar-card[data-emotion="surprised"] { --led-color1: #fdcb6e; --led-color2: #e17055; }
+.bot-avatar-card[data-emotion="surprised"] .eye { 
+    width: 16px; height: 16px; background: transparent; 
+    border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 8px rgba(255,255,255,0.8);
+}
+.bot-avatar-card[data-emotion="surprised"] .mouth { border-radius: 50%; height: 14px; width: 12px; }
 
-    .bot-avatar-card[data-emotion="surprised"] { --led-color1: #fdcb6e; --led-color2: #e17055; }
-    .bot-avatar-card[data-emotion="surprised"] .eye { width: 18px; height: 18px; }
-    .bot-avatar-card[data-emotion="surprised"] .mouth { border-radius: 50%; height: 14px; width: 12px; }
+/* LOVE (Mắt trái tim xịn) */
+.bot-avatar-card[data-emotion="love"] { --led-color1: #ff0844; --led-color2: #ffb199; }
+.bot-avatar-card[data-emotion="love"] .eye { width: 16px; height: 16px; background-color: transparent; box-shadow: none; position: relative; transform: translateY(2px); }
+.bot-avatar-card[data-emotion="love"] .eye::before, .bot-avatar-card[data-emotion="love"] .eye::after {
+    content: ''; position: absolute; left: 8px; top: 0; width: 8px; height: 13px; background: #fff;
+    border-radius: 8px 8px 0 0; transform: rotate(-45deg); transform-origin: 0 100%; box-shadow: 0 0 10px rgba(255,255,255,0.9);
+}
+.bot-avatar-card[data-emotion="love"] .eye::after { left: 0; transform: rotate(45deg); transform-origin: 100% 100%; }
+.bot-avatar-card[data-emotion="love"] .mouth { height: 8px; width: 20px; border-radius: 0 0 18px 18px; }
 
-    /* MỚI: TÌNH YÊU (LOVE) 😍 */
-    .bot-avatar-card[data-emotion="love"] { --led-color1: #ff0844; --led-color2: #ffb199; }
-    .bot-avatar-card[data-emotion="love"] .eye { width: 16px; height: 16px; background-color: transparent; box-shadow: none; position: relative; }
-    .bot-avatar-card[data-emotion="love"] .eye::before, .bot-avatar-card[data-emotion="love"] .eye::after {
-      content: ''; position: absolute; left: 8px; top: 0; width: 8px; height: 13px; background: #fff;
-      border-radius: 8px 8px 0 0; transform: rotate(-45deg); transform-origin: 0 100%; box-shadow: 0 0 10px rgba(255,255,255,0.8);
-    }
-    .bot-avatar-card[data-emotion="love"] .eye::after { left: 0; transform: rotate(45deg); transform-origin: 100% 100%; }
-    .bot-avatar-card[data-emotion="love"] .mouth { height: 8px; width: 20px; border-radius: 0 0 18px 18px; }
+/* ANGRY & SAD (Giữ nguyên đồ họa vì đã ổn) */
+.bot-avatar-card[data-emotion="angry"] { --led-color1: #ff3838; --led-color2: #ff4d4d; }
+.bot-avatar-card[data-emotion="angry"] .eye { height: 12px; border-radius: 50% 50% 4px 4px; transform: translateY(-2px); }
+.bot-avatar-card[data-emotion="angry"] .eye::before { content: ''; position: absolute; top: -6px; left: -4px; right: -4px; height: 10px; background: #131622; transform: rotate(25deg); }
+.bot-avatar-card[data-emotion="angry"] .eye:last-child::before { transform: rotate(-25deg); }
+.bot-avatar-card[data-emotion="angry"] .mouth { border-radius: 12px 12px 4px 4px; height: 6px; width: 16px; }
 
-    /* MỚI: KHINH (DISDAIN) 😒 */
-    .bot-avatar-card[data-emotion="disdain"] { --led-color1: #95a5a6; --led-color2: #7f8c8d; }
-    .bot-avatar-card[data-emotion="disdain"] .eye { height: 6px; width: 16px; border-radius: 2px; transform: translateY(4px); }
-    .bot-avatar-card[data-emotion="disdain"] .eye::after { content: ''; position: absolute; right: 2px; top: 1px; width: 4px; height: 4px; background: #131622; border-radius: 50%; }
-    .bot-avatar-card[data-emotion="disdain"] .mouth { width: 16px; height: 4px; border-radius: 2px; transform: rotate(-8deg) translateX(4px); }
+.bot-avatar-card[data-emotion="sad"] { --led-color1: #4a69bd; --led-color2: #1e3799; }
+.bot-avatar-card[data-emotion="sad"] .eye { height: 12px; border-radius: 50% 50% 4px 4px; transform: translateY(2px); }
+.bot-avatar-card[data-emotion="sad"] .eye::before { content: ''; position: absolute; top: -6px; left: -4px; right: -4px; height: 10px; background: #131622; transform: rotate(-25deg); }
+.bot-avatar-card[data-emotion="sad"] .eye:last-child::before { transform: rotate(25deg); }
+.bot-avatar-card[data-emotion="sad"] .mouth { border-radius: 18px 18px 0 0; height: 6px; width: 16px; transform: translateY(2px); }
 
-    /* TRẠNG THÁI SMIRK CHO DISDAIN 😏 */
-    .bot-avatar-card[data-emotion="smirk"] { --led-color1: #95a5a6; --led-color2: #7f8c8d; }
-    .bot-avatar-card[data-emotion="smirk"] .eye:first-child { height: 6px; width: 16px; border-radius: 2px; transform: translateY(4px); }
-    .bot-avatar-card[data-emotion="smirk"] .eye:last-child { height: 14px; width: 16px; border-radius: 50% 50% 2px 2px; transform: translateY(-2px); }
-    .bot-avatar-card[data-emotion="smirk"] .mouth { width: 20px; height: 6px; border-radius: 0 0 12px 0; transform: rotate(-15deg) translateX(2px); }
+/* KHINH BỈ (DISDAIN) & NHẾCH MÉP (SMIRK) */
+.bot-avatar-card[data-emotion="disdain"] { --led-color1: #95a5a6; --led-color2: #7f8c8d; }
+.bot-avatar-card[data-emotion="disdain"] .eye { height: 6px; width: 16px; border-radius: 2px; transform: translateY(4px); }
+.bot-avatar-card[data-emotion="disdain"] .eye::after { content: ''; position: absolute; right: 2px; top: 1px; width: 4px; height: 4px; background: #131622; border-radius: 50%; }
+.bot-avatar-card[data-emotion="disdain"] .mouth { width: 16px; height: 4px; border-radius: 2px; transform: rotate(-8deg) translateX(4px); }
 
-    /* MỚI: DỄ THƯƠNG (CUTE) 😽 */
-    .bot-avatar-card[data-emotion="cute"] { --led-color1: #ff758c; --led-color2: #ff7eb3; }
-    .bot-avatar-card[data-emotion="cute"] .eye { height: 16px; width: 16px; border-radius: 50%; }
-    .bot-avatar-card[data-emotion="cute"] .mouth { height: 6px; width: 14px; border-radius: 10px 10px 20px 20px; }
-    .bot-avatar-card .blush { position: absolute; width: 14px; height: 7px; background: #ff4757; border-radius: 50%; opacity: 0; filter: blur(3px); transition: opacity 0.3s; top: 18px; z-index: 2; pointer-events: none; }
-    .blush-left { left: 10px; } .blush-right { right: 10px; }
-    .bot-avatar-card[data-emotion="cute"] .blush { opacity: 0.85; }
-    .cat-ear { position: absolute; top: 0px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 22px solid var(--led-color1); opacity: 0; transition: all 0.3s; z-index: -1; transform-origin: bottom center; }
-    .ear-left { left: 15px; transform: rotate(-15deg); } .ear-right { right: 15px; transform: rotate(15deg); }
-    .bot-avatar-card[data-emotion="cute"] .cat-ear { opacity: 1; top: -12px; }
-    
-    /* Hiệu ứng chạm CUTE */
-    .bot-avatar-card.cute-touch-anim { animation: cuteBounce 0.4s ease; }
-    .bot-avatar-card.cute-touch-anim .ear-left { animation: earTwitchLeft 0.5s ease; }
-    .bot-avatar-card.cute-touch-anim .ear-right { animation: earTwitchRight 0.5s ease; }
-    @keyframes cuteBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.95) translateY(4px); } }
-    @keyframes earTwitchLeft { 0%, 100% { transform: rotate(-15deg); } 50% { transform: rotate(-45deg); } }
-    @keyframes earTwitchRight { 0%, 100% { transform: rotate(15deg); } 50% { transform: rotate(45deg); } }
+.bot-avatar-card[data-emotion="smirk"] { --led-color1: #95a5a6; --led-color2: #7f8c8d; }
+.bot-avatar-card[data-emotion="smirk"] .eye:first-child { height: 6px; width: 16px; border-radius: 2px; transform: translateY(4px); }
+.bot-avatar-card[data-emotion="smirk"] .eye:last-child { height: 14px; width: 16px; border-radius: 50% 50% 2px 2px; transform: translateY(-2px); }
+.bot-avatar-card[data-emotion="smirk"] .mouth { width: 20px; height: 6px; border-radius: 0 0 12px 0; transform: rotate(-15deg) translateX(2px); }
 
-    .bot-avatar-card.talking .mouth { transform: scaleY(var(--mouth-scale, 1)); }
-    .bot-avatar-card.blinking .eye { transform: scaleY(0.1) !important; }
+/* CUTE (Mèo) */
+.bot-avatar-card[data-emotion="cute"] { --led-color1: #ff758c; --led-color2: #ff7eb3; }
+.bot-avatar-card[data-emotion="cute"] .eye { height: 16px; width: 16px; border-radius: 50%; }
+.bot-avatar-card[data-emotion="cute"] .mouth { height: 6px; width: 14px; border-radius: 10px 10px 20px 20px; }
+.bot-avatar-card .blush { position: absolute; width: 14px; height: 7px; background: #ff4757; border-radius: 50%; opacity: 0; filter: blur(3px); transition: opacity 0.3s; top: 18px; z-index: 2; pointer-events: none; }
+.blush-left { left: 10px; } .blush-right { right: 10px; }
+.bot-avatar-card[data-emotion="cute"] .blush { opacity: 0.85; }
+.cat-ear { position: absolute; top: 0px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 22px solid var(--led-color1); opacity: 0; transition: all 0.3s; z-index: -1; transform-origin: bottom center; }
+.ear-left { left: 15px; transform: rotate(-15deg); } .ear-right { right: 15px; transform: rotate(15deg); }
+.bot-avatar-card[data-emotion="cute"] .cat-ear { opacity: 1; top: -12px; }
+
+/* ---------------------------------------------------
+   HIỆU ỨNG TƯƠNG TÁC (PETTING & TOUCH) 
+--------------------------------------------------- */
+/* CUTE - Mắt "><" khi được xoa đầu */
+.bot-avatar-card[data-emotion="cute"].is-petted .eye { background: transparent; box-shadow: none; width: 16px; height: 16px; }
+.bot-avatar-card[data-emotion="cute"].is-petted .eye::before, .bot-avatar-card[data-emotion="cute"].is-petted .eye::after {
+    content: ''; position: absolute; width: 12px; height: 3px; background: #fff; top: 6px; border-radius: 2px;
+}
+/* Mắt Trái > */
+.bot-avatar-card[data-emotion="cute"].is-petted .eye:first-child::before { transform: rotate(45deg); left: 2px; top: 3px; }
+.bot-avatar-card[data-emotion="cute"].is-petted .eye:first-child::after { transform: rotate(-45deg); left: 2px; top: 10px; }
+/* Mắt Phải < */
+.bot-avatar-card[data-emotion="cute"].is-petted .eye:last-child::before { transform: rotate(-45deg); right: 2px; top: 3px; }
+.bot-avatar-card[data-emotion="cute"].is-petted .eye:last-child::after { transform: rotate(45deg); right: 2px; top: 10px; }
+.bot-avatar-card[data-emotion="cute"].is-petted .ear-left { animation: earTwitch 0.4s infinite; }
+.bot-avatar-card[data-emotion="cute"].is-petted .ear-right { animation: earTwitch 0.4s infinite reverse; }
+
+/* Các Animation đặc biệt khi xoa đầu */
+.bot-avatar-card.is-petted[data-emotion="happy"] { animation: happyBounce 0.4s ease infinite; }
+.bot-avatar-card.is-petted[data-emotion="love"] { animation: lovePulse 0.6s ease infinite; }
+.bot-avatar-card.is-petted[data-emotion="angry"] { animation: angryShake 0.1s infinite; }
+
+/* Hiệu ứng nhún khi chạm nhẹ (Click) */
+.bot-avatar-card.touch-bounce { animation: touchBounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+@keyframes earTwitch { 0%, 100% { transform: rotate(-15deg); } 50% { transform: rotate(-35deg); } }
+@keyframes happyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes lovePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes angryShake { 0% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } 100% { transform: translateX(0); } }
+@keyframes touchBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.92) translateY(2px); } }
+
+.bot-avatar-card.talking .mouth { transform: scaleY(var(--mouth-scale, 1)); }
+.bot-avatar-card.blinking .eye { transform: scaleY(0.1) !important; }
+  
 
     /* =========================================
        3. HỖ TRỢ CHẾ ĐỘ SÁNG (LIGHT MODE)
