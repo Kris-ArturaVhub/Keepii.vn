@@ -10,7 +10,7 @@
        ========================================= */
     body {
       margin: 0;
-      background-color: transparent;
+      background-color: #090915;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       overflow: hidden;
       touch-action: pan-y;
@@ -21,11 +21,11 @@
       position: absolute;
       top: 60px; left: 0; width: 100%; height: calc(100vh - 60px);
       box-sizing: border-box; padding: 20px;
-      display: flex; flex-direction: column; gap: 20px; overflow: hidden;
+      display: flex; flex-direction: column; gap: 15px; overflow: hidden;
     }
 
     .infinite-text-pad {
-      width: 100%; min-height: 80px; max-height: 150px;
+      width: 100%; min-height: 80px; max-height: 120px;
       background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px; color: #fff; padding: 12px; box-sizing: border-box;
       outline: none; font-size: 16px; overflow-y: auto; white-space: pre-wrap;
@@ -33,33 +33,53 @@
     }
     .infinite-text-pad:focus { border-color: #06b6d4; background: rgba(255, 255, 255, 0.12); }
 
+    /* SỬA LẠI LAYOUT GRID: Khoảng cách các ô gần nhau hơn trên PC */
     #notes-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
-      height: calc(100% - 170px); overflow-y: auto; 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+      gap: 12px;
+      height: calc(100% - 140px); overflow-y: auto; 
       -webkit-overflow-scrolling: touch; padding-bottom: 100px; box-sizing: border-box;
     }
     
     .note-card {
       background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(79, 70, 229, 0.15));
-      border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; height: 130px;
+      border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; height: 120px;
       padding: 12px; box-sizing: border-box; color: #fff; cursor: pointer;
       overflow: hidden; position: relative;
-      transition: transform 0.4s cubic-bezier(0.25, 1.5, 0.5, 1), background 0.4s ease, border 0.4s ease, color 0.4s ease;
+      transition: transform 0.2s ease, background 0.4s ease, border 0.4s ease, color 0.4s ease;
     }
-    .note-card:active { transform: scale(0.94); }
-    .note-card-title { font-weight: bold; font-size: 14px; margin-bottom: 6px; color: #06b6d4; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; transition: color 0.4s ease; }
-    .note-card-body { font-size: 13px; opacity: 0.8; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.4s ease; }
+    .note-card:hover { border-color: #06b6d4; transform: translateY(-2px); }
+    .note-card:active { transform: scale(0.96); }
+    .note-card-title { font-weight: bold; font-size: 14px; margin-bottom: 6px; color: #06b6d4; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+    .note-card-body { font-size: 13px; opacity: 0.8; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
+    /* FULLSCREEN EDITOR VỚI ANIMATION PHÓNG TO TRONG 0.6s */
     .fullscreen-note-container {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       z-index: 6000; background: #090915; box-sizing: border-box; padding: 20px;
-      display: flex; flex-direction: column; gap: 15px; transition: background 0.4s ease;
+      display: flex; flex-direction: column; gap: 15px; 
+      transform-origin: center center;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, border-radius 0.6s ease;
     }
-    .fullscreen-header { display: flex; justify-content: space-between; align-items: center; width: 100%; height: 40px; }
-    .fullscreen-title { color: #06b6d4; font-weight: bold; font-size: 16px; }
+    .fullscreen-note-container.animating {
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    
+    .fullscreen-header { display: flex; justify-content: space-between; align-items: center; width: 100%; height: 40px; gap: 15px; }
+    
+    /* Input cho phép chỉnh sửa tiêu đề Ghi chú */
+    .fullscreen-title-input { 
+      color: #06b6d4; font-weight: bold; font-size: 18px; 
+      background: transparent; border: none; border-bottom: 2px solid rgba(6, 182, 212, 0.4);
+      outline: none; flex: 1; padding: 4px 8px; transition: border-color 0.3s;
+    }
+    .fullscreen-title-input:focus { border-bottom-color: #06b6d4; }
+    
     .close-edit-btn {
       background: #ef4444; color: white; padding: 6px 16px; border-radius: 20px;
-      font-weight: bold; font-size: 13px; cursor: pointer; transition: transform 0.3s;
+      font-weight: bold; font-size: 13px; cursor: pointer; transition: transform 0.3s; flex-shrink: 0;
     }
     .close-edit-btn:active { transform: scale(0.88); }
     .fullscreen-editor {
@@ -87,23 +107,24 @@
       width: 85%; max-width: 320px; text-align: center; transform: scale(0.6); transition: transform 0.5s, background 0.4s ease, border-color 0.4s ease;
     }
     #type-popup-mask.open .type-popup-box { transform: scale(1); }
-    .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; transition: color 0.4s ease; }
+    .popup-title { color: #fff; font-weight: bold; margin-bottom: 15px; }
     .type-option-btn {
       width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
       background: rgba(255,255,255,0.05); color: #fff; font-weight: bold; cursor: pointer; text-align: left;
-      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 
+    /* USER AVATAR & DRAWER */
     #user-avatar-container { position: fixed; top: 15px; right: 20px; z-index: 5000; }
     .avatar-circle-btn {
-      width: 40px; height: 40px; border-radius: 50%;
+      width: 42px; height: 42px; border-radius: 50%;
       background: linear-gradient(135deg, #06b6d4, #4f46e5); color: white; font-weight: bold;
       display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid rgba(255,255,255,0.2);
+      overflow: hidden; background-size: cover; background-position: center;
     }
     .info-drawer-panel {
       position: absolute; top: 50px; right: 0; background: #111122; border: 1px solid rgba(6, 182, 212, 0.3);
-      border-radius: 12px; padding: 15px; min-width: 160px; box-sizing: border-box; opacity: 0;
-      pointer-events: none; transform: translateY(-15px) scale(0.9); transition: all 0.3s ease, background 0.4s ease, border-color 0.4s ease;
+      border-radius: 12px; padding: 15px; min-width: 170px; box-sizing: border-box; opacity: 0;
+      pointer-events: none; transform: translateY(-15px) scale(0.9); transition: all 0.3s ease;
     }
     .info-drawer-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
     .drawer-greeting { font-weight: bold; color: #06b6d4; margin-bottom: 12px; }
@@ -113,10 +134,43 @@
     }
     .drawer-btn:active { transform: scale(0.92); }
     .drawer-bot-btn { background: #4f46e5; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25); }
+    .drawer-edit-avt-btn { background: #06b6d4; box-shadow: 0 4px 10px rgba(6, 182, 212, 0.25); }
     .drawer-logout-btn { background: #ef4444; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25); }
 
     /* =========================================
-       2. TÍNH NĂNG MINI BOT GÓC MÀN HÌNH (ĐỒNG BỘ INDEX 9)
+       2. MODAL SỬA AVATAR (CÓ ĐỤC LỖ TRÒN & CAMERA)
+       ========================================= */
+    #avatar-modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.92); z-index: 9999;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+    }
+    #avatar-modal-overlay.open { display: flex; }
+    
+    .crop-viewport {
+      position: relative; width: 260px; height: 260px;
+      border-radius: 50%; border: 3px solid #06b6d4;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85);
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
+      background: #111; margin-bottom: 25px;
+    }
+    #preview-cam-video, #preview-img-element {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    
+    .avt-modal-controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; max-width: 320px; }
+    .avt-btn {
+      padding: 10px 18px; border-radius: 20px; border: none; font-weight: bold;
+      color: white; cursor: pointer; font-size: 13px; transition: transform 0.2s;
+    }
+    .avt-btn:active { transform: scale(0.9); }
+    .btn-snap { background: #06b6d4; }
+    .btn-gallery { background: #4f46e5; }
+    .btn-confirm { background: #10b981; width: 100%; margin-top: 5px; }
+    .btn-cancel { background: #ef4444; width: 100%; margin-top: -5px; }
+
+    /* =========================================
+       3. MINI BOT GÓC MÀN HÌNH
        ========================================= */
     #mini-bot-wrapper {
       position: fixed; top: 80px; left: 20px; width: clamp(200px, 25vw, 300px); height: 180px;
@@ -125,9 +179,8 @@
     .bot-controls { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; justify-content: center; }
     .bot-tool-btn {
       background: rgba(12, 14, 23, 0.85); border: 1px solid #00f2fe; color: #00f2fe; padding: 6px 12px;
-      border-radius: 12px; font-size: 11px; font-weight: bold; cursor: pointer; backdrop-filter: blur(5px); transition: background 0.2s, transform 0.1s;
+      border-radius: 12px; font-size: 11px; font-weight: bold; cursor: pointer; backdrop-filter: blur(5px);
     }
-    .bot-tool-btn:active { transform: scale(0.9); }
     .bot-tool-btn.active-drag { background: #00f2fe; color: #000; }
 
     .chat-bubble {
@@ -145,12 +198,10 @@
     .emotions-menu {
       position: absolute; top: -75px; right: -55px; background: #111122; border: 1px solid #00f2fe;
       border-radius: 12px; padding: 10px; display: none; grid-template-columns: repeat(2, 1fr);
-      gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.6); z-index: 6000; transition: background 0.4s ease, border-color 0.4s ease;
+      gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.6); z-index: 6000;
     }
-    .emo-item { font-size: 22px; cursor: pointer; transition: transform 0.2s; text-align: center; }
-    .emo-item:active { transform: scale(1.3); }
+    .emo-item { font-size: 22px; cursor: pointer; text-align: center; }
 
-    /* CORE AVATAR STYLES (FROM INDEX 9) */
     .bot-avatar-card {
       position: relative; width: 100%; height: 85px; border-radius: 14px; display: flex;
       justify-content: center; align-items: center; overflow: hidden; background: #060709;
@@ -177,140 +228,100 @@
     }
     @keyframes rotateBorder { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* EMOTIONS MAP & ĐỒ HỌA MỚI */
-.bot-avatar-card[data-emotion="normal"] { --led-color1: #00f2fe; --led-color2: #4facfe; }
-.bot-avatar-card[data-emotion="normal"] .eye { width: 14px; height: 15px; border-radius: 50%; }
-.bot-avatar-card[data-emotion="normal"] .mouth { width: 16px; height: 8px; border-radius: 0 0 16px 16px; }
+    /* EMOTIONS MAP */
+    .bot-avatar-card[data-emotion="normal"] { --led-color1: #00f2fe; --led-color2: #4facfe; }
+    .bot-avatar-card[data-emotion="normal"] .eye { width: 14px; height: 15px; border-radius: 50%; }
+    .bot-avatar-card[data-emotion="normal"] .mouth { width: 16px; height: 8px; border-radius: 0 0 16px 16px; }
 
-/* HAPPY (Mắt ^^) */
-.bot-avatar-card[data-emotion="happy"] { --led-color1: #00ff88; --led-color2: #00b894; }
-.bot-avatar-card[data-emotion="happy"] .eye { 
-    width: 16px; height: 16px; background: transparent; box-shadow: none;
-    border-top: 4px solid #fff; border-radius: 50%; transform: translateY(4px);
-}
-.bot-avatar-card[data-emotion="happy"] .mouth { border-radius: 0 0 20px 20px; height: 12px; width: 22px; }
+    .bot-avatar-card[data-emotion="happy"] { --led-color1: #00ff88; --led-color2: #00b894; }
+    .bot-avatar-card[data-emotion="happy"] .eye { width: 16px; height: 16px; background: transparent; box-shadow: none; border-top: 4px solid #fff; border-radius: 50%; transform: translateY(4px); }
+    .bot-avatar-card[data-emotion="happy"] .mouth { border-radius: 0 0 20px 20px; height: 12px; width: 22px; }
 
-/* SLEEPY (Mắt híp buồn ngủ) */
-.bot-avatar-card[data-emotion="sleepy"] { --led-color1: #a29bfe; --led-color2: #6c5ce7; }
-.bot-avatar-card[data-emotion="sleepy"] .eye { 
-    width: 16px; height: 12px; background: transparent; box-shadow: none;
-    border-bottom: 3px solid rgba(255,255,255,0.7); border-radius: 50%; transform: translateY(-2px);
-}
-.bot-avatar-card[data-emotion="sleepy"] .mouth { width: 8px; height: 8px; border-radius: 50%; opacity: 0.8; }
+    .bot-avatar-card[data-emotion="sleepy"] { --led-color1: #a29bfe; --led-color2: #6c5ce7; }
+    .bot-avatar-card[data-emotion="sleepy"] .eye { width: 16px; height: 12px; background: transparent; box-shadow: none; border-bottom: 3px solid rgba(255,255,255,0.7); border-radius: 50%; transform: translateY(-2px); }
+    .bot-avatar-card[data-emotion="sleepy"] .mouth { width: 8px; height: 8px; border-radius: 50%; opacity: 0.8; }
 
-/* SURPRISED (Mắt to, mồm O) */
-.bot-avatar-card[data-emotion="surprised"] { --led-color1: #fdcb6e; --led-color2: #e17055; }
-.bot-avatar-card[data-emotion="surprised"] .eye { 
-    width: 16px; height: 16px; background: transparent; 
-    border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 8px rgba(255,255,255,0.8);
-}
-.bot-avatar-card[data-emotion="surprised"] .mouth { border-radius: 50%; height: 14px; width: 12px; }
+    .bot-avatar-card[data-emotion="surprised"] { --led-color1: #fdcb6e; --led-color2: #e17055; }
+    .bot-avatar-card[data-emotion="surprised"] .eye { width: 16px; height: 16px; background: transparent; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 8px rgba(255,255,255,0.8); }
+    .bot-avatar-card[data-emotion="surprised"] .mouth { border-radius: 50%; height: 14px; width: 12px; }
 
-/* LOVE (Mắt trái tim xịn) */
-.bot-avatar-card[data-emotion="love"] { --led-color1: #ff0844; --led-color2: #ffb199; }
-.bot-avatar-card[data-emotion="love"] .eye { width: 16px; height: 16px; background-color: transparent; box-shadow: none; position: relative; transform: translateY(2px); }
-.bot-avatar-card[data-emotion="love"] .eye::before, .bot-avatar-card[data-emotion="love"] .eye::after {
-    content: ''; position: absolute; left: 8px; top: 0; width: 8px; height: 13px; background: #fff;
-    border-radius: 8px 8px 0 0; transform: rotate(-45deg); transform-origin: 0 100%; box-shadow: 0 0 10px rgba(255,255,255,0.9);
-}
-.bot-avatar-card[data-emotion="love"] .eye::after { left: 0; transform: rotate(45deg); transform-origin: 100% 100%; }
-.bot-avatar-card[data-emotion="love"] .mouth { height: 8px; width: 20px; border-radius: 0 0 18px 18px; }
+    .bot-avatar-card[data-emotion="love"] { --led-color1: #ff0844; --led-color2: #ffb199; }
+    .bot-avatar-card[data-emotion="love"] .eye { width: 16px; height: 16px; background-color: transparent; box-shadow: none; position: relative; transform: translateY(2px); }
+    .bot-avatar-card[data-emotion="love"] .eye::before, .bot-avatar-card[data-emotion="love"] .eye::after { content: ''; position: absolute; left: 8px; top: 0; width: 8px; height: 13px; background: #fff; border-radius: 8px 8px 0 0; transform: rotate(-45deg); transform-origin: 0 100%; box-shadow: 0 0 10px rgba(255,255,255,0.9); }
+    .bot-avatar-card[data-emotion="love"] .eye::after { left: 0; transform: rotate(45deg); transform-origin: 100% 100%; }
+    .bot-avatar-card[data-emotion="love"] .mouth { height: 8px; width: 20px; border-radius: 0 0 18px 18px; }
 
-/* ANGRY & SAD (Giữ nguyên đồ họa vì đã ổn) */
-.bot-avatar-card[data-emotion="angry"] { --led-color1: #ff3838; --led-color2: #ff4d4d; }
-.bot-avatar-card[data-emotion="angry"] .eye { height: 12px; border-radius: 50% 50% 4px 4px; transform: translateY(-2px); }
-.bot-avatar-card[data-emotion="angry"] .eye::before { content: ''; position: absolute; top: -6px; left: -4px; right: -4px; height: 10px; background: #131622; transform: rotate(25deg); }
-.bot-avatar-card[data-emotion="angry"] .eye:last-child::before { transform: rotate(-25deg); }
-.bot-avatar-card[data-emotion="angry"] .mouth { border-radius: 12px 12px 4px 4px; height: 6px; width: 16px; }
+    .bot-avatar-card[data-emotion="angry"] { --led-color1: #ff3838; --led-color2: #ff4d4d; }
+    .bot-avatar-card[data-emotion="angry"] .eye { height: 12px; border-radius: 50% 50% 4px 4px; transform: translateY(-2px); }
+    .bot-avatar-card[data-emotion="angry"] .eye::before { content: ''; position: absolute; top: -6px; left: -4px; right: -4px; height: 10px; background: #131622; transform: rotate(25deg); }
+    .bot-avatar-card[data-emotion="angry"] .eye:last-child::before { transform: rotate(-25deg); }
+    .bot-avatar-card[data-emotion="angry"] .mouth { border-radius: 12px 12px 4px 4px; height: 6px; width: 16px; }
 
-.bot-avatar-card[data-emotion="sad"] { --led-color1: #4a69bd; --led-color2: #1e3799; }
-.bot-avatar-card[data-emotion="sad"] .eye { height: 12px; border-radius: 50% 50% 4px 4px; transform: translateY(2px); }
-.bot-avatar-card[data-emotion="sad"] .eye::before { content: ''; position: absolute; top: -6px; left: -4px; right: -4px; height: 10px; background: #131622; transform: rotate(-25deg); }
-.bot-avatar-card[data-emotion="sad"] .eye:last-child::before { transform: rotate(25deg); }
-.bot-avatar-card[data-emotion="sad"] .mouth { border-radius: 18px 18px 0 0; height: 6px; width: 16px; transform: translateY(2px); }
+    .bot-avatar-card[data-emotion="sad"] { --led-color1: #4a69bd; --led-color2: #1e3799; }
+    .bot-avatar-card[data-emotion="sad"] .eye { height: 12px; border-radius: 50% 50% 4px 4px; transform: translateY(2px); }
+    .bot-avatar-card[data-emotion="sad"] .eye::before { content: ''; position: absolute; top: -6px; left: -4px; right: -4px; height: 10px; background: #131622; transform: rotate(-25deg); }
+    .bot-avatar-card[data-emotion="sad"] .eye:last-child::before { transform: rotate(25deg); }
+    .bot-avatar-card[data-emotion="sad"] .mouth { border-radius: 18px 18px 0 0; height: 6px; width: 16px; transform: translateY(2px); }
 
-/* KHINH BỈ (DISDAIN) & NHẾCH MÉP (SMIRK) */
-.bot-avatar-card[data-emotion="disdain"] { --led-color1: #95a5a6; --led-color2: #7f8c8d; }
-.bot-avatar-card[data-emotion="disdain"] .eye { height: 6px; width: 16px; border-radius: 2px; transform: translateY(4px); }
-.bot-avatar-card[data-emotion="disdain"] .eye::after { content: ''; position: absolute; right: 2px; top: 1px; width: 4px; height: 4px; background: #131622; border-radius: 50%; }
-.bot-avatar-card[data-emotion="disdain"] .mouth { width: 16px; height: 4px; border-radius: 2px; transform: rotate(-8deg) translateX(4px); }
+    .bot-avatar-card[data-emotion="disdain"] { --led-color1: #95a5a6; --led-color2: #7f8c8d; }
+    .bot-avatar-card[data-emotion="disdain"] .eye { height: 6px; width: 16px; border-radius: 2px; transform: translateY(4px); }
+    .bot-avatar-card[data-emotion="disdain"] .eye::after { content: ''; position: absolute; right: 2px; top: 1px; width: 4px; height: 4px; background: #131622; border-radius: 50%; }
+    .bot-avatar-card[data-emotion="disdain"] .mouth { width: 16px; height: 4px; border-radius: 2px; transform: rotate(-8deg) translateX(4px); }
 
-.bot-avatar-card[data-emotion="smirk"] { --led-color1: #95a5a6; --led-color2: #7f8c8d; }
-.bot-avatar-card[data-emotion="smirk"] .eye:first-child { height: 6px; width: 16px; border-radius: 2px; transform: translateY(4px); }
-.bot-avatar-card[data-emotion="smirk"] .eye:last-child { height: 14px; width: 16px; border-radius: 50% 50% 2px 2px; transform: translateY(-2px); }
-.bot-avatar-card[data-emotion="smirk"] .mouth { width: 20px; height: 6px; border-radius: 0 0 12px 0; transform: rotate(-15deg) translateX(2px); }
+    .bot-avatar-card[data-emotion="smirk"] { --led-color1: #95a5a6; --led-color2: #7f8c8d; }
+    .bot-avatar-card[data-emotion="smirk"] .eye:first-child { height: 6px; width: 16px; border-radius: 2px; transform: translateY(4px); }
+    .bot-avatar-card[data-emotion="smirk"] .eye:last-child { height: 14px; width: 16px; border-radius: 50% 50% 2px 2px; transform: translateY(-2px); }
+    .bot-avatar-card[data-emotion="smirk"] .mouth { width: 20px; height: 6px; border-radius: 0 0 12px 0; transform: rotate(-15deg) translateX(2px); }
 
-/* CUTE (Mèo) */
-.bot-avatar-card[data-emotion="cute"] { --led-color1: #ff758c; --led-color2: #ff7eb3; }
-.bot-avatar-card[data-emotion="cute"] .eye { height: 16px; width: 16px; border-radius: 50%; }
-.bot-avatar-card[data-emotion="cute"] .mouth { height: 6px; width: 14px; border-radius: 10px 10px 20px 20px; }
-.bot-avatar-card .blush { position: absolute; width: 14px; height: 7px; background: #ff4757; border-radius: 50%; opacity: 0; filter: blur(3px); transition: opacity 0.3s; top: 18px; z-index: 2; pointer-events: none; }
-.blush-left { left: 10px; } .blush-right { right: 10px; }
-.bot-avatar-card[data-emotion="cute"] .blush { opacity: 0.85; }
-.cat-ear { position: absolute; top: 0px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 22px solid var(--led-color1); opacity: 0; transition: all 0.3s; z-index: -1; transform-origin: bottom center; }
-.ear-left { left: 15px; transform: rotate(-15deg); } .ear-right { right: 15px; transform: rotate(15deg); }
-.bot-avatar-card[data-emotion="cute"] .cat-ear { opacity: 1; top: -12px; }
+    .bot-avatar-card[data-emotion="cute"] { --led-color1: #ff758c; --led-color2: #ff7eb3; }
+    .bot-avatar-card[data-emotion="cute"] .eye { height: 16px; width: 16px; border-radius: 50%; }
+    .bot-avatar-card[data-emotion="cute"] .mouth { height: 6px; width: 14px; border-radius: 10px 10px 20px 20px; }
+    .bot-avatar-card .blush { position: absolute; width: 14px; height: 7px; background: #ff4757; border-radius: 50%; opacity: 0; filter: blur(3px); transition: opacity 0.3s; top: 18px; z-index: 2; pointer-events: none; }
+    .blush-left { left: 10px; } .blush-right { right: 10px; }
+    .bot-avatar-card[data-emotion="cute"] .blush { opacity: 0.85; }
+    .cat-ear { position: absolute; top: 0px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 22px solid var(--led-color1); opacity: 0; transition: all 0.3s; z-index: -1; transform-origin: bottom center; }
+    .ear-left { left: 15px; transform: rotate(-15deg); } .ear-right { right: 15px; transform: rotate(15deg); }
+    .bot-avatar-card[data-emotion="cute"] .cat-ear { opacity: 1; top: -12px; }
 
-/* ---------------------------------------------------
-   HIỆU ỨNG TƯƠNG TÁC (PETTING & TOUCH) 
---------------------------------------------------- */
-/* CUTE - Mắt "><" khi được xoa đầu */
-.bot-avatar-card[data-emotion="cute"].is-petted .eye { background: transparent; box-shadow: none; width: 16px; height: 16px; }
-.bot-avatar-card[data-emotion="cute"].is-petted .eye::before, .bot-avatar-card[data-emotion="cute"].is-petted .eye::after {
-    content: ''; position: absolute; width: 12px; height: 3px; background: #fff; top: 6px; border-radius: 2px;
-}
-/* Mắt Trái > */
-.bot-avatar-card[data-emotion="cute"].is-petted .eye:first-child::before { transform: rotate(45deg); left: 2px; top: 3px; }
-.bot-avatar-card[data-emotion="cute"].is-petted .eye:first-child::after { transform: rotate(-45deg); left: 2px; top: 10px; }
-/* Mắt Phải < */
-.bot-avatar-card[data-emotion="cute"].is-petted .eye:last-child::before { transform: rotate(-45deg); right: 2px; top: 3px; }
-.bot-avatar-card[data-emotion="cute"].is-petted .eye:last-child::after { transform: rotate(45deg); right: 2px; top: 10px; }
-.bot-avatar-card[data-emotion="cute"].is-petted .ear-left { animation: earTwitch 0.4s infinite; }
-.bot-avatar-card[data-emotion="cute"].is-petted .ear-right { animation: earTwitch 0.4s infinite reverse; }
+    /* CUTE - Mắt "><" khi được xoa đầu */
+    .bot-avatar-card[data-emotion="cute"].is-petted .eye { background: transparent; box-shadow: none; width: 16px; height: 16px; }
+    .bot-avatar-card[data-emotion="cute"].is-petted .eye::before, .bot-avatar-card[data-emotion="cute"].is-petted .eye::after { content: ''; position: absolute; width: 12px; height: 3px; background: #fff; top: 6px; border-radius: 2px; }
+    .bot-avatar-card[data-emotion="cute"].is-petted .eye:first-child::before { transform: rotate(45deg); left: 2px; top: 3px; }
+    .bot-avatar-card[data-emotion="cute"].is-petted .eye:first-child::after { transform: rotate(-45deg); left: 2px; top: 10px; }
+    .bot-avatar-card[data-emotion="cute"].is-petted .eye:last-child::before { transform: rotate(-45deg); right: 2px; top: 3px; }
+    .bot-avatar-card[data-emotion="cute"].is-petted .eye:last-child::after { transform: rotate(45deg); right: 2px; top: 10px; }
+    .bot-avatar-card[data-emotion="cute"].is-petted .ear-left { animation: earTwitch 0.4s infinite; }
+    .bot-avatar-card[data-emotion="cute"].is-petted .ear-right { animation: earTwitch 0.4s infinite reverse; }
 
-/* Các Animation đặc biệt khi xoa đầu */
-.bot-avatar-card.is-petted[data-emotion="happy"] { animation: happyBounce 0.4s ease infinite; }
-.bot-avatar-card.is-petted[data-emotion="love"] { animation: lovePulse 0.6s ease infinite; }
-.bot-avatar-card.is-petted[data-emotion="angry"] { animation: angryShake 0.1s infinite; }
+    .bot-avatar-card.is-petted[data-emotion="happy"] { animation: happyBounce 0.4s ease infinite; }
+    .bot-avatar-card.is-petted[data-emotion="love"] { animation: lovePulse 0.6s ease infinite; }
+    .bot-avatar-card.is-petted[data-emotion="angry"] { animation: angryShake 0.1s infinite; }
+    .bot-avatar-card.touch-bounce { animation: touchBounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-/* Hiệu ứng nhún khi chạm nhẹ (Click) */
-.bot-avatar-card.touch-bounce { animation: touchBounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes earTwitch { 0%, 100% { transform: rotate(-15deg); } 50% { transform: rotate(-35deg); } }
+    @keyframes happyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @keyframes lovePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @keyframes angryShake { 0% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } 100% { transform: translateX(0); } }
+    @keyframes touchBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.92) translateY(2px); } }
 
-@keyframes earTwitch { 0%, 100% { transform: rotate(-15deg); } 50% { transform: rotate(-35deg); } }
-@keyframes happyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-@keyframes lovePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-@keyframes angryShake { 0% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } 100% { transform: translateX(0); } }
-@keyframes touchBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.92) translateY(2px); } }
-
-.bot-avatar-card.talking .mouth { transform: scaleY(var(--mouth-scale, 1)); }
-.bot-avatar-card.blinking .eye { transform: scaleY(0.1) !important; }
-  
-
-    /* =========================================
-       3. HỖ TRỢ CHẾ ĐỘ SÁNG (LIGHT MODE)
-       ========================================= */
-    body.light-mode .infinite-text-pad { background: rgba(0, 0, 0, 0.04); border: 1px solid rgba(0, 0, 0, 0.15); color: #101026; }
-    body.light-mode .infinite-text-pad:focus { border-color: #06b6d4; background: rgba(0, 0, 0, 0.07); }
-    body.light-mode .note-card { background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(79, 70, 229, 0.1)); border: 1px solid rgba(6, 182, 212, 0.25); color: #101026; }
-    body.light-mode .note-card-title { color: #0284c7; } body.light-mode .note-card-body { color: #333; }
-    body.light-mode .type-popup-box, body.light-mode .info-drawer-panel, body.light-mode .emotions-menu { background: #ffffff; border-color: #06b6d4; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-    body.light-mode .popup-title, body.light-mode .type-option-btn { color: #101026; }
-    body.light-mode .type-option-btn { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); }
-    body.light-mode .fullscreen-note-container { background: #ffffff; }
-    body.light-mode .fullscreen-editor { background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1); color: #101026; }
+    .bot-avatar-card.talking .mouth { transform: scaleY(var(--mouth-scale, 1)); }
+    .bot-avatar-card.blinking .eye { transform: scaleY(0.1) !important; }
   </style>
 </head>
 <body>
 
+  <!-- TOP AVATAR BAR -->
   <div id="user-avatar-container">
     <div class="avatar-circle-btn" onclick="toggleUserDrawer(event)" id="avtLetter">U</div>
     <div class="info-drawer-panel" id="userDrawerPanel">
       <div class="drawer-greeting" id="drawerWelcomeTxt">Xin chào!</div>
       <div class="drawer-btn drawer-bot-btn" onclick="toggleMiniBot()">🤖 Triệu hồi Bot</div>
+      <div class="drawer-btn drawer-edit-avt-btn" onclick="openAvatarModal()">📸 Sửa avatar</div>
       <div class="drawer-btn drawer-logout-btn" onclick="userLogout()">Đăng xuất</div>
     </div>
   </div>
 
+  <!-- MAIN DASHBOARD -->
   <div id="user-dashboard">
     <div class="infinite-text-pad" contenteditable="true" placeholder="Gõ ghi chú nhanh tại đây..." id="infinitePad"></div>
     <div id="notes-grid"></div>
@@ -327,11 +338,25 @@
     </div>
   </div>
 
-  <!-- MODULE: MINI BOT -->
+  <!-- MODAL SỬA AVATAR VỚI CAMERA VÀ THƯ VIỆN -->
+  <div id="avatar-modal-overlay">
+    <div class="crop-viewport">
+      <video id="preview-cam-video" autoplay playsinline style="display: none;"></video>
+      <img id="preview-img-element" style="display: none;" alt="Preview">
+    </div>
+    <div class="avt-modal-controls">
+      <button class="avt-btn btn-snap" onclick="startCamera()">📷 Chụp ảnh</button>
+      <button class="avt-btn btn-gallery" onclick="triggerFileSelect()">🖼️ Thư viện</button>
+      <button class="avt-btn btn-confirm" onclick="confirmAndUploadAvatar()">✅ Xác nhận</button>
+      <button class="avt-btn btn-cancel" onclick="closeAvatarModal()">✕ Hủy</button>
+    </div>
+    <input type="file" id="hidden-file-input" accept="image/*" style="display: none;" onchange="handleFileSelected(event)">
+  </div>
+
+  <!-- MINI BOT -->
   <div id="mini-bot-wrapper">
     <div class="chat-bubble" id="botChatBubble">Xin chào!</div>
     
-    <!-- MENU 9 CẢM XÚC -->
     <div class="emotions-menu" id="emoMenu">
       <div class="emo-item" onclick="selectBotEmotion('normal', 'Bình thường thôi')">😐</div>
       <div class="emo-item" onclick="selectBotEmotion('happy', 'Tuyệt quá!')">😀</div>
@@ -349,14 +374,11 @@
       <div class="bot-tool-btn" onclick="toggleEmotionsMenu(event)">😀 Cảm xúc</div>
     </div>
 
-    <!-- KHUÔN MẶT BOT ĐỒNG BỘ INDEX(9).html -->
     <div class="bot-avatar-card" id="miniBotCard" data-emotion="normal">
-      <!-- Tai mèo cho Cute Mode -->
       <div class="cat-ear ear-left"></div>
       <div class="cat-ear ear-right"></div>
       
       <div class="bot-face-inner">
-        <!-- Má hồng -->
         <div class="blush blush-left"></div>
         <div class="blush blush-right"></div>
         
@@ -368,6 +390,7 @@
       </div>
     </div>
   </div>
+
   <script>
     /* =========================================
        1. ĐỒNG BỘ DỮ LIỆU USER & WORKSPACE
@@ -378,7 +401,7 @@
     }
 
     let currentUser = getUsernameFromCookie(); 
-    let userNotes = [];
+    let userNotes = []; // Cấu trúc: [{ title: "", content: "" }, ...]
     let savedInfiniteText = "";
     const CLOUD_URL = "https://keepii-vn.onrender.com/api";
     let saveTimeout = null;
@@ -387,17 +410,36 @@
       currentUser = getUsernameFromCookie();
       const cachedNotes = localStorage.getItem(`keepii_notes_${currentUser}`);
       const cachedInf = localStorage.getItem(`keepii_inf_text_${currentUser}`);
-      if (cachedNotes) userNotes = JSON.parse(cachedNotes);
+      const cachedAvt = localStorage.getItem(`keepii_avatar_${currentUser}`);
+
+      if (cachedNotes) {
+        try {
+          const parsed = JSON.parse(cachedNotes);
+          userNotes = parsed.map((item, idx) => {
+            if (typeof item === 'string') return { title: `Ghi chú #${idx + 1}`, content: item };
+            return item;
+          });
+        } catch(e) { userNotes = []; }
+      }
+      
       if (cachedInf) { savedInfiniteText = cachedInf; document.getElementById('infinitePad').innerText = savedInfiniteText; }
+      if (cachedAvt) applyAvatarImage(cachedAvt);
+
       renderNotes();
-      if(document.getElementById('avtLetter') && currentUser) document.getElementById('avtLetter').textContent = currentUser.charAt(0).toUpperCase();
+      if(document.getElementById('avtLetter') && currentUser) {
+        if(!cachedAvt) document.getElementById('avtLetter').textContent = currentUser.charAt(0).toUpperCase();
+      }
       if(document.getElementById('drawerWelcomeTxt')) document.getElementById('drawerWelcomeTxt').textContent = `Xin chào, ${currentUser}!`;
     }
 
     async function saveUserDataToCloud() {
       if (!currentUser || currentUser === 'guest') return;
       try {
-        await fetch(`${CLOUD_URL}/save_user_data`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nickname: currentUser, notes: userNotes, inf_text: savedInfiniteText }) });
+        await fetch(`${CLOUD_URL}/save_user_data`, { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ nickname: currentUser, notes: userNotes, inf_text: savedInfiniteText }) 
+        });
       } catch (error) { console.error("Đồng bộ đám mây thất bại:", error); }
     }
 
@@ -419,31 +461,244 @@
       const grid = document.getElementById('notes-grid');
       if(!grid) return; grid.innerHTML = '';
       userNotes.forEach((note, index) => {
-        const card = document.createElement('div'); card.className = 'note-card'; card.onclick = () => openFullscreenNote(index);
-        card.innerHTML = `<div class="note-card-title">Ghi chú #${index + 1}</div><div class="note-card-body">${note ? note.replace(/\n/g, '<br>') : 'Trống...'}</div>`;
+        const card = document.createElement('div'); 
+        card.className = 'note-card'; 
+        card.id = `note-card-${index}`;
+        card.onclick = (e) => openFullscreenNote(index, card);
+        card.innerHTML = `
+          <div class="note-card-title">${note.title || 'Ghi chú #' + (index + 1)}</div>
+          <div class="note-card-body">${note.content ? note.content.replace(/\n/g, '<br>') : 'Trống...'}</div>
+        `;
         grid.appendChild(card);
       });
     }
 
     window.openTypePopup = function() { document.getElementById('type-popup-mask').classList.add('open'); }
     window.closeTypePopup = function() { document.getElementById('type-popup-mask').classList.remove('open'); }
-    window.createNewTextNote = function() { userNotes.push(""); closeTypePopup(); renderNotes(); triggerAutoSave(); openFullscreenNote(userNotes.length - 1); }
+    
+    window.createNewTextNote = function() { 
+      const newIdx = userNotes.length;
+      userNotes.push({ title: `Ghi chú #${newIdx + 1}`, content: "" }); 
+      closeTypePopup(); 
+      renderNotes(); 
+      triggerAutoSave(); 
+      
+      setTimeout(() => {
+        const cardEl = document.getElementById(`note-card-${newIdx}`);
+        openFullscreenNote(newIdx, cardEl);
+      }, 50);
+        }
+    /* =========================================
+       ANIMATION PHÓNG TO & ĐỔI TÊN TIÊU ĐỀ NOTE
+       ========================================= */
+    let currentActiveNoteIndex = null;
 
-    window.openFullscreenNote = function(index) {
-      const isLight = document.body.classList.contains('light-mode');
-      const fsContainer = document.createElement('div'); fsContainer.id = 'active-fullscreen-editor'; fsContainer.className = 'fullscreen-note-container';
-      if(isLight) fsContainer.style.background = "#ffffff";
-      fsContainer.innerHTML = `<div class="fullscreen-header"><div class="fullscreen-title">CHỈNH SỬA GHI CHÚ #${index + 1}</div><div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Thoát ✕</div></div><textarea class="fullscreen-editor" id="editor-${index}">${userNotes[index]}</textarea>`;
+    window.openFullscreenNote = function(index, cardElement) {
+      currentActiveNoteIndex = index;
+      const note = userNotes[index];
+
+      // Tạo Container Editor Fullscreen
+      const fsContainer = document.createElement('div'); 
+      fsContainer.id = 'active-fullscreen-editor'; 
+      fsContainer.className = 'fullscreen-note-container animating';
+      
+      fsContainer.innerHTML = `
+        <div class="fullscreen-header">
+          <input type="text" class="fullscreen-title-input" id="note-title-input" value="${note.title || 'Ghi chú #' + (index + 1)}" placeholder="Tiêu đề ghi chú...">
+          <div class="close-edit-btn" onclick="closeFullscreenNote(${index})">Thoát ✕</div>
+        </div>
+        <textarea class="fullscreen-editor" id="editor-${index}">${note.content || ''}</textarea>
+      `;
+
+      // Tính toán vị trí nguyên bản của thẻ Note để làm animation FLIP
+      const rect = cardElement ? cardElement.getBoundingClientRect() : { top: window.innerHeight/2, left: window.innerWidth/2, width: 0, height: 0 };
+      const startX = rect.left + rect.width / 2 - window.innerWidth / 2;
+      const startY = rect.top + rect.height / 2 - window.innerHeight / 2;
+      const scaleX = rect.width / window.innerWidth || 0.2;
+      const scaleY = rect.height / window.innerHeight || 0.2;
+
+      fsContainer.style.transform = `translate(${startX}px, ${startY}px) scale(${scaleX}, ${scaleY})`;
+      fsContainer.style.opacity = '0.2';
+
       document.body.appendChild(fsContainer);
-      const textarea = document.getElementById(`editor-${index}`); textarea.focus();
-      textarea.addEventListener('input', (e) => { userNotes[index] = e.target.value; triggerAutoSave(); });
-    }
 
-    window.closeFullscreenNote = function(index) { saveUserDataToCloud(); const el = document.getElementById('active-fullscreen-editor'); if(el) el.remove(); renderNotes(); };
-    window.userLogout = function() { document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; location.reload(); };
+      // Force Reflow để kích hoạt CSS Transition
+      fsContainer.getBoundingClientRect();
+
+      // Phóng to ra giữa màn hình trong 0.6s
+      requestAnimationFrame(() => {
+        fsContainer.style.transform = 'translate(0, 0) scale(1, 1)';
+        fsContainer.style.opacity = '1';
+        fsContainer.style.borderRadius = '0px';
+      });
+
+      setTimeout(() => { fsContainer.classList.remove('animating'); }, 600);
+
+      // Lắng nghe sự kiện gõ phím để lưu thay đổi
+      const titleInput = document.getElementById('note-title-input');
+      const textarea = document.getElementById(`editor-${index}`);
+      
+      titleInput.addEventListener('input', (e) => {
+        userNotes[index].title = e.target.value;
+        triggerAutoSave();
+      });
+
+      textarea.addEventListener('input', (e) => {
+        userNotes[index].content = e.target.value;
+        triggerAutoSave();
+      });
+    };
+
+    window.closeFullscreenNote = function(index) {
+      saveUserDataToCloud();
+      const fsContainer = document.getElementById('active-fullscreen-editor');
+      const cardElement = document.getElementById(`note-card-${index}`);
+
+      if (fsContainer) {
+        fsContainer.classList.add('animating');
+        
+        // Thu nhỏ trở về tọa độ thẻ Note ban đầu
+        const rect = cardElement ? cardElement.getBoundingClientRect() : { top: window.innerHeight/2, left: window.innerWidth/2, width: 0, height: 0 };
+        const startX = rect.left + rect.width / 2 - window.innerWidth / 2;
+        const startY = rect.top + rect.height / 2 - window.innerHeight / 2;
+        const scaleX = rect.width / window.innerWidth || 0.1;
+        const scaleY = rect.height / window.innerHeight || 0.1;
+
+        fsContainer.style.transform = `translate(${startX}px, ${startY}px) scale(${scaleX}, ${scaleY})`;
+        fsContainer.style.opacity = '0';
+        fsContainer.style.borderRadius = '16px';
+
+        setTimeout(() => {
+          fsContainer.remove();
+          renderNotes();
+        }, 600);
+      } else {
+        renderNotes();
+      }
+    };
+
+    window.userLogout = function() { 
+      document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; 
+      location.reload(); 
+    };
 
     /* =========================================
-       2. LOGIC MINI BOT (SSPRO ENGINE & EMOTIONS)
+       2. SỬA AVATAR (CAMERA, CẮT KHUNG TRÒN & MONGO)
+       ========================================= */
+    let mediaStream = null;
+    let selectedImageBase64 = null;
+
+    window.openAvatarModal = function() {
+      document.getElementById('userDrawerPanel').classList.remove('open');
+      document.getElementById('avatar-modal-overlay').classList.add('open');
+    };
+
+    window.closeAvatarModal = function() {
+      stopCamera();
+      document.getElementById('avatar-modal-overlay').classList.remove('open');
+      document.getElementById('preview-cam-video').style.display = 'none';
+      document.getElementById('preview-img-element').style.display = 'none';
+      selectedImageBase64 = null;
+    };
+
+    function stopCamera() {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+      }
+    }
+
+    async function startCamera() {
+      stopCamera();
+      const videoEl = document.getElementById('preview-cam-video');
+      const imgEl = document.getElementById('preview-img-element');
+      imgEl.style.display = 'none';
+      
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        videoEl.srcObject = mediaStream;
+        videoEl.style.display = 'block';
+      } catch (err) {
+        alert("Không thể kết nối camera thiết bị của bạn!");
+      }
+    }
+
+    window.triggerFileSelect = function() {
+      stopCamera();
+      document.getElementById('preview-cam-video').style.display = 'none';
+      document.getElementById('hidden-file-input').click();
+    };
+
+    window.handleFileSelected = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const imgEl = document.getElementById('preview-img-element');
+        imgEl.src = evt.target.result;
+        imgEl.style.display = 'block';
+        selectedImageBase64 = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.confirmAndUploadAvatar = async function() {
+      const videoEl = document.getElementById('preview-cam-video');
+      const imgEl = document.getElementById('preview-img-element');
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = 300; canvas.height = 300;
+      const ctx = canvas.getContext('2d');
+
+      if (videoEl.style.display === 'block' && mediaStream) {
+        // Cắt hình vuông chính giữa từ camera
+        const minDim = Math.min(videoEl.videoWidth, videoEl.videoHeight);
+        const sx = (videoEl.videoWidth - minDim) / 2;
+        const sy = (videoEl.videoHeight - minDim) / 2;
+        ctx.drawImage(videoEl, sx, sy, minDim, minDim, 0, 0, 300, 300);
+        selectedImageBase64 = canvas.toDataURL('image/png');
+      } else if (imgEl.style.display === 'block' && imgEl.src) {
+        const image = new Image();
+        image.src = imgEl.src;
+        await image.decode();
+        const minDim = Math.min(image.width, image.height);
+        const sx = (image.width - minDim) / 2;
+        const sy = (image.height - minDim) / 2;
+        ctx.drawImage(image, sx, sy, minDim, minDim, 0, 0, 300, 300);
+        selectedImageBase64 = canvas.toDataURL('image/png');
+      }
+
+      if (!selectedImageBase64) {
+        alert("Vui lòng chụp ảnh hoặc chọn ảnh từ thư viện trước!");
+        return;
+      }
+
+      // Lưu Local & Gửi ảnh Base64 lên MongoDB
+      applyAvatarImage(selectedImageBase64);
+      localStorage.setItem(`keepii_avatar_${currentUser}`, selectedImageBase64);
+      closeAvatarModal();
+
+      if (currentUser && currentUser !== 'guest') {
+        try {
+          await fetch(`${CLOUD_URL}/upload_avatar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nickname: currentUser, avatar_base64: selectedImageBase64 })
+          });
+        } catch(e) { console.error("Lỗi gửi Avatar lên Mongo:", e); }
+      }
+    };
+
+    function applyAvatarImage(base64Data) {
+      const btn = document.getElementById('avtLetter');
+      if (btn) {
+        btn.style.backgroundImage = `url(${base64Data})`;
+        btn.textContent = '';
+      }
+    }
+    /* =========================================
+       3. LOGIC MINI BOT (ENGINE & EMOTIONS)
        ========================================= */
     const botWrapper = document.getElementById('mini-bot-wrapper');
     const botCard = document.getElementById('miniBotCard');
@@ -453,7 +708,7 @@
     
     let isBotActive = false, isDragMode = false, isDragging = false;
     let dragOffsetX, dragOffsetY, chatTimer;
-    let currentStickyEmotion = "normal"; // Biểu cảm được giữ cố định
+    let currentStickyEmotion = "normal"; 
     let revertPetTimer = null;
 
     window.toggleMiniBot = function() {
@@ -468,14 +723,12 @@
 
     window.toggleEmotionsMenu = function(e) { e.stopPropagation(); emoMenu.style.display = emoMenu.style.display === 'grid' ? 'none' : 'grid'; };
     
-    // CHỌN CẢM XÚC: Đổi ngay lập tức & Khóa trạng thái
     window.selectBotEmotion = function(emo, text) {
       emoMenu.style.display = 'none';
       clearTimeout(revertPetTimer);
-      
       currentStickyEmotion = emo;
       botCard.setAttribute('data-emotion', emo);
-      botCard.classList.remove('is-petted'); // Reset hiệu ứng vuốt ve cũ nếu có
+      botCard.classList.remove('is-petted');
       botSpeak(text);
     };
 
@@ -495,15 +748,10 @@
         clearInterval(talkInterval);
         botCard.classList.remove('talking'); 
         botCard.style.setProperty('--mouth-scale', 1);
-        
-        // Trả về cảm xúc sticky nếu trước đó dùng tạm emotion khác
-        if(forceEmotion && !revertPetTimer) {
-          botCard.setAttribute('data-emotion', currentStickyEmotion);
-        }
+        if(forceEmotion && !revertPetTimer) botCard.setAttribute('data-emotion', currentStickyEmotion);
       }, 3500);
     }
 
-    // Hiệu ứng chớp mắt tự động
     setInterval(() => {
       if (botCard && !botCard.classList.contains('talking') && botCard.getAttribute('data-emotion') !== 'sleepy' && botCard.getAttribute('data-emotion') !== 'disdain') {
         botCard.classList.add('blinking'); 
@@ -511,7 +759,6 @@
       }
     }, Math.random() * 4000 + 2000);
 
-    // Kéo thả di chuyển Bot
     window.toggleDragMode = function(e) {
       e.stopPropagation(); 
       isDragMode = !isDragMode;
@@ -524,61 +771,43 @@
         if (!isDragMode) return;
         isDragging = true; 
         const rect = botWrapper.getBoundingClientRect();
-        dragOffsetX = e.clientX - rect.left; 
-        dragOffsetY = e.clientY - rect.top;
+        dragOffsetX = e.clientX - rect.left; dragOffsetY = e.clientY - rect.top;
         botWrapper.setPointerCapture(e.pointerId);
       });
       botWrapper.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
         botWrapper.style.top = `${e.clientY - dragOffsetY}px`; 
         botWrapper.style.left = `${e.clientX - dragOffsetX}px`;
-        botWrapper.style.right = 'auto'; 
-        botWrapper.style.bottom = 'auto';
+        botWrapper.style.right = 'auto'; botWrapper.style.bottom = 'auto';
       });
-      botWrapper.addEventListener('pointerup', (e) => { 
-        if(!isDragging) return; 
-        isDragging = false; 
-        botWrapper.releasePointerCapture(e.pointerId); 
-      });
+      botWrapper.addEventListener('pointerup', (e) => { if(!isDragging) return; isDragging = false; botWrapper.releasePointerCapture(e.pointerId); });
     }
 
-    /* =========================================
-       3. LOGIC CHẠM & VUỐT VE (PETTING & TOUCH)
-       ========================================= */
-    let touchTimer = null;
-    let isLongPress = false;
+    /* LOGIC CHẠM VÀ VUỐT VE */
+    let touchTimer = null, isLongPress = false;
 
     if(botCard) {
       botCard.addEventListener('pointerdown', (e) => {
         if (isDragMode || e.target.closest('.bot-controls') || e.target.closest('.emotions-menu')) return;
         isLongPress = false;
-        
-        // Nhấn giữ 0.5s kích hoạt vuốt ve
-        touchTimer = setTimeout(() => {
-          isLongPress = true;
-          handlePetting();
-        }, 500); 
+        touchTimer = setTimeout(() => { isLongPress = true; handlePetting(); }, 500); 
       });
 
       botCard.addEventListener('pointerup', (e) => {
         if (isDragMode || e.target.closest('.bot-controls')) return;
         clearTimeout(touchTimer);
-        
-        // CHẠM NHẸ (CLICK): Nhún nhẹ & GIỮ NGUYÊN biểu cảm hiện tại
         if (!isLongPress) {
           botCard.classList.add('touch-bounce');
           setTimeout(() => botCard.classList.remove('touch-bounce'), 300);
-          
           const reactions = ["Ơi!", "Gì đó?", "Chạm nhẹ thôi~", "Hihi!"];
           botSpeak(reactions[Math.floor(Math.random() * reactions.length)]);
         }
       });
     }
 
-    // VUỐT VE (PETTING): Xử lý riêng biệt cho từng Emotion
     function handlePetting() {
       clearTimeout(revertPetTimer);
-      botCard.classList.add('is-petted'); // Kích hoạt animation chuyên biệt
+      botCard.classList.add('is-petted');
       
       let text = "";
       switch (currentStickyEmotion) {
@@ -589,28 +818,23 @@
         case "sad": text = "Cảm ơn bạn đã an ủi mình 😢"; break;
         case "surprised": text = "Ui chà! Ấm quá!"; break;
         case "love": text = "Yêu bạn nhất trên đời! 🥰"; break;
-        case "cute": text = "Meow~ Nữa đi, nữa đi 😽"; break; // Kích hoạt mắt >< & xoay tai
+        case "cute": text = "Meow~ Nữa đi, nữa đi 😽"; break;
         case "disdain": 
             text = "Bỏ cái tay ra! Đồ dân thường! 😒"; 
-            botCard.setAttribute('data-emotion', 'smirk'); // Nhếch mép
+            botCard.setAttribute('data-emotion', 'smirk'); 
             break;
       }
       
       botSpeak(text);
       
-      // Giữ hiệu ứng vuốt ve trong 3s rồi trở lại bình thường
       revertPetTimer = setTimeout(() => { 
         botCard.classList.remove('is-petted');
-        if(currentStickyEmotion === "disdain") {
-            botCard.setAttribute('data-emotion', currentStickyEmotion);
-        }
+        if(currentStickyEmotion === "disdain") botCard.setAttribute('data-emotion', currentStickyEmotion);
       }, 3000);
     }
 
-    // Khởi chạy đồng bộ dữ liệu ban đầu
     syncUserData();
   </script>
-  
-      
 </body>
 </html>
+    
