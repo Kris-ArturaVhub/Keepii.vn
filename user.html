@@ -11,6 +11,7 @@
     body {
       margin: 0;
       background-color: #090915;
+      color: #ffffff; /* Màu chữ mặc định ăn theo nền */
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       overflow: hidden;
       touch-action: pan-y;
@@ -24,40 +25,43 @@
       display: flex; flex-direction: column; gap: 15px; overflow: hidden;
     }
 
+    /* FIX 1: Chữ tự động ăn theo màu nền body khi đổi theme */
     .infinite-text-pad {
       width: 100%; min-height: 80px; max-height: 120px;
-      background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 12px; color: #fff; padding: 12px; box-sizing: border-box;
+      background: rgba(125, 125, 125, 0.1); border: 1px solid rgba(125, 125, 125, 0.25);
+      border-radius: 12px; color: inherit; padding: 12px; box-sizing: border-box;
       outline: none; font-size: 16px; overflow-y: auto; white-space: pre-wrap;
       transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
     }
-    .infinite-text-pad:focus { border-color: #06b6d4; background: rgba(255, 255, 255, 0.12); }
+    .infinite-text-pad:focus { border-color: #06b6d4; background: rgba(125, 125, 125, 0.18); }
 
-    /* SỬA LẠI LAYOUT GRID: Khoảng cách các ô gần nhau hơn trên PC */
+    /* FIX 2: Sửa khoảng cách dọc bị xa trên PC bằng align-items: start */
     #notes-grid {
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
       gap: 12px;
+      align-items: start;
       height: calc(100% - 140px); overflow-y: auto; 
       -webkit-overflow-scrolling: touch; padding-bottom: 100px; box-sizing: border-box;
     }
     
     .note-card {
-      background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(79, 70, 229, 0.15));
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(79, 70, 229, 0.12));
       border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; height: 120px;
-      padding: 12px; box-sizing: border-box; color: #fff; cursor: pointer;
+      padding: 12px; box-sizing: border-box; color: inherit; cursor: pointer;
       overflow: hidden; position: relative;
       transition: transform 0.2s ease, background 0.4s ease, border 0.4s ease, color 0.4s ease;
     }
     .note-card:hover { border-color: #06b6d4; transform: translateY(-2px); }
     .note-card:active { transform: scale(0.96); }
-    .note-card-title { font-weight: bold; font-size: 14px; margin-bottom: 6px; color: #06b6d4; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-    .note-card-body { font-size: 13px; opacity: 0.8; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    /* Màu tiêu đề tối ưu trên cả nền tối lẫn sáng */
+    .note-card-title { font-weight: bold; font-size: 14px; margin-bottom: 6px; color: #0284c7; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+    .note-card-body { font-size: 13px; opacity: 0.85; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
     /* FULLSCREEN EDITOR VỚI ANIMATION PHÓNG TO TRONG 0.6s */
     .fullscreen-note-container {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      z-index: 6000; background: #090915; box-sizing: border-box; padding: 20px;
+      z-index: 6000; background: inherit; color: inherit; box-sizing: border-box; padding: 20px;
       display: flex; flex-direction: column; gap: 15px; 
       transform-origin: center center;
       transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, border-radius 0.6s ease;
@@ -71,7 +75,7 @@
     
     /* Input cho phép chỉnh sửa tiêu đề Ghi chú */
     .fullscreen-title-input { 
-      color: #06b6d4; font-weight: bold; font-size: 18px; 
+      color: #0284c7; font-weight: bold; font-size: 18px; 
       background: transparent; border: none; border-bottom: 2px solid rgba(6, 182, 212, 0.4);
       outline: none; flex: 1; padding: 4px 8px; transition: border-color 0.3s;
     }
@@ -83,8 +87,8 @@
     }
     .close-edit-btn:active { transform: scale(0.88); }
     .fullscreen-editor {
-      width: 100%; flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px; padding: 15px; box-sizing: border-box; outline: none; color: #fff;
+      width: 100%; flex: 1; background: rgba(125, 125, 125, 0.08); border: 1px solid rgba(125, 125, 125, 0.2);
+      border-radius: 12px; padding: 15px; box-sizing: border-box; outline: none; color: inherit;
       font-size: 16px; resize: none; transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
     }
 
@@ -158,7 +162,11 @@
       width: 100%; height: 100%; object-fit: cover;
     }
     
-    .avt-modal-controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; max-width: 320px; }
+    /* FIX 3: Nút bấm hiển thị rõ hoàn toàn trên nền tối, z-index cao hơn bóng đen */
+    .avt-modal-controls { 
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; max-width: 320px; 
+      position: relative; z-index: 10000;
+    }
     .avt-btn {
       padding: 10px 18px; border-radius: 20px; border: none; font-weight: bold;
       color: white; cursor: pointer; font-size: 13px; transition: transform 0.2s;
@@ -168,6 +176,17 @@
     .btn-gallery { background: #4f46e5; }
     .btn-confirm { background: #10b981; width: 100%; margin-top: 5px; }
     .btn-cancel { background: #ef4444; width: 100%; margin-top: -5px; }
+
+    /* FIX 4: HIỆU ỨNG CỬA SẬP KHI ĐĂNG XUẤT */
+    .shutter-panel {
+      position: fixed; top: 0; width: 50vw; height: 100vh; background: #05050a; z-index: 99999;
+      transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1); pointer-events: none;
+    }
+    #shutter-left { left: 0; transform: translateX(-100%); border-right: 2px solid #06b6d4; }
+    #shutter-right { right: 0; transform: translateX(100%); border-left: 2px solid #06b6d4; }
+    
+    body.shutter-active #shutter-left { transform: translateX(0); }
+    body.shutter-active #shutter-right { transform: translateX(0); }
 
     /* =========================================
        3. MINI BOT GÓC MÀN HÌNH
@@ -310,6 +329,10 @@
 </head>
 <body>
 
+  <!-- FIX 4: HAI CÁNH CỬA SẬP CHUYỂN CẢNH KHI ĐĂNG XUẤT -->
+  <div class="shutter-panel" id="shutter-left"></div>
+  <div class="shutter-panel" id="shutter-right"></div>
+
   <!-- TOP AVATAR BAR -->
   <div id="user-avatar-container">
     <div class="avatar-circle-btn" onclick="toggleUserDrawer(event)" id="avtLetter">U</div>
@@ -390,7 +413,6 @@
       </div>
     </div>
   </div>
-
   <script>
     /* =========================================
        1. ĐỒNG BỘ DỮ LIỆU USER & WORKSPACE
@@ -487,7 +509,8 @@
         const cardEl = document.getElementById(`note-card-${newIdx}`);
         openFullscreenNote(newIdx, cardEl);
       }, 50);
-        }
+    }
+
     /* =========================================
        ANIMATION PHÓNG TO & ĐỔI TÊN TIÊU ĐỀ NOTE
        ========================================= */
@@ -576,10 +599,13 @@
         renderNotes();
       }
     };
-
+    /* FIX 4: CHUYỂN CẢNH BẰNG CỬA SẬP KHI ĐĂNG XUẤT */
     window.userLogout = function() { 
-      document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; 
-      location.reload(); 
+      document.body.classList.add('shutter-active');
+      setTimeout(() => {
+        document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; 
+        location.reload(); 
+      }, 650);
     };
 
     /* =========================================
@@ -837,4 +863,3 @@
   </script>
 </body>
 </html>
-    
